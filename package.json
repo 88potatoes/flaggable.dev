@@ -8,6 +8,7 @@
 		"@vinext/cloudflare": "1.0.0-beta.5",
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
+		"drizzle-orm": "^0.45.2",
 		"lucide-react": "^1.31.0",
 		"radix-ui": "^1.6.7",
 		"react": "latest",
@@ -26,6 +27,7 @@
 		"@types/react-dom": "latest",
 		"@vitejs/plugin-react": "latest",
 		"@vitejs/plugin-rsc": "latest",
+		"drizzle-kit": "^0.31.10",
 		"tailwindcss": "latest",
 		"typescript": "latest",
 		"vite": "latest",
@@ -38,6 +40,9 @@
 		"start": "wrangler dev --config dist/server/wrangler.json",
 		"deploy": "vinext-cloudflare deploy --config dist/server/wrangler.json",
 		"preview": "pnpm run build && pnpm run start",
+		"db:generate": "drizzle-kit generate",
+		"db:migrate:local": "wrangler d1 migrations apply flaggable-dev --local",
+		"db:migrate:remote": "wrangler d1 migrations apply flaggable-dev --remote",
 		"cf-typegen": "wrangler types --env-interface CloudflareEnv ./worker-configuration.d.ts"
 	}
 }

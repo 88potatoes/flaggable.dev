@@ -21,7 +21,19 @@
 	"observability": {
 		"enabled": true
 	},
-	"upload_source_maps": true
+	"upload_source_maps": true,
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "flaggable-dev",
+			"migrations_dir": "drizzle"
+		},
+		{
+			"binding": "flaggable_dev",
+			"database_name": "flaggable-dev",
+			"database_id": "1bc94e3e-02b3-4835-8444-401546cc390a"
+		}
+	]
 	/**
 	 * Smart Placement
 	 * https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement
