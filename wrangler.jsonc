@@ -18,9 +18,15 @@
 	"images": {
 		"binding": "IMAGES"
 	},
-	"observability": {
-		"enabled": true
-	},
+  "observability": {
+    "logs": {
+      "enabled": true,
+      "invocation_logs": true
+    },
+    "traces": {
+      "enabled": false
+    }
+  },
 	"upload_source_maps": true,
 	"d1_databases": [
 		{
