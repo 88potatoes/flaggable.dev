@@ -1,70 +1,278 @@
-const links = [
-  {
-    href: "https://github.com/cloudflare/vinext",
-    label: "vinext",
-  },
-  {
-    href: "https://developers.cloudflare.com/workers/",
-    label: "Workers",
-  },
-];
+import Link from "next/link";
 
-export const revalidate = 300;
+import { auth0 } from "@/lib/auth0";
 
-export default function Home() {
+function ArrowUpRight() {
   return (
-    <main className="min-h-screen bg-slate-50 px-6 py-10 text-slate-950">
-      <section className="mx-auto flex max-w-4xl flex-col gap-8">
-        <div className="flex flex-col gap-4">
-          <p className="text-sm font-semibold uppercase tracking-wide text-orange-600">
-            vinext + Cloudflare Workers
+    <svg aria-hidden="true" viewBox="0 0 20 20" className="icon">
+      <path d="M5 15 15 5M7 5h8v8" />
+    </svg>
+  );
+}
+
+function ActivityMini({
+  title,
+  detail,
+  time,
+  tone,
+}: {
+  title: string;
+  detail: string;
+  time: string;
+  tone: string;
+}) {
+  return (
+    <div className="mini-activity">
+      <span className={`status-dot ${tone}`} />
+      <div>
+        <strong>{title}</strong>
+        <span>{detail}</span>
+      </div>
+      <time>{time}</time>
+    </div>
+  );
+}
+
+export default async function Home() {
+  const session = await auth0.getSession();
+  const userEmail = session?.user.email;
+
+  return (
+    <main className="landing-page">
+      <nav className="landing-nav shell">
+        <Link
+          href="/"
+          className="brand brand-light"
+          aria-label="flaggable.dev home"
+        >
+          <span className="brand-mark">
+            f<span>.</span>
+          </span>
+          <span>
+            flaggable<span className="brand-domain">.dev</span>
+          </span>
+        </Link>
+        <div className="landing-nav-links">
+          <a href="#how-it-works">How it works</a>
+          <a href="#activity">Activity</a>
+          {session ? (
+            <>
+              <span className="landing-user">{userEmail}</span>
+              <a href="/auth/logout">Log out</a>
+            </>
+          ) : (
+            <>
+              <a href="/auth/login?screen_hint=signup">Sign up</a>
+              <a href="/auth/login">Log in</a>
+            </>
+          )}
+          <Link href="/dashboard" className="button button-light button-small">
+            {session ? "Open dashboard" : "Start now"} <ArrowUpRight />
+          </Link>
+        </div>
+      </nav>
+
+      <section className="hero shell">
+        <div className="hero-copy">
+          <p className="eyebrow eyebrow-light">
+            <span className="eyebrow-line" /> Feature flags, without the fog
           </p>
-          <h1 className="max-w-2xl text-4xl font-semibold leading-tight sm:text-5xl">
-            Build Next.js-style apps with Vite and deploy them to the edge.
+          <h1>
+            Ship the change.
+            <br />
+            <em>See what happens.</em>
           </h1>
-          <p className="max-w-2xl text-lg leading-8 text-slate-700">
-            This App Router project is wired for vinext, Tailwind CSS, and Cloudflare Workers.
+          <p className="hero-description">
+            flaggable.dev gives developers and product managers one calm place
+            to control releases, follow rollouts, and move with confidence.
           </p>
-        </div>
-
-        <div className="grid gap-4 sm:grid-cols-3">
-          <div className="rounded-lg border border-slate-200 bg-white p-5">
-            <h2 className="font-semibold">Develop</h2>
-            <p className="mt-2 text-sm leading-6 text-slate-600">Run the vinext dev server locally.</p>
-            <code className="mt-4 block rounded bg-slate-100 px-3 py-2 text-sm">pnpm run dev</code>
-          </div>
-          <div className="rounded-lg border border-slate-200 bg-white p-5">
-            <h2 className="font-semibold">Build</h2>
-            <p className="mt-2 text-sm leading-6 text-slate-600">Create Worker-ready production output.</p>
-            <code className="mt-4 block rounded bg-slate-100 px-3 py-2 text-sm">pnpm run build</code>
-          </div>
-          <div className="rounded-lg border border-slate-200 bg-white p-5">
-            <h2 className="font-semibold">Deploy</h2>
-            <p className="mt-2 text-sm leading-6 text-slate-600">Ship the generated Worker with Wrangler.</p>
-            <code className="mt-4 block rounded bg-slate-100 px-3 py-2 text-sm">pnpm run deploy</code>
-          </div>
-        </div>
-
-        <nav className="flex flex-wrap gap-3">
-          {links.map((link) => (
-            <a
-              className="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium hover:bg-slate-100"
-              href={link.href}
-              key={link.href}
-              rel="noreferrer"
-              target="_blank"
-            >
-              {link.label}
+          <div className="hero-actions">
+            <Link href="/dashboard" className="button button-accent">
+              Start now <ArrowUpRight />
+            </Link>
+            <a href="#how-it-works" className="text-link light-link">
+              See how it works <span>↓</span>
             </a>
-          ))}
-          <a
-            className="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium hover:bg-slate-100"
-            href="/api/hello"
-          >
-            API route
-          </a>
-        </nav>
+          </div>
+          <div className="hero-proof">
+            <span className="proof-mark">✓</span>
+            <span>
+              {session
+                ? `Logged in as ${userEmail}`
+                : "Built for teams that ship often"}
+            </span>
+          </div>
+        </div>
+
+        <div
+          className="hero-console"
+          role="img"
+          aria-label="Preview of the flaggable dashboard"
+        >
+          <div className="console-topbar">
+            <div className="console-brand">
+              <span className="brand-mark">
+                f<span>.</span>
+              </span>{" "}
+              flaggable
+            </div>
+            <span className="console-context">Acme / Production</span>
+            <div className="console-avatar">AL</div>
+          </div>
+          <div className="console-body">
+            <aside className="console-sidebar">
+              <div className="console-sidebar-label">Workspace</div>
+              <div className="console-nav active">
+                <span className="nav-icon">◈</span> Overview
+              </div>
+              <div className="console-nav">
+                <span className="nav-icon">◇</span> Feature flags <b>12</b>
+              </div>
+              <div className="console-nav">
+                <span className="nav-icon">⌁</span> Environments
+              </div>
+              <div className="console-sidebar-label second">Manage</div>
+              <div className="console-nav">
+                <span className="nav-icon">◌</span> Activity
+              </div>
+              <div className="console-nav">
+                <span className="nav-icon">⊙</span> Settings
+              </div>
+              <div className="console-sidebar-bottom">
+                <span className="online-dot" /> All systems operational
+              </div>
+            </aside>
+            <div className="console-main">
+              <div className="console-heading">
+                <div>
+                  <span className="console-kicker">MONDAY, MAY 12</span>
+                  <h2>Good morning, Alex.</h2>
+                </div>
+                <span className="console-add">+ New flag</span>
+              </div>
+              <div className="console-summary">
+                <div>
+                  <strong>12</strong>
+                  <span>Active flags</span>
+                </div>
+                <div>
+                  <strong>3</strong>
+                  <span>In rollout</span>
+                </div>
+                <div>
+                  <strong className="green-text">0</strong>
+                  <span>Needs attention</span>
+                </div>
+              </div>
+              <div className="console-activity-head">
+                <strong>Recent changes</strong>
+                <span>View all →</span>
+              </div>
+              <div className="console-activity-list">
+                <ActivityMini
+                  title="checkout-redesign"
+                  detail="Enabled for 25% of production"
+                  time="9m"
+                  tone="orange"
+                />
+                <ActivityMini
+                  title="new-search-api"
+                  detail="Promoted to staging"
+                  time="42m"
+                  tone="blue"
+                />
+                <ActivityMini
+                  title="billing-portal"
+                  detail="Enabled for internal users"
+                  time="2h"
+                  tone="green"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
+
+      <section className="signal-strip shell" id="activity">
+        <div className="signal-label">
+          <span className="signal-pulse" /> The signal, in context
+        </div>
+        <p>
+          Every change leaves a clear trail—from first toggle to full rollout.
+        </p>
+        <span className="signal-arrow">↓</span>
+      </section>
+
+      <section className="how-section shell" id="how-it-works">
+        <div className="section-intro">
+          <p className="eyebrow">
+            <span className="eyebrow-line" /> A better release rhythm
+          </p>
+          <h2>
+            Less guessing.
+            <br />
+            <span>More shipping.</span>
+          </h2>
+        </div>
+        <div className="principles">
+          <article className="principle">
+            <span className="principle-number">01</span>
+            <h3>Make the call</h3>
+            <p>
+              Give every feature a deliberate on/off switch. Keep release
+              control close to the people who know the work.
+            </p>
+          </article>
+          <article className="principle highlighted-principle">
+            <span className="principle-number">02</span>
+            <h3>Watch the move</h3>
+            <p>
+              See rollout changes as they happen, with the environment and
+              audience context attached to every update.
+            </p>
+          </article>
+          <article className="principle">
+            <span className="principle-number">03</span>
+            <h3>Keep momentum</h3>
+            <p>
+              When the signal is good, move forward. When it is not, roll back
+              cleanly and know exactly what changed.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section className="landing-cta shell">
+        <div>
+          <p className="eyebrow eyebrow-light">
+            <span className="eyebrow-line" /> Your next release
+          </p>
+          <h2>Make it visible.</h2>
+        </div>
+        {session ? (
+          <Link href="/dashboard" className="button button-accent button-large">
+            Open dashboard <ArrowUpRight />
+          </Link>
+        ) : (
+          <a
+            href="/auth/login?screen_hint=signup"
+            className="button button-accent button-large"
+          >
+            Sign up <ArrowUpRight />
+          </a>
+        )}
+      </section>
+
+      <footer className="landing-footer shell">
+        <Link href="/" className="brand brand-light">
+          <span className="brand-mark">
+            f<span>.</span>
+          </span>{" "}
+          flaggable<span className="brand-domain">.dev</span>
+        </Link>
+        <span>Feature flags for people who ship.</span>
+        <span>© 2025 flaggable.dev</span>
+      </footer>
     </main>
   );
 }

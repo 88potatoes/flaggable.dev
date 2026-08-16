@@ -1,0 +1,154 @@
+{
+  "title": "Choose the dashboard structure",
+  "question": "A persistent left sidebar is required. Choose the composition that best helps developers and product managers edit flags and understand rollout changes.",
+  "options": [
+    {
+      "id": "assigned-activity-command-center",
+      "label": "Activity Command Center",
+      "kicker": "THE ROLL",
+      "lineage": "operations command centers",
+      "thesis": "Recent flag changes are the front door; rollout context sits beside the activity stream.",
+      "palette": ["#0b1220", "#f7f9fc", "#2563eb", "#16a34a"],
+      "materials": ["structured data panels", "status indicators"],
+      "viewport": "A persistent left navigation sidebar, a compact top bar, a focused recent-changes stream in the main field, and a rollout-health rail with the Start now action always available.",
+      "risk": "Can feel like generic admin software if the activity stream lacks strong hierarchy.",
+      "wireframe": {
+        "cols": 12,
+        "rows": 10,
+        "regions": [
+          {
+            "label": "persistent navigation sidebar",
+            "x": 0,
+            "y": 0,
+            "w": 2,
+            "h": 10,
+            "accent": true
+          },
+          { "label": "top bar", "x": 2, "y": 0, "w": 10, "h": 1 },
+          {
+            "label": "recent flag changes",
+            "x": 2,
+            "y": 2,
+            "w": 7,
+            "h": 7,
+            "accent": true
+          },
+          { "label": "rollout health rail", "x": 10, "y": 2, "w": 2, "h": 7 },
+          { "label": "start now", "x": 9, "y": 0, "w": 3, "h": 1 }
+        ]
+      }
+    },
+    {
+      "id": "flag-ledger",
+      "label": "Flag Ledger",
+      "kicker": "ALTERNATE",
+      "lineage": "release ledgers and audit trails",
+      "thesis": "The home screen behaves like a living ledger: every flag, owner, environment, and rollout change is scannable in one place.",
+      "palette": ["#f5f7fa", "#111827", "#7c3aed", "#f59e0b"],
+      "materials": ["dense table rows", "audit-trail markers"],
+      "viewport": "A persistent left navigation sidebar frames a wide editable flag table, with the newest change highlighted inline and a persistent Start now control in the header.",
+      "risk": "Optimizes for expert scanning and may feel dense to first-time product managers.",
+      "wireframe": {
+        "cols": 12,
+        "rows": 10,
+        "regions": [
+          {
+            "label": "persistent navigation sidebar",
+            "x": 0,
+            "y": 0,
+            "w": 2,
+            "h": 10,
+            "accent": true
+          },
+          { "label": "header and filters", "x": 2, "y": 0, "w": 10, "h": 2 },
+          {
+            "label": "editable flag ledger",
+            "x": 2,
+            "y": 3,
+            "w": 10,
+            "h": 6,
+            "accent": true
+          },
+          { "label": "change detail drawer", "x": 8, "y": 3, "w": 4, "h": 6 }
+        ]
+      }
+    },
+    {
+      "id": "rollout-map",
+      "label": "Rollout Map",
+      "kicker": "ALTERNATE",
+      "lineage": "control-room maps and deployment boards",
+      "thesis": "Users understand change by seeing how flags move through environments, with recent edits attached to the path.",
+      "palette": ["#111827", "#eef2ff", "#4f46e5", "#22c55e"],
+      "materials": ["environment lanes", "connected rollout markers"],
+      "viewport": "A persistent left navigation sidebar anchors the workspace while environment lanes run across the remaining page; active flags and recent changes appear as connected milestones, with edit controls opening from each flag.",
+      "risk": "Strongly communicates rollout movement but can make simple flag edits feel one step too far away.",
+      "wireframe": {
+        "cols": 12,
+        "rows": 10,
+        "regions": [
+          {
+            "label": "persistent navigation sidebar",
+            "x": 0,
+            "y": 0,
+            "w": 2,
+            "h": 10,
+            "accent": true
+          },
+          {
+            "label": "navigation and start now",
+            "x": 2,
+            "y": 0,
+            "w": 10,
+            "h": 1
+          },
+          {
+            "label": "environment lanes",
+            "x": 2,
+            "y": 2,
+            "w": 10,
+            "h": 6,
+            "accent": true
+          },
+          { "label": "recent changes strip", "x": 2, "y": 9, "w": 10, "h": 1 }
+        ]
+      }
+    }
+  ],
+  "reroll": { "registers": ["safer", "bolder"] },
+  "buildPath": { "value": "code", "toggle": false },
+  "canon": true,
+  "canonCard": {
+    "label": "The category standard",
+    "thesis": "A conventional SaaS dashboard with summary cards, a table, and activity feed.",
+    "palette": ["#ffffff", "#111827", "#2563eb"],
+    "materials": ["neutral cards", "standard data table"],
+    "viewport": "A conventional persistent sidebar frames summary cards first, then a flag table and recent activity.",
+    "risk": "Familiar but easy to confuse with competing flag platforms.",
+    "wireframe": {
+      "cols": 12,
+      "rows": 10,
+      "regions": [
+        {
+          "label": "persistent navigation sidebar",
+          "x": 0,
+          "y": 0,
+          "w": 2,
+          "h": 10,
+          "accent": true
+        },
+        { "label": "summary cards", "x": 2, "y": 1, "w": 10, "h": 2 },
+        {
+          "label": "flag table",
+          "x": 2,
+          "y": 4,
+          "w": 7,
+          "h": 5,
+          "accent": true
+        },
+        { "label": "activity feed", "x": 10, "y": 4, "w": 2, "h": 5 }
+      ]
+    }
+  },
+  "steer": true
+}
