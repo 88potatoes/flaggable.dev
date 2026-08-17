@@ -834,8 +834,10 @@ input:focus-visible {
   font-size: 9px;
 }
 .app-content {
-  width: calc(100% - 245px);
-  margin-left: 245px;
+  width: auto;
+  min-width: 0;
+  flex: 1;
+  margin-left: 0;
 }
 .app-header {
   display: none;
@@ -1321,6 +1323,92 @@ input:focus-visible {
 .app-sidebar {
   background: #fff;
 }
+.dashboard-sidebar {
+  --sidebar: #fbfcfa;
+  --sidebar-foreground: var(--ink);
+  --sidebar-accent: #e9edeb;
+  --sidebar-accent-foreground: var(--ink);
+  --sidebar-border: var(--line);
+  --sidebar-ring: rgba(240, 100, 69, 0.55);
+}
+.dashboard-sidebar [data-sidebar="header"] {
+  border-bottom: 0;
+}
+.dashboard-sidebar [data-sidebar="group-label"] {
+  color: #a0a8ae;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.dashboard-sidebar [data-sidebar="menu-button"] {
+  color: #77818a;
+  font-size: 12px;
+  font-weight: 600;
+}
+.dashboard-sidebar [data-sidebar="menu-button"] svg {
+  color: #9ba4a9;
+  stroke-width: 1.8;
+}
+.dashboard-sidebar [data-sidebar="menu-button"][data-active="true"] svg {
+  color: var(--accent);
+}
+.dashboard-sidebar [data-sidebar="menu-badge"] {
+  color: #a4adb2;
+  font-size: 10px;
+}
+.flags-page-panel {
+  width: 100%;
+}
+.project-empty-state {
+  display: grid;
+  justify-items: start;
+  width: min(100%, 560px);
+  margin: 80px auto;
+  padding: 40px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 4px 16px rgba(17, 24, 39, 0.025);
+}
+.project-empty-icon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  margin-bottom: 22px;
+  border-radius: 9px;
+  background: #e9edeb;
+  color: var(--accent);
+}
+.project-empty-icon svg {
+  width: 20px;
+  height: 20px;
+}
+.project-empty-state h1 {
+  margin: 0;
+  font-size: 24px;
+  letter-spacing: -0.05em;
+}
+.project-empty-state p {
+  margin: 9px 0 22px;
+  color: #78858b;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.project-empty-state form {
+  display: flex;
+  width: 100%;
+  gap: 9px;
+}
+.project-empty-state form input {
+  flex: 1;
+}
+.page-icon {
+  width: 16px;
+  height: 16px;
+  color: #a4adb2;
+}
 .app-sidebar .brand {
   margin-bottom: 32px;
 }
@@ -1644,7 +1732,7 @@ input:focus-visible {
     padding-top: 14px;
   }
   .app-content {
-    width: calc(100% - 62px);
+    width: 100%;
     margin-left: 0;
   }
   .dashboard-inner {
@@ -1659,6 +1747,13 @@ input:focus-visible {
   }
   .dashboard-title-row h1 {
     font-size: 2.8rem;
+  }
+  .project-empty-state {
+    margin: 35px auto;
+    padding: 24px;
+  }
+  .project-empty-state form {
+    flex-direction: column;
   }
   .summary-row {
     grid-template-columns: 1fr 1fr;

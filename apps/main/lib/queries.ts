@@ -57,6 +57,21 @@ export function useProjectsQuery() {
   });
 }
 
+export function useCreateProjectMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (name: string) =>
+      request<Project>("/api/projects", {
+        method: "POST",
+        body: JSON.stringify({ name }),
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: projectKeys.all });
+    },
+  });
+}
+
 export function useFlagsQuery(projectId: string) {
   return useQuery({
     queryKey: flagKeys.byProject(projectId),
