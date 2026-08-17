@@ -2,6 +2,9 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+/* The shared sidebar primitives are authored in packages/ui, so Tailwind must scan them. */
+@source "../../../packages/ui/src";
+
 @custom-variant dark (&:is(.dark *));
 
 :root {

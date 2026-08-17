@@ -8,6 +8,13 @@
       "when": 1786890357602,
       "tag": "0000_fantastic_norman_osborn",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1786978812131,
+      "tag": "0001_good_blade",
+      "breakpoints": true
     }
   ]
 }

@@ -53,7 +53,7 @@ export const schemaKeys = {
 export function useProjectsQuery() {
   return useQuery({
     queryKey: projectKeys.all,
-    queryFn: () => request<Project[]>("/api/projects"),
+    queryFn: () => request<Project[]>("/api/v1/projects"),
   });
 }
 
@@ -62,7 +62,7 @@ export function useCreateProjectMutation() {
 
   return useMutation({
     mutationFn: (name: string) =>
-      request<Project>("/api/projects", {
+      request<Project>("/api/v1/projects", {
         method: "POST",
         body: JSON.stringify({ name }),
       }),
@@ -75,7 +75,7 @@ export function useCreateProjectMutation() {
 export function useFlagsQuery(projectId: string) {
   return useQuery({
     queryKey: flagKeys.byProject(projectId),
-    queryFn: () => request<Flag[]>(`/api/projects/${projectId}/flags`),
+    queryFn: () => request<Flag[]>(`/api/v1/projects/${projectId}/flags`),
     enabled: Boolean(projectId),
   });
 }
@@ -83,7 +83,7 @@ export function useFlagsQuery(projectId: string) {
 export function useSchemasQuery(projectId: string) {
   return useQuery({
     queryKey: schemaKeys.byProject(projectId),
-    queryFn: () => request<ValueSchema[]>(`/api/projects/${projectId}/schemas`),
+    queryFn: () => request<ValueSchema[]>(`/api/v1/projects/${projectId}/schemas`),
     enabled: Boolean(projectId),
   });
 }
@@ -93,7 +93,7 @@ export function useUpdateFlagMutation(projectId: string) {
 
   return useMutation({
     mutationFn: ({ flagId, enabled }: { flagId: string; enabled: boolean }) =>
-      request<Flag>(`/api/flags/${flagId}`, {
+      request<Flag>(`/api/v1/flags/${flagId}`, {
         method: "PATCH",
         body: JSON.stringify({ enabled }),
       }),
@@ -113,7 +113,7 @@ export function useCreateFlagMutation(projectId: string) {
       name: string;
       fallbackValue: unknown;
     }) =>
-      request<Flag>(`/api/projects/${projectId}/flags`, {
+      request<Flag>(`/api/v1/projects/${projectId}/flags`, {
         method: "POST",
         body: JSON.stringify(values),
       }),
