@@ -16,7 +16,8 @@
     "deploy:main:production": "pnpm --filter @flaggable/main run deploy:production",
     "db:generate": "pnpm --filter @flaggable/main db:generate",
     "db:migrate:local": "pnpm --filter @flaggable/main db:migrate:local",
-    "db:migrate:remote": "pnpm --filter @flaggable/main db:migrate:remote",
+    "db:migrate:dev": "pnpm --filter @flaggable/main db:migrate:dev",
+    "db:migrate:production": "pnpm --filter @flaggable/main run db:migrate:production",
     "cf-typegen": "pnpm --filter @flaggable/main cf-typegen"
   }
 }

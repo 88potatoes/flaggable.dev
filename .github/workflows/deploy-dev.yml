@@ -50,6 +50,9 @@ jobs:
       - name: Build both apps
         run: pnpm run build
 
+      - name: Apply development database migrations
+        run: pnpm run db:migrate:dev
+
       - name: Deploy landing worker
         run: pnpm run deploy:landing
 

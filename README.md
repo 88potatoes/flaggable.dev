@@ -73,7 +73,8 @@ The package owns its Radix, Tailwind utility, and icon dependencies. It does not
 Only `apps/main` owns the D1 database:
 
 - D1 binding: `DB`
-- Wrangler config: `apps/main/wrangler.jsonc`
+- Development Wrangler config: `apps/main/wrangler.dev.jsonc`
+- Production Wrangler config: `apps/main/wrangler.production.jsonc`
 - Drizzle schema: `apps/main/lib/db/schema.ts`
 - Drizzle config: `apps/main/drizzle.config.ts`
 - Migrations: `apps/main/drizzle/`
@@ -83,7 +84,7 @@ Database commands can be run from the repository root:
 ```sh
 pnpm run db:generate
 pnpm run db:migrate:local
-pnpm run db:migrate:remote
+pnpm run db:migrate:dev
 ```
 
 The local D1 database is separate from the remote Cloudflare D1 database. `--local` uses Wrangler's local emulator; `--remote` uses the configured database ID.
@@ -99,4 +100,4 @@ The main Worker uses Wrangler environments:
 - Default deploy: `dev.flaggable.dev`.
 - `production` deploy: `app.flaggable.dev`.
 
-The production workflow is manually triggered and deploys with the production Wrangler config. Create a GitHub environment named `production` if you want approval protection, but keep `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` as repository secrets. The production job can use repository secrets while still requiring approval through the environment.
+The production workflow is manually triggered, applies pending production Drizzle migrations, and deploys with the production Wrangler config. Create a GitHub environment named `production` if you want approval protection, but keep `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` as repository secrets. The production job can use repository secrets while still requiring approval through the environment.

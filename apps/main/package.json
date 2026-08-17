@@ -11,9 +11,10 @@
     "deploy:production": "pnpm run build && wrangler deploy --config wrangler.production.jsonc",
     "preview": "pnpm run build && pnpm run start",
     "db:generate": "drizzle-kit generate",
-    "db:migrate:local": "wrangler d1 migrations apply flaggable-dev --local",
-    "db:migrate:remote": "wrangler d1 migrations apply flaggable-dev --remote",
-    "cf-typegen": "wrangler types --env-interface CloudflareEnv ./worker-configuration.d.ts"
+    "db:migrate:local": "wrangler d1 migrations apply flaggable-dev --local --config wrangler.dev.jsonc",
+    "db:migrate:dev": "wrangler d1 migrations apply flaggable-dev --remote --config wrangler.dev.jsonc",
+    "db:migrate:production": "wrangler d1 migrations apply flaggable-dev --remote --config wrangler.production.jsonc",
+    "cf-typegen": "wrangler types --config wrangler.dev.jsonc --env-interface CloudflareEnv ./worker-configuration.d.ts"
   },
   "dependencies": {
     "@auth0/nextjs-auth0": "^4.26.0",
