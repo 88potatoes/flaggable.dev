@@ -99,4 +99,4 @@ The main Worker uses Wrangler environments:
 - Default deploy: `dev.flaggable.dev`.
 - `production` deploy: `app.flaggable.dev`.
 
-The production workflow is manually triggered and deploys with `--env production`. Create a GitHub environment named `production` and add the Cloudflare secrets there. Keep the development secrets as repository secrets, or move them to a separate `development` environment if you want approval and isolation.
+The production workflow is manually triggered and deploys with the production Wrangler config. Create a GitHub environment named `production` if you want approval protection, but keep `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` as repository secrets. The production job can use repository secrets while still requiring approval through the environment.
