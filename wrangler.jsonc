@@ -32,12 +32,8 @@
 		{
 			"binding": "DB",
 			"database_name": "flaggable-dev",
+			"database_id": "1bc94e3e-02b3-4835-8444-401546cc390a",
 			"migrations_dir": "drizzle"
-		},
-		{
-			"binding": "flaggable_dev",
-			"database_name": "flaggable-dev",
-			"database_id": "1bc94e3e-02b3-4835-8444-401546cc390a"
 		}
 	]
 	/**
