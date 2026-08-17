@@ -4,6 +4,7 @@ Feature flags for people who ship. This repository contains two Cloudflare Worke
 
 - `apps/landing` — public marketing site for `flaggable.dev`.
 - `apps/main` — authenticated product app for `app.flaggable.dev`, including Auth0, API routes, and D1.
+- `packages/ui` — shared design-system components, utilities, and responsive hooks.
 
 ## Development
 
@@ -36,6 +37,23 @@ Configure DNS or custom domains so that:
 
 - `flaggable.dev` points to `flaggable-dev-landing`.
 - `app.flaggable.dev` points to `flaggable-dev-1`.
+
+## Shared design system
+
+The reusable UI primitives live in `packages/ui/src/ui/`. Main imports them through workspace package subpaths, for example:
+
+```ts
+import { Button } from "@flaggable/ui/button";
+import { cn } from "@flaggable/ui/utils";
+```
+
+Add the package to another workspace app with:
+
+```sh
+pnpm --filter @flaggable/landing add @flaggable/ui@workspace:*
+```
+
+The package owns its Radix, Tailwind utility, and icon dependencies. It does not import from either app.
 
 ## Database
 
