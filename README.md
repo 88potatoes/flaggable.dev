@@ -25,6 +25,15 @@ The landing app links to the main app using `MAIN_APP_URL`. The local default is
 
 ## Build and deploy
 
+Production deploys run automatically through GitHub Actions on every push to `main`. The workflow is `.github/workflows/deploy.yml`; it builds and deploys both Cloudflare Workers.
+
+Add these repository secrets in GitHub under **Settings → Secrets and variables → Actions**:
+
+- `CLOUDFLARE_API_TOKEN` — API token with the required Workers and D1 permissions.
+- `CLOUDFLARE_ACCOUNT_ID` — the Cloudflare account ID.
+
+The workflow uses Wrangler's `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` environment variables, so no Cloudflare login step is needed in CI.
+
 ```sh
 pnpm run build
 pnpm run deploy:landing
