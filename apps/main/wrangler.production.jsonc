@@ -1,8 +1,8 @@
 {
   "$schema": "../../node_modules/wrangler/config-schema.json",
-  "name": "flaggable-dev-landing",
+  "name": "flaggable-dev-1-production",
   "compatibility_date": "2026-08-14",
-  "main": "vinext/server/fetch-handler",
+  "main": "dist/server/index.js",
   "assets": {
     "directory": "dist/client",
     "not_found_handling": "none",
@@ -24,7 +24,18 @@
     }
   },
   "upload_source_maps": true,
-  "vars": {
-    "MAIN_APP_URL": "https://dev.flaggable.dev"
-  }
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "flaggable-dev",
+      "database_id": "1bc94e3e-02b3-4835-8444-401546cc390a",
+      "migrations_dir": "drizzle"
+    }
+  ],
+  "routes": [
+    {
+      "pattern": "app.flaggable.dev",
+      "custom_domain": true
+    }
+  ]
 }

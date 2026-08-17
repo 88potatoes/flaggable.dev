@@ -8,6 +8,7 @@
     "build": "vinext build",
     "start": "wrangler dev --config dist/server/wrangler.json",
     "deploy": "vinext-cloudflare deploy --config dist/server/wrangler.json",
+    "deploy:production": "pnpm run build && wrangler deploy --config wrangler.production.jsonc",
     "preview": "pnpm run build && pnpm run start",
     "db:generate": "drizzle-kit generate",
     "db:migrate:local": "wrangler d1 migrations apply flaggable-dev --local",

@@ -1,17 +1,6 @@
-name: Deploy Cloudflare Development
+name: Deploy Cloudflare Production
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - "apps/landing/**"
-      - "apps/main/**"
-      - "packages/**"
-      - "package.json"
-      - "pnpm-lock.yaml"
-      - "pnpm-workspace.yaml"
-      - ".github/workflows/deploy-dev.yml"
   workflow_dispatch:
 
 permissions:
@@ -19,12 +8,13 @@ permissions:
 
 concurrency:
   group: cloudflare-production
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   deploy:
-    name: Build and deploy landing + dev main
+    name: Build and deploy production main
     runs-on: ubuntu-latest
+    environment: production
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -47,11 +37,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build both apps
-        run: pnpm run build
+      - name: Build main app
+        run: pnpm run build:main
 
-      - name: Deploy landing worker
-        run: pnpm run deploy:landing
-
-      - name: Deploy main development worker
-        run: pnpm run deploy:main
+      - name: Deploy main production environment
+        run: pnpm run deploy:main:production

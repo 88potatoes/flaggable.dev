@@ -3,7 +3,7 @@
 Feature flags for people who ship. This repository contains two Cloudflare Workers in one pnpm workspace:
 
 - `apps/landing` — public marketing site for `flaggable.dev`.
-- `apps/main` — authenticated product app for `app.flaggable.dev`, including Auth0, API routes, and D1.
+- `apps/main` — authenticated product app for `dev.flaggable.dev`, including Auth0, API routes, and D1.
 - `packages/ui` — shared design-system components, utilities, and responsive hooks.
 
 ## Development
@@ -25,7 +25,9 @@ The landing app links to the main app using `MAIN_APP_URL`. The local default is
 
 ## Build and deploy
 
-Production deploys run automatically through GitHub Actions on every push to `main`. The workflow is `.github/workflows/deploy.yml`; it builds and deploys both Cloudflare Workers.
+Development deploys run automatically through GitHub Actions on every relevant push to `main`. The workflow is `.github/workflows/deploy-dev.yml`; it deploys the landing Worker and the main development environment.
+
+Production main deploys are manual through `.github/workflows/deploy-production.yml`. In GitHub Actions, choose **Deploy Cloudflare Production → Run workflow**. The production job uses the `production` GitHub environment, so you can require approval before it deploys.
 
 Add these repository secrets in GitHub under **Settings → Secrets and variables → Actions**:
 
@@ -36,8 +38,9 @@ The workflow uses Wrangler's `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` 
 
 ```sh
 pnpm run build
-pnpm run deploy:landing
-pnpm run deploy:main
+pnpm run deploy:landing       # landing Worker
+pnpm run deploy:main          # main development environment
+pnpm run deploy:main:production # main production environment
 ```
 
 Each app also has `start`, `preview`, and `deploy` scripts. Their generated Cloudflare output lives under the app's ignored `dist/` directory.
@@ -45,7 +48,8 @@ Each app also has `start`, `preview`, and `deploy` scripts. Their generated Clou
 Configure DNS or custom domains so that:
 
 - `flaggable.dev` points to `flaggable-dev-landing`.
-- `app.flaggable.dev` points to `flaggable-dev-1`.
+- `dev.flaggable.dev` points to the default `flaggable-dev-1` environment.
+- `app.flaggable.dev` points to the `production` environment of `flaggable-dev-1`.
 
 ## Shared design system
 
@@ -86,6 +90,13 @@ The local D1 database is separate from the remote Cloudflare D1 database. `--loc
 
 ## Environment variables
 
-Main-app Auth0 variables are loaded from `apps/main/.env` for local development. This file is ignored by Git. Configure the matching callback, logout, and web-origin URLs in Auth0 for the main app origin.
+Main-app Auth0 variables are loaded from `apps/main/.env` for local development. This file is ignored by Git. Configure the matching callback, logout, and web-origin URLs in Auth0 for `https://dev.flaggable.dev`.
 
-The landing worker has a `MAIN_APP_URL` Wrangler variable. Change it in `apps/landing/wrangler.jsonc` for production, or provide it through the local environment.
+The landing worker has a `MAIN_APP_URL` Wrangler variable pointing to `https://dev.flaggable.dev`. Change it when the landing site should link to production instead.
+
+The main Worker uses Wrangler environments:
+
+- Default deploy: `dev.flaggable.dev`.
+- `production` deploy: `app.flaggable.dev`.
+
+The production workflow is manually triggered and deploys with `--env production`. Create a GitHub environment named `production` and add the Cloudflare secrets there. Keep the development secrets as repository secrets, or move them to a separate `development` environment if you want approval and isolation.
