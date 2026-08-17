@@ -1,6 +1,8 @@
 import { z } from "zod";
 
-const jsonValue: z.ZodType<unknown> = z.lazy(() =>
+import type { JsonObject, JsonValue } from "./flags/types";
+
+const jsonValue: z.ZodType<JsonValue> = z.lazy(() =>
   z.union([
     z.string(),
     z.number().finite(),
@@ -11,7 +13,7 @@ const jsonValue: z.ZodType<unknown> = z.lazy(() =>
   ]),
 );
 
-const jsonObject = z.record(z.string(), jsonValue);
+const jsonObject: z.ZodType<JsonObject> = z.record(z.string(), jsonValue);
 
 export const createProjectRequest = z.object({
   name: z.string().trim().min(1).max(100),
@@ -41,29 +43,41 @@ export const updateFlagRequest = createFlagRequest
 
 const conditionOperator = z.enum(["equals", "not_equals", "in", "not_in"]);
 
-export const createConditionRequest = z
-  .object({
-    position: z.number().int().min(1),
-    enabled: z.boolean().optional(),
-    property: z.string().trim().min(1).max(100),
-    operator: conditionOperator,
-    predicateValue: jsonValue,
-    resultValue: jsonValue,
-  })
-  .superRefine((value, context) => {
-    if (
-      (value.operator === "in" || value.operator === "not_in") &&
-      (!Array.isArray(value.predicateValue) || value.predicateValue.length === 0)
-    ) {
-      context.addIssue({
-        code: "custom",
-        path: ["predicateValue"],
-        message: `${value.operator} requires a non-empty array.`,
-      });
-    }
-  });
+const conditionFields = z.object({
+  position: z.number().int().min(1),
+  enabled: z.boolean().optional(),
+  property: z.string().trim().min(1).max(100),
+  operator: conditionOperator,
+  predicateValue: jsonValue,
+  resultValue: jsonValue,
+});
 
-export const updateConditionRequest = createConditionRequest.partial();
+function validateConditionPredicate(
+  value: {
+    operator?: z.infer<typeof conditionOperator>;
+    predicateValue?: JsonValue;
+  },
+  context: z.RefinementCtx,
+) {
+  if (
+    (value.operator === "in" || value.operator === "not_in") &&
+    (!Array.isArray(value.predicateValue) || value.predicateValue.length === 0)
+  ) {
+    context.addIssue({
+      code: "custom",
+      path: ["predicateValue"],
+      message: `${value.operator} requires a non-empty array.`,
+    });
+  }
+}
+
+export const createConditionRequest = conditionFields.superRefine(
+  validateConditionPredicate,
+);
+
+export const updateConditionRequest = conditionFields
+  .partial()
+  .superRefine(validateConditionPredicate);
 
 export function parseRequest<T>(schema: z.ZodType<T>, body: unknown): T {
   const result = schema.safeParse(body);
