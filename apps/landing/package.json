@@ -1,7 +1,7 @@
 {
   "name": "@flaggable/landing",
-  "private": true,
   "version": "0.1.0",
+  "private": true,
   "type": "module",
   "scripts": {
     "dev": "vinext dev --port 3001",

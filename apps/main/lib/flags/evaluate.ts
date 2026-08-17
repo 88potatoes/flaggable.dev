@@ -29,23 +29,15 @@ export function evaluateConditions({
   fallbackValue: JsonValue;
 }): EvaluationResult {
   if (!isJsonObject(properties)) {
-    throw new EvaluationError(
-      "INVALID_PROPERTIES",
-      "Evaluation properties must be a JSON object.",
-    );
+    throw new EvaluationError("INVALID_PROPERTIES", "Evaluation properties must be a JSON object.");
   }
 
-  const orderedConditions = [...conditions].sort(
-    (left, right) => left.position - right.position,
-  );
+  const orderedConditions = [...conditions].sort((left, right) => left.position - right.position);
 
   for (const condition of orderedConditions) {
     validateCondition(condition);
 
-    if (
-      condition.enabled &&
-      matchesPredicate({ predicate: condition.predicate, properties })
-    ) {
+    if (condition.enabled && matchesPredicate({ predicate: condition.predicate, properties })) {
       return {
         value: condition.resultValue,
         matchedConditionId: condition.id,
@@ -96,24 +88,16 @@ function validateCondition(condition: EvaluationCondition): void {
   }
 
   if (typeof condition.enabled !== "boolean") {
-    throw new EvaluationError(
-      "INVALID_CONDITION",
-      "A condition must define enabled as a boolean.",
-    );
+    throw new EvaluationError("INVALID_CONDITION", "A condition must define enabled as a boolean.");
   }
 
   if (!condition.predicate.property) {
-    throw new EvaluationError(
-      "INVALID_CONDITION",
-      "A condition property is required.",
-    );
+    throw new EvaluationError("INVALID_CONDITION", "A condition property is required.");
   }
 
   if (
-    (condition.predicate.operator === "in" ||
-      condition.predicate.operator === "not_in") &&
-    (!Array.isArray(condition.predicate.value) ||
-      condition.predicate.value.length === 0)
+    (condition.predicate.operator === "in" || condition.predicate.operator === "not_in") &&
+    (!Array.isArray(condition.predicate.value) || condition.predicate.value.length === 0)
   ) {
     throw new EvaluationError(
       "INVALID_CONDITION",
@@ -131,8 +115,7 @@ function deepEqual(left: JsonValue, right: JsonValue): boolean {
 
   if (Array.isArray(left) && Array.isArray(right)) {
     return (
-      left.length === right.length &&
-      left.every((value, index) => deepEqual(value, right[index]))
+      left.length === right.length && left.every((value, index) => deepEqual(value, right[index]))
     );
   }
 
@@ -144,8 +127,7 @@ function deepEqual(left: JsonValue, right: JsonValue): boolean {
       leftKeys.length === rightKeys.length &&
       leftKeys.every(
         (key) =>
-          Object.prototype.hasOwnProperty.call(right, key) &&
-          deepEqual(left[key], right[key]),
+          Object.prototype.hasOwnProperty.call(right, key) && deepEqual(left[key], right[key]),
       )
     );
   }

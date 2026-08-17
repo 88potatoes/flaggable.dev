@@ -1,12 +1,7 @@
 import { describe, expect, test } from "vitest";
 
 import { EvaluationError, evaluateConditions } from "./evaluate";
-import type {
-  ConditionOperator,
-  EvaluationCondition,
-  JsonObject,
-  JsonValue,
-} from "./types";
+import type { ConditionOperator, EvaluationCondition, JsonObject, JsonValue } from "./types";
 
 const fallbackValue = "fallback";
 
@@ -74,27 +69,24 @@ describe("evaluateConditions", () => {
       expectedMatch: true,
       property: "settings",
     },
-  ])(
-    "supports $name",
-    ({ operator, predicateValue, properties, expectedMatch, property }) => {
-      const result = evaluateConditions({
-        conditions: [
-          condition({
-            operator,
-            value: predicateValue,
-            property,
-          }),
-        ],
-        properties,
-        fallbackValue,
-      });
+  ])("supports $name", ({ operator, predicateValue, properties, expectedMatch, property }) => {
+    const result = evaluateConditions({
+      conditions: [
+        condition({
+          operator,
+          value: predicateValue,
+          property,
+        }),
+      ],
+      properties,
+      fallbackValue,
+    });
 
-      expect(result).toEqual({
-        value: expectedMatch ? "matched" : fallbackValue,
-        matchedConditionId: expectedMatch ? "condition-1" : null,
-      });
-    },
-  );
+    expect(result).toEqual({
+      value: expectedMatch ? "matched" : fallbackValue,
+      matchedConditionId: expectedMatch ? "condition-1" : null,
+    });
+  });
 
   test.each([
     {
@@ -167,9 +159,7 @@ describe("evaluateConditions", () => {
       expected: { value: fallbackValue, matchedConditionId: null },
     },
   ])("returns $name", ({ conditions, properties, expected }) => {
-    expect(
-      evaluateConditions({ conditions, properties, fallbackValue }),
-    ).toEqual(expected);
+    expect(evaluateConditions({ conditions, properties, fallbackValue })).toEqual(expected);
   });
 
   test.each([
@@ -182,9 +172,7 @@ describe("evaluateConditions", () => {
       name: "in has a non-array value",
       code: "INVALID_CONDITION" as const,
       input: {
-        conditions: [
-          condition({ operator: "in", value: "US" }),
-        ],
+        conditions: [condition({ operator: "in", value: "US" })],
         properties: { country: "US" } as JsonObject,
       },
     },
@@ -192,9 +180,7 @@ describe("evaluateConditions", () => {
       name: "not_in has an empty array",
       code: "INVALID_CONDITION" as const,
       input: {
-        conditions: [
-          condition({ operator: "not_in", value: [] }),
-        ],
+        conditions: [condition({ operator: "not_in", value: [] })],
         properties: { country: "US" } as JsonObject,
       },
     },

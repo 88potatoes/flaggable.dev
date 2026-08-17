@@ -9,10 +9,7 @@ export async function GET(
 ) {
   try {
     const { schemaId } = await params;
-    const schema = await createValueSchemaService(getDb()).get(
-      schemaId,
-      await requireUserId(),
-    );
+    const schema = await createValueSchemaService(getDb()).get(schemaId, await requireUserId());
     return Response.json(serializeSchema(schema));
   } catch (error) {
     return handleApiError(error);

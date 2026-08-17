@@ -6,14 +6,8 @@ import type { JsonObject, JsonSchema, JsonValue } from "./types";
 const draft2020SchemaUrl = "https://json-schema.org/draft/2020-12/schema";
 
 export function validateJsonSchemaDocument(schema: JsonSchema): void {
-  if (
-    schema.$schema !== undefined &&
-    schema.$schema !== draft2020SchemaUrl
-  ) {
-    throw new ApiError(
-      400,
-      `Only JSON Schema Draft 2020-12 is supported (${draft2020SchemaUrl}).`,
-    );
+  if (schema.$schema !== undefined && schema.$schema !== draft2020SchemaUrl) {
+    throw new ApiError(400, `Only JSON Schema Draft 2020-12 is supported (${draft2020SchemaUrl}).`);
   }
 
   try {

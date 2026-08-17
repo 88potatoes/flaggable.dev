@@ -76,7 +76,11 @@ export function DashboardSidebar({
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton className={navButton} asChild isActive={pathname === "/dashboard"}>
+                <SidebarMenuButton
+                  className={navButton}
+                  asChild
+                  isActive={pathname === "/dashboard"}
+                >
                   <Link href="/dashboard" title="Overview">
                     <LayoutDashboard />
                     <span>Overview</span>
@@ -126,7 +130,9 @@ export function DashboardSidebar({
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" className="hover:bg-sidebar-accent">
               <Avatar className="size-8 rounded-lg">
-                <AvatarFallback className="rounded-lg bg-[#f7d1c7] text-xs font-semibold text-[#ad503c]">AL</AvatarFallback>
+                <AvatarFallback className="rounded-lg bg-[#f7d1c7] text-xs font-semibold text-[#ad503c]">
+                  AL
+                </AvatarFallback>
               </Avatar>
               <span className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">Alex Lee</span>
@@ -155,7 +161,12 @@ export function DashboardShell({
 }) {
   return (
     <SidebarProvider className="flex min-h-svh w-full flex-row bg-background">
-      <DashboardSidebar projects={projects} projectId={projectId} flagCount={flagCount} onProjectChange={onProjectChange} />
+      <DashboardSidebar
+        projects={projects}
+        projectId={projectId}
+        flagCount={flagCount}
+        onProjectChange={onProjectChange}
+      />
       <SidebarInset className="min-w-0 bg-background">{children}</SidebarInset>
     </SidebarProvider>
   );

@@ -1,11 +1,4 @@
-import {
-  foreignKey,
-  index,
-  integer,
-  sqliteTable,
-  text,
-  unique,
-} from "drizzle-orm/sqlite-core";
+import { foreignKey, index, integer, sqliteTable, text, unique } from "drizzle-orm/sqlite-core";
 
 /**
  * Database bootstrap table.

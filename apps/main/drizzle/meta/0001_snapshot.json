@@ -81,17 +81,12 @@
       "indexes": {
         "condition_flag_id_idx": {
           "name": "condition_flag_id_idx",
-          "columns": [
-            "flag_id"
-          ],
+          "columns": ["flag_id"],
           "isUnique": false
         },
         "condition_flag_position_unique": {
           "name": "condition_flag_position_unique",
-          "columns": [
-            "flag_id",
-            "position"
-          ],
+          "columns": ["flag_id", "position"],
           "isUnique": true
         }
       },
@@ -100,12 +95,8 @@
           "name": "condition_flag_id_fk",
           "tableFrom": "condition",
           "tableTo": "flag",
-          "columnsFrom": [
-            "flag_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["flag_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -198,17 +189,12 @@
       "indexes": {
         "flag_project_id_idx": {
           "name": "flag_project_id_idx",
-          "columns": [
-            "project_id"
-          ],
+          "columns": ["project_id"],
           "isUnique": false
         },
         "flag_project_key_unique": {
           "name": "flag_project_key_unique",
-          "columns": [
-            "project_id",
-            "key"
-          ],
+          "columns": ["project_id", "key"],
           "isUnique": true
         }
       },
@@ -217,12 +203,8 @@
           "name": "flag_project_id_fk",
           "tableFrom": "flag",
           "tableTo": "project",
-          "columnsFrom": [
-            "project_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["project_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -230,12 +212,8 @@
           "name": "flag_value_schema_id_fk",
           "tableFrom": "flag",
           "tableTo": "value_schema",
-          "columnsFrom": [
-            "value_schema_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["value_schema_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -293,9 +271,7 @@
       "indexes": {
         "project_owner_user_id_idx": {
           "name": "project_owner_user_id_idx",
-          "columns": [
-            "owner_user_id"
-          ],
+          "columns": ["owner_user_id"],
           "isUnique": false
         }
       },
@@ -377,17 +353,12 @@
       "indexes": {
         "value_schema_project_id_idx": {
           "name": "value_schema_project_id_idx",
-          "columns": [
-            "project_id"
-          ],
+          "columns": ["project_id"],
           "isUnique": false
         },
         "value_schema_project_name_unique": {
           "name": "value_schema_project_name_unique",
-          "columns": [
-            "project_id",
-            "name"
-          ],
+          "columns": ["project_id", "name"],
           "isUnique": true
         }
       },
@@ -396,12 +367,8 @@
           "name": "value_schema_project_id_fk",
           "tableFrom": "value_schema",
           "tableTo": "project",
-          "columnsFrom": [
-            "project_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["project_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }

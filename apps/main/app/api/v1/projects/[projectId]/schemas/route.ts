@@ -1,8 +1,5 @@
 import { handleApiError, parseJsonBody, requireUserId } from "@/lib/api";
-import {
-  createValueSchemaRequest,
-  updateValueSchemaRequest,
-} from "@/lib/api-schemas";
+import { createValueSchemaRequest, updateValueSchemaRequest } from "@/lib/api-schemas";
 import { getDb } from "@/lib/db";
 import { createValueSchemaService, serializeSchema } from "@/lib/services";
 
@@ -12,10 +9,7 @@ export async function GET(
 ) {
   try {
     const { projectId } = await params;
-    const schemas = await createValueSchemaService(getDb()).list(
-      projectId,
-      await requireUserId(),
-    );
+    const schemas = await createValueSchemaService(getDb()).list(projectId, await requireUserId());
     return Response.json(schemas.map(serializeSchema));
   } catch (error) {
     return handleApiError(error);

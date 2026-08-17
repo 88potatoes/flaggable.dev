@@ -7,18 +7,9 @@ import {
   type Db,
 } from "./repositories";
 import type { ConditionOperator, JsonObject, JsonValue } from "./flags/types";
-import {
-  assertJsonSchemaValue,
-  parseJson,
-  validateJsonSchemaDocument,
-} from "./flags/json-schema";
+import { assertJsonSchemaValue, parseJson, validateJsonSchemaDocument } from "./flags/json-schema";
 
-const operators = new Set<ConditionOperator>([
-  "equals",
-  "not_equals",
-  "in",
-  "not_in",
-]);
+const operators = new Set<ConditionOperator>(["equals", "not_equals", "in", "not_in"]);
 
 function now() {
   return new Date();
@@ -149,8 +140,7 @@ export function createFlagService(db: Db) {
       await requireProject(db, projectId, ownerUserId);
       return repository.listByProject(projectId);
     },
-    get: async (flagId: string, ownerUserId: string) =>
-      requireFlag(db, flagId, ownerUserId),
+    get: async (flagId: string, ownerUserId: string) => requireFlag(db, flagId, ownerUserId),
     create: async (
       projectId: string,
       ownerUserId: string,
@@ -209,9 +199,7 @@ export function createFlagService(db: Db) {
       }
       return repository.update(flag.id, {
         ...(values.name === undefined ? {} : { name: values.name }),
-        ...(values.description === undefined
-          ? {}
-          : { description: values.description }),
+        ...(values.description === undefined ? {} : { description: values.description }),
         ...(values.enabled === undefined ? {} : { enabled: values.enabled }),
         ...(values.fallbackValue === undefined
           ? {}
@@ -293,7 +281,8 @@ export function createConditionService(db: Db) {
       if (!condition) throw new ApiError(404, "Condition not found.");
       await requireFlag(db, condition.flagId, ownerUserId);
       const operator = values.operator ?? (condition.operator as ConditionOperator);
-      const predicateValue = values.predicateValue ?? parseJson<JsonValue>(condition.predicateValue, "predicateValue");
+      const predicateValue =
+        values.predicateValue ?? parseJson<JsonValue>(condition.predicateValue, "predicateValue");
       validateConditionInput(operator, predicateValue);
       if (values.resultValue !== undefined) {
         const flag = await flags.findById(condition.flagId);
@@ -345,10 +334,7 @@ export const serializeFlag = (record: { fallbackValue: string }) => ({
   fallbackValue: parseJson<JsonValue>(record.fallbackValue, "fallbackValue"),
 });
 
-export const serializeCondition = (record: {
-  predicateValue: string;
-  resultValue: string;
-}) => ({
+export const serializeCondition = (record: { predicateValue: string; resultValue: string }) => ({
   ...record,
   predicateValue: parseJson<JsonValue>(record.predicateValue, "predicateValue"),
   resultValue: parseJson<JsonValue>(record.resultValue, "resultValue"),

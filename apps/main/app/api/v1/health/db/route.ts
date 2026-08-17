@@ -9,9 +9,6 @@ export async function GET() {
   } catch (error) {
     console.error("D1 health check failed", error);
 
-    return Response.json(
-      { status: "error", database: "unavailable" },
-      { status: 503 },
-    );
+    return Response.json({ status: "error", database: "unavailable" }, { status: 503 });
   }
 }

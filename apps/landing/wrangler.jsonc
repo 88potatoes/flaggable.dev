@@ -6,25 +6,25 @@
   "assets": {
     "directory": "dist/client",
     "not_found_handling": "none",
-    "binding": "ASSETS"
+    "binding": "ASSETS",
   },
   "cache": {
-    "enabled": true
+    "enabled": true,
   },
   "images": {
-    "binding": "IMAGES"
+    "binding": "IMAGES",
   },
   "observability": {
     "logs": {
       "enabled": true,
-      "invocation_logs": true
+      "invocation_logs": true,
     },
     "traces": {
-      "enabled": false
-    }
+      "enabled": false,
+    },
   },
   "upload_source_maps": true,
   "vars": {
-    "MAIN_APP_URL": "https://dev.flaggable.dev"
-  }
+    "MAIN_APP_URL": "https://dev.flaggable.dev",
+  },
 }

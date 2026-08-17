@@ -9,10 +9,7 @@ export async function GET(
 ) {
   try {
     const { projectId } = await params;
-    const flags = await createFlagService(getDb()).list(
-      projectId,
-      await requireUserId(),
-    );
+    const flags = await createFlagService(getDb()).list(projectId, await requireUserId());
     return Response.json(flags.map(serializeFlag));
   } catch (error) {
     return handleApiError(error);
@@ -26,11 +23,7 @@ export async function POST(
   try {
     const { projectId } = await params;
     const body = await parseJsonBody(request, createFlagRequest);
-    const flag = await createFlagService(getDb()).create(
-      projectId,
-      await requireUserId(),
-      body,
-    );
+    const flag = await createFlagService(getDb()).create(projectId, await requireUserId(), body);
     return Response.json(serializeFlag(flag), { status: 201 });
   } catch (error) {
     return handleApiError(error);

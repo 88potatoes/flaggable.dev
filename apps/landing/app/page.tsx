@@ -37,11 +37,7 @@ export default function Home() {
   return (
     <main className="landing-page">
       <nav className="landing-nav shell">
-        <Link
-          href="/"
-          className="brand brand-light"
-          aria-label="flaggable.dev home"
-        >
+        <Link href="/" className="brand brand-light" aria-label="flaggable.dev home">
           <span className="brand-mark">
             f<span>.</span>
           </span>
@@ -71,8 +67,8 @@ export default function Home() {
             <em>See what happens.</em>
           </h1>
           <p className="hero-description">
-            flaggable.dev gives developers and product managers one calm place
-            to control releases, follow rollouts, and move with confidence.
+            flaggable.dev gives developers and product managers one calm place to control releases,
+            follow rollouts, and move with confidence.
           </p>
           <div className="hero-actions">
             <a href={`${MAIN_APP_URL}/dashboard`} className="button button-accent">
@@ -84,17 +80,11 @@ export default function Home() {
           </div>
           <div className="hero-proof">
             <span className="proof-mark">✓</span>
-            <span>
-              Built for teams that ship often
-            </span>
+            <span>Built for teams that ship often</span>
           </div>
         </div>
 
-        <div
-          className="hero-console"
-          role="img"
-          aria-label="Preview of the flaggable dashboard"
-        >
+        <div className="hero-console" role="img" aria-label="Preview of the flaggable dashboard">
           <div className="console-topbar">
             <div className="console-brand">
               <span className="brand-mark">
@@ -183,9 +173,7 @@ export default function Home() {
         <div className="signal-label">
           <span className="signal-pulse" /> The signal, in context
         </div>
-        <p>
-          Every change leaves a clear trail—from first toggle to full rollout.
-        </p>
+        <p>Every change leaves a clear trail—from first toggle to full rollout.</p>
         <span className="signal-arrow">↓</span>
       </section>
 
@@ -205,24 +193,24 @@ export default function Home() {
             <span className="principle-number">01</span>
             <h3>Make the call</h3>
             <p>
-              Give every feature a deliberate on/off switch. Keep release
-              control close to the people who know the work.
+              Give every feature a deliberate on/off switch. Keep release control close to the
+              people who know the work.
             </p>
           </article>
           <article className="principle highlighted-principle">
             <span className="principle-number">02</span>
             <h3>Watch the move</h3>
             <p>
-              See rollout changes as they happen, with the environment and
-              audience context attached to every update.
+              See rollout changes as they happen, with the environment and audience context attached
+              to every update.
             </p>
           </article>
           <article className="principle">
             <span className="principle-number">03</span>
             <h3>Keep momentum</h3>
             <p>
-              When the signal is good, move forward. When it is not, roll back
-              cleanly and know exactly what changed.
+              When the signal is good, move forward. When it is not, roll back cleanly and know
+              exactly what changed.
             </p>
           </article>
         </div>

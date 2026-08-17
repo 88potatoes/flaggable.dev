@@ -2,7 +2,6 @@
   "name": "flaggable-dev",
   "version": "0.1.0",
   "private": true,
-  "packageManager": "pnpm@11.14.0",
   "scripts": {
     "dev:landing": "pnpm --filter @flaggable/landing dev",
     "dev:main": "pnpm --filter @flaggable/main dev",
@@ -18,6 +17,11 @@
     "db:migrate:local": "pnpm --filter @flaggable/main db:migrate:local",
     "db:migrate:dev": "pnpm --filter @flaggable/main db:migrate:dev",
     "db:migrate:production": "pnpm --filter @flaggable/main run db:migrate:production",
-    "cf-typegen": "pnpm --filter @flaggable/main cf-typegen"
-  }
+    "cf-typegen": "pnpm --filter @flaggable/main cf-typegen",
+    "format": "oxfmt ."
+  },
+  "devDependencies": {
+    "oxfmt": "^0.63.0"
+  },
+  "packageManager": "pnpm@11.14.0"
 }

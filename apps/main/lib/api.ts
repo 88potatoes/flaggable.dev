@@ -30,10 +30,7 @@ export async function readJsonBody(request: Request): Promise<unknown> {
   }
 }
 
-export async function parseJsonBody<T>(
-  request: Request,
-  schema: z.ZodType<T>,
-): Promise<T> {
+export async function parseJsonBody<T>(request: Request, schema: z.ZodType<T>): Promise<T> {
   const result = schema.safeParse(await readJsonBody(request));
 
   if (!result.success) {
@@ -55,10 +52,7 @@ export function handleApiError(error: unknown): Response {
   return Response.json({ error: "Internal server error." }, { status: 500 });
 }
 
-export function requiredString(
-  body: Record<string, unknown>,
-  field: string,
-): string {
+export function requiredString(body: Record<string, unknown>, field: string): string {
   const value = body[field];
 
   if (typeof value !== "string" || value.trim() === "") {
@@ -68,10 +62,7 @@ export function requiredString(
   return value.trim();
 }
 
-export function optionalString(
-  body: Record<string, unknown>,
-  field: string,
-): string | undefined {
+export function optionalString(body: Record<string, unknown>, field: string): string | undefined {
   const value = body[field];
 
   if (value === undefined || value === null) return undefined;
@@ -82,10 +73,7 @@ export function optionalString(
   return value.trim();
 }
 
-export function optionalBoolean(
-  body: Record<string, unknown>,
-  field: string,
-): boolean | undefined {
+export function optionalBoolean(body: Record<string, unknown>, field: string): boolean | undefined {
   const value = body[field];
 
   if (value === undefined) return undefined;
@@ -96,10 +84,7 @@ export function optionalBoolean(
   return value;
 }
 
-export function requiredJsonValue(
-  body: Record<string, unknown>,
-  field: string,
-): unknown {
+export function requiredJsonValue(body: Record<string, unknown>, field: string): unknown {
   if (!(field in body)) {
     throw new ApiError(400, `${field} is required.`);
   }
@@ -107,10 +92,7 @@ export function requiredJsonValue(
   return body[field];
 }
 
-export function requiredPositiveInteger(
-  body: Record<string, unknown>,
-  field: string,
-): number {
+export function requiredPositiveInteger(body: Record<string, unknown>, field: string): number {
   const value = body[field];
 
   if (!Number.isInteger(value) || (value as number) < 1) {

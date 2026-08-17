@@ -1,14 +1,12 @@
 import { auth0 } from "./lib/auth0";
 
 export async function proxy(request: Request) {
-	const authResponse = await auth0.middleware(request);
+  const authResponse = await auth0.middleware(request);
 
-	// Always return the auth response. It forwards requests to app routes by default.
-	return authResponse;
+  // Always return the auth response. It forwards requests to app routes by default.
+  return authResponse;
 }
 
 export const config = {
-	matcher: [
-		"/((?!_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)",
-	],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)"],
 };

@@ -71,9 +71,7 @@ function validateConditionPredicate(
   }
 }
 
-export const createConditionRequest = conditionFields.superRefine(
-  validateConditionPredicate,
-);
+export const createConditionRequest = conditionFields.superRefine(validateConditionPredicate);
 
 export const updateConditionRequest = conditionFields
   .partial()

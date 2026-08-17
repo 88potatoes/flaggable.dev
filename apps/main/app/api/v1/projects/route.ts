@@ -16,10 +16,9 @@ export async function POST(request: Request) {
   try {
     const userId = await requireUserId();
     const body = await parseJsonBody(request, createProjectRequest);
-    return Response.json(
-      await createProjectService(getDb()).create(userId, body.name),
-      { status: 201 },
-    );
+    return Response.json(await createProjectService(getDb()).create(userId, body.name), {
+      status: 201,
+    });
   } catch (error) {
     return handleApiError(error);
   }

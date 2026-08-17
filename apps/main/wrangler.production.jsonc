@@ -6,22 +6,22 @@
   "assets": {
     "directory": "dist/client",
     "not_found_handling": "none",
-    "binding": "ASSETS"
+    "binding": "ASSETS",
   },
   "cache": {
-    "enabled": true
+    "enabled": true,
   },
   "images": {
-    "binding": "IMAGES"
+    "binding": "IMAGES",
   },
   "observability": {
     "logs": {
       "enabled": true,
-      "invocation_logs": true
+      "invocation_logs": true,
     },
     "traces": {
-      "enabled": false
-    }
+      "enabled": false,
+    },
   },
   "upload_source_maps": true,
   "d1_databases": [
@@ -29,13 +29,13 @@
       "binding": "DB",
       "database_name": "flaggable-dev",
       "database_id": "1bc94e3e-02b3-4835-8444-401546cc390a",
-      "migrations_dir": "drizzle"
-    }
+      "migrations_dir": "drizzle",
+    },
   ],
   "routes": [
     {
       "pattern": "app.flaggable.dev",
-      "custom_domain": true
-    }
-  ]
+      "custom_domain": true,
+    },
+  ],
 }

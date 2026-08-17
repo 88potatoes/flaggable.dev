@@ -3,10 +3,7 @@ import { updateFlagRequest } from "@/lib/api-schemas";
 import { getDb } from "@/lib/db";
 import { createFlagService, serializeFlag } from "@/lib/services";
 
-export async function GET(
-  _request: Request,
-  { params }: { params: Promise<{ flagId: string }> },
-) {
+export async function GET(_request: Request, { params }: { params: Promise<{ flagId: string }> }) {
   try {
     const { flagId } = await params;
     return Response.json(
@@ -17,18 +14,11 @@ export async function GET(
   }
 }
 
-export async function PATCH(
-  request: Request,
-  { params }: { params: Promise<{ flagId: string }> },
-) {
+export async function PATCH(request: Request, { params }: { params: Promise<{ flagId: string }> }) {
   try {
     const { flagId } = await params;
     const body = await parseJsonBody(request, updateFlagRequest);
-    const flag = await createFlagService(getDb()).update(
-      flagId,
-      await requireUserId(),
-      body,
-    );
+    const flag = await createFlagService(getDb()).update(flagId, await requireUserId(), body);
     return Response.json(serializeFlag(flag));
   } catch (error) {
     return handleApiError(error);
@@ -41,10 +31,7 @@ export async function DELETE(
 ) {
   try {
     const { flagId } = await params;
-    const flag = await createFlagService(getDb()).archive(
-      flagId,
-      await requireUserId(),
-    );
+    const flag = await createFlagService(getDb()).archive(flagId, await requireUserId());
     return Response.json(serializeFlag(flag));
   } catch (error) {
     return handleApiError(error);

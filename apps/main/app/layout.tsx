@@ -12,9 +12,7 @@ export const metadata: Metadata = {
   description: "Feature flags for teams that ship.",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{ children: React.ReactNode }>) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={cn("font-sans", geist.variable)}>
       <body>

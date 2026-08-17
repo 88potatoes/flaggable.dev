@@ -9,9 +9,7 @@ export async function GET(
 ) {
   try {
     const { projectId } = await params;
-    return Response.json(
-      await createProjectService(getDb()).get(projectId, await requireUserId()),
-    );
+    return Response.json(await createProjectService(getDb()).get(projectId, await requireUserId()));
   } catch (error) {
     return handleApiError(error);
   }
@@ -25,11 +23,7 @@ export async function PATCH(
     const { projectId } = await params;
     const body = await parseJsonBody(request, updateProjectRequest);
     return Response.json(
-      await createProjectService(getDb()).update(
-        projectId,
-        await requireUserId(),
-        body.name,
-      ),
+      await createProjectService(getDb()).update(projectId, await requireUserId(), body.name),
     );
   } catch (error) {
     return handleApiError(error);
