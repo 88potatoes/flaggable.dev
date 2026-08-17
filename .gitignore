@@ -10,3 +10,8 @@ node_modules
 !.env.example
 .pi/skills/impeccable
 tsconfig.tsbuildinfo
+apps/*/.next
+apps/*/dist
+apps/*/.vinext
+apps/*/.wrangler
+apps/*/tsconfig.tsbuildinfo

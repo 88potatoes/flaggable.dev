@@ -97,7 +97,7 @@ export default function Dashboard() {
     <main className="app-shell">
       <aside className="app-sidebar">
         <Link
-          href="/"
+          href="https://flaggable.dev"
           className="brand brand-dark"
           aria-label="flaggable.dev home"
         >

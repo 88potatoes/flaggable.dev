@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { auth0 } from "@/lib/auth0";
+const MAIN_APP_URL = process.env.MAIN_APP_URL ?? "http://localhost:3000";
 
 function ArrowUpRight() {
   return (
@@ -33,10 +33,7 @@ function ActivityMini({
   );
 }
 
-export default async function Home() {
-  const session = await auth0.getSession();
-  const userEmail = session?.user.email;
-
+export default function Home() {
   return (
     <main className="landing-page">
       <nav className="landing-nav shell">
@@ -55,20 +52,11 @@ export default async function Home() {
         <div className="landing-nav-links">
           <a href="#how-it-works">How it works</a>
           <a href="#activity">Activity</a>
-          {session ? (
-            <>
-              <span className="landing-user">{userEmail}</span>
-              <a href="/auth/logout">Log out</a>
-            </>
-          ) : (
-            <>
-              <a href="/auth/login?screen_hint=signup">Sign up</a>
-              <a href="/auth/login">Log in</a>
-            </>
-          )}
-          <Link href="/dashboard" className="button button-light button-small">
-            {session ? "Open dashboard" : "Start now"} <ArrowUpRight />
-          </Link>
+          <a href={`${MAIN_APP_URL}/auth/login?screen_hint=signup`}>Sign up</a>
+          <a href={`${MAIN_APP_URL}/auth/login`}>Log in</a>
+          <a href={`${MAIN_APP_URL}/dashboard`} className="button button-light button-small">
+            Start now <ArrowUpRight />
+          </a>
         </div>
       </nav>
 
@@ -87,9 +75,9 @@ export default async function Home() {
             to control releases, follow rollouts, and move with confidence.
           </p>
           <div className="hero-actions">
-            <Link href="/dashboard" className="button button-accent">
+            <a href={`${MAIN_APP_URL}/dashboard`} className="button button-accent">
               Start now <ArrowUpRight />
-            </Link>
+            </a>
             <a href="#how-it-works" className="text-link light-link">
               See how it works <span>↓</span>
             </a>
@@ -97,9 +85,7 @@ export default async function Home() {
           <div className="hero-proof">
             <span className="proof-mark">✓</span>
             <span>
-              {session
-                ? `Logged in as ${userEmail}`
-                : "Built for teams that ship often"}
+              Built for teams that ship often
             </span>
           </div>
         </div>
@@ -249,18 +235,12 @@ export default async function Home() {
           </p>
           <h2>Make it visible.</h2>
         </div>
-        {session ? (
-          <Link href="/dashboard" className="button button-accent button-large">
-            Open dashboard <ArrowUpRight />
-          </Link>
-        ) : (
-          <a
-            href="/auth/login?screen_hint=signup"
-            className="button button-accent button-large"
-          >
-            Sign up <ArrowUpRight />
-          </a>
-        )}
+        <a
+          href={`${MAIN_APP_URL}/auth/login?screen_hint=signup`}
+          className="button button-accent button-large"
+        >
+          Sign up <ArrowUpRight />
+        </a>
       </section>
 
       <footer className="landing-footer shell">

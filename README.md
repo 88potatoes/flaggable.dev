@@ -1,30 +1,64 @@
 # flaggable.dev
 
-Feature flags for people who ship. The app runs on Cloudflare Workers with Cloudflare D1 and Drizzle ORM.
+Feature flags for people who ship. This repository contains two Cloudflare Workers in one pnpm workspace:
 
-## Scripts
+- `apps/landing` — public marketing site for `flaggable.dev`.
+- `apps/main` — authenticated product app for `app.flaggable.dev`, including Auth0, API routes, and D1.
 
-- `pnpm run dev` starts the vinext dev server.
-- `pnpm run build` builds the Cloudflare Worker output.
-- `pnpm run start` starts the built Worker locally with Wrangler.
-- `pnpm run deploy` deploys the Cloudflare Worker.
-- `pnpm run db:generate` generates SQL migrations from `lib/db/schema.ts`.
-- `pnpm run db:migrate:local` applies migrations to the local D1 database.
-- `pnpm run db:migrate:remote` applies migrations to the configured remote D1 database.
-- `pnpm run cf-typegen` regenerates Cloudflare binding types.
+## Development
+
+Install dependencies from the repository root:
+
+```sh
+pnpm install
+```
+
+Run each app in a separate terminal:
+
+```sh
+pnpm run dev:landing # landing app
+pnpm run dev:main    # product app
+```
+
+The landing app links to the main app using `MAIN_APP_URL`. The local default is `http://localhost:3000`.
+
+## Build and deploy
+
+```sh
+pnpm run build
+pnpm run deploy:landing
+pnpm run deploy:main
+```
+
+Each app also has `start`, `preview`, and `deploy` scripts. Their generated Cloudflare output lives under the app's ignored `dist/` directory.
+
+Configure DNS or custom domains so that:
+
+- `flaggable.dev` points to `flaggable-dev-landing`.
+- `app.flaggable.dev` points to `flaggable-dev-1`.
 
 ## Database
 
-- D1 binding: `DB`
-- Drizzle schema: `lib/db/schema.ts`
-- Drizzle config: `drizzle.config.ts`
-- Migrations: `drizzle/`
+Only `apps/main` owns the D1 database:
 
-The D1 database ID is intentionally not committed. Create the database, then add its ID to `wrangler.jsonc`:
+- D1 binding: `DB`
+- Wrangler config: `apps/main/wrangler.jsonc`
+- Drizzle schema: `apps/main/lib/db/schema.ts`
+- Drizzle config: `apps/main/drizzle.config.ts`
+- Migrations: `apps/main/drizzle/`
+
+Database commands can be run from the repository root:
 
 ```sh
-pnpm exec wrangler d1 create flaggable-dev
+pnpm run db:generate
+pnpm run db:migrate:local
+pnpm run db:migrate:remote
 ```
 
-Copy the returned `database_id` into the `d1_databases` entry before running `pnpm run db:migrate:remote`.
+The local D1 database is separate from the remote Cloudflare D1 database. `--local` uses Wrangler's local emulator; `--remote` uses the configured database ID.
 
+## Environment variables
+
+Main-app Auth0 variables are loaded from `apps/main/.env` for local development. This file is ignored by Git. Configure the matching callback, logout, and web-origin URLs in Auth0 for the main app origin.
+
+The landing worker has a `MAIN_APP_URL` Wrangler variable. Change it in `apps/landing/wrangler.jsonc` for production, or provide it through the local environment.
