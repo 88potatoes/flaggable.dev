@@ -27,7 +27,6 @@ import {
   SidebarProvider,
   SidebarInset,
   SidebarRail,
-  SidebarTrigger,
 } from "@flaggable/ui/sidebar";
 import type { Project } from "@flaggable/contracts";
 
@@ -154,12 +153,7 @@ export function DashboardShell({
         projectId={projectId}
         onProjectChange={onProjectChange}
       />
-      <SidebarInset className="min-w-0 bg-background">
-        <div className="dashboard-page-header">
-          <SidebarTrigger />
-        </div>
-        {children}
-      </SidebarInset>
+      <SidebarInset className="min-w-0 bg-background">{children}</SidebarInset>
       <SidebarRail />
     </SidebarProvider>
   );
