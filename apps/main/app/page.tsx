@@ -137,13 +137,6 @@ export default function Dashboard() {
           />
         ) : (
           <>
-            <div className="dashboard-title-row">
-              <div>
-                <h1>Overview</h1>
-                <p className="dashboard-subtitle">Manage the flags powering your product.</p>
-              </div>
-            </div>
-
             {alerts && (
               <Alert
                 variant={
