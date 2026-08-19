@@ -6,9 +6,10 @@ describe("FlagService", () => {
   test("lists and gets flags", async () => {
     const repo = mockFlagRepo();
     const service = mockFlagService({ repository: repo });
-    await expect(service.list({ projectId: mockProject.id, ownerId: "owner-1" })).resolves.toEqual([
-      mockFlag,
-    ]);
+    await expect(service.list({ projectId: mockProject.id, ownerId: "owner-1" })).resolves.toEqual({
+      items: [mockFlag],
+      nextCursor: null,
+    });
     await expect(service.get({ flagId: mockFlag.id, ownerId: "owner-1" })).resolves.toEqual(
       mockFlag,
     );

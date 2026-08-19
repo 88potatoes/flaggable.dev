@@ -9,6 +9,7 @@ function createDatabase() {
     from: vi.fn().mockReturnThis(),
     where: vi.fn().mockReturnThis(),
     orderBy: vi.fn().mockReturnThis(),
+    limit: vi.fn().mockReturnThis(),
     insert: vi.fn().mockReturnThis(),
     values: vi.fn().mockReturnThis(),
     returning: vi.fn().mockReturnThis(),
@@ -23,7 +24,7 @@ function createDatabase() {
 describe("DrizzleFlagRepository", () => {
   test("lists by project", async () => {
     const { db, query } = createDatabase();
-    await new DrizzleFlagRepository(db).listByProject({ projectId: "project-1" });
+    await new DrizzleFlagRepository(db).listByProject({ projectId: "project-1", limit: 25 });
     expect(query.where).toHaveBeenCalled();
     expect(query.orderBy).toHaveBeenCalled();
     expect(query.all).toHaveBeenCalled();
