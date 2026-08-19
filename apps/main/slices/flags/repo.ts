@@ -1,6 +1,6 @@
 import { asc, eq } from "drizzle-orm";
 
-import type { Database } from "@/lib/db";
+import { getDb, type Database } from "@/lib/db";
 import { flagTable, type FlagRecord, type NewFlagRecord } from "@/lib/db/schema";
 
 /** Persistence boundary for feature flags. */
@@ -19,7 +19,7 @@ export interface FlagRepository {
 
 /** Drizzle/D1 implementation of the flag persistence boundary. */
 export class DrizzleFlagRepository implements FlagRepository {
-  constructor(private readonly db: Database) {}
+  constructor(private readonly db: Database = getDb()) {}
 
   listByProject({ projectId }: { projectId: string }) {
     return this.db

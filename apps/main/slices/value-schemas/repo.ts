@@ -1,6 +1,6 @@
 import { asc, eq } from "drizzle-orm";
 
-import type { Database } from "@/lib/db";
+import { getDb, type Database } from "@/lib/db";
 import {
   valueSchemaTable,
   type NewValueSchemaRecord,
@@ -23,7 +23,7 @@ export interface ValueSchemaRepository {
 
 /** Drizzle/D1 implementation of the value-schema persistence boundary. */
 export class DrizzleValueSchemaRepository implements ValueSchemaRepository {
-  constructor(private readonly db: Database) {}
+  constructor(private readonly db: Database = getDb()) {}
 
   listByProject({ projectId }: { projectId: string }) {
     return this.db

@@ -18,10 +18,15 @@
     "db:migrate:dev": "pnpm --filter @flaggable/main db:migrate:dev",
     "db:migrate:production": "pnpm --filter @flaggable/main run db:migrate:production",
     "cf-typegen": "pnpm --filter @flaggable/main cf-typegen",
-    "format": "oxfmt ."
+    "format": "oxfmt .",
+    "lint": "oxlint apps packages --react-plugin --import-plugin --vitest-plugin --jsx-a11y-plugin --nextjs-plugin",
+    "prepare": "husky"
   },
   "devDependencies": {
-    "oxfmt": "^0.63.0"
+    "husky": "^9.1.7",
+    "lint-staged": "^17.3.0",
+    "oxfmt": "^0.63.0",
+    "oxlint": "1.78.0"
   },
   "packageManager": "pnpm@11.14.0"
 }

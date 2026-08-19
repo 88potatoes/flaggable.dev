@@ -1,6 +1,6 @@
 import { asc, eq } from "drizzle-orm";
 
-import type { Database } from "@/lib/db";
+import { getDb, type Database } from "@/lib/db";
 import { projectTable, type NewProjectRecord, type ProjectRecord } from "@/lib/db/schema";
 
 /** Persistence boundary for projects. Services depend on this interface in tests. */
@@ -19,7 +19,7 @@ export interface ProjectRepository {
 
 /** Drizzle/D1 implementation of the project persistence boundary. */
 export class DrizzleProjectRepository implements ProjectRepository {
-  constructor(private readonly db: Database) {}
+  constructor(private readonly db: Database = getDb()) {}
 
   listByOwner({ ownerId }: { ownerId: string }) {
     return this.db

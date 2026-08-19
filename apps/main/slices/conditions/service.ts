@@ -4,10 +4,13 @@ import { ApiError } from "@/lib/api";
 import type { ConditionRecord, NewConditionRecord } from "@/lib/db/schema";
 import { assertJsonSchemaValue, parseJson } from "@/lib/flags/json-schema";
 import type { ConditionOperator, JsonObject, JsonValue } from "@/lib/flags/types";
-import type { FlagRepository } from "@/slices/flags/repo";
-import type { ProjectRepository } from "@/slices/projects/repo";
-import type { ValueSchemaRepository } from "@/slices/value-schemas/repo";
-import type { ConditionRepository } from "./repo";
+import { DrizzleFlagRepository, type FlagRepository } from "@/slices/flags/repo";
+import { DrizzleProjectRepository, type ProjectRepository } from "@/slices/projects/repo";
+import {
+  DrizzleValueSchemaRepository,
+  type ValueSchemaRepository,
+} from "@/slices/value-schemas/repo";
+import { DrizzleConditionRepository, type ConditionRepository } from "./repo";
 
 const operators = new Set<ConditionOperator>(["equals", "not_equals", "in", "not_in"]);
 
@@ -22,10 +25,10 @@ function json(value: unknown, field: string): string {
 /** Application operations for targeting conditions with injected dependencies. */
 export class ConditionService {
   constructor(
-    private readonly repository: ConditionRepository,
-    private readonly flags: FlagRepository,
-    private readonly schemas: ValueSchemaRepository,
-    private readonly projects: ProjectRepository,
+    private readonly repository: ConditionRepository = new DrizzleConditionRepository(),
+    private readonly flags: FlagRepository = new DrizzleFlagRepository(),
+    private readonly schemas: ValueSchemaRepository = new DrizzleValueSchemaRepository(),
+    private readonly projects: ProjectRepository = new DrizzleProjectRepository(),
   ) {}
 
   list = async ({ flagId, ownerId }: { flagId: string; ownerId: string }) => {

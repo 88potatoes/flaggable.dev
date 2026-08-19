@@ -1,6 +1,6 @@
 import { asc, eq } from "drizzle-orm";
 
-import type { Database } from "@/lib/db";
+import { getDb, type Database } from "@/lib/db";
 import { conditionTable, type ConditionRecord, type NewConditionRecord } from "@/lib/db/schema";
 
 /** Persistence boundary for targeting conditions. */
@@ -19,7 +19,7 @@ export interface ConditionRepository {
 
 /** Drizzle/D1 implementation of the condition persistence boundary. */
 export class DrizzleConditionRepository implements ConditionRepository {
-  constructor(private readonly db: Database) {}
+  constructor(private readonly db: Database = getDb()) {}
 
   listByFlag({ flagId }: { flagId: string }) {
     return this.db

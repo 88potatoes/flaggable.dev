@@ -2,11 +2,11 @@ import { ApiError } from "@/lib/api";
 import { uuidv7 } from "uuidv7";
 
 import type { NewProjectRecord, ProjectRecord } from "@/lib/db/schema";
-import type { ProjectRepository } from "./repo";
+import { DrizzleProjectRepository, type ProjectRepository } from "./repo";
 
 /** Application operations for projects. Persistence is injected for unit testing. */
 export class ProjectService {
-  constructor(private readonly repository: ProjectRepository) {}
+  constructor(private readonly repository: ProjectRepository = new DrizzleProjectRepository()) {}
 
   list = ({ ownerId }: { ownerId: string }) => this.repository.listByOwner({ ownerId });
 

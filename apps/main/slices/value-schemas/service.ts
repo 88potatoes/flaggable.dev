@@ -4,8 +4,8 @@ import { ApiError } from "@/lib/api";
 import type { NewValueSchemaRecord, ValueSchemaRecord } from "@/lib/db/schema";
 import type { JsonObject } from "@/lib/flags/types";
 import { parseJson, validateJsonSchemaDocument } from "@/lib/flags/json-schema";
-import type { ProjectRepository } from "@/slices/projects/repo";
-import type { ValueSchemaRepository } from "./repo";
+import { DrizzleProjectRepository, type ProjectRepository } from "@/slices/projects/repo";
+import { DrizzleValueSchemaRepository, type ValueSchemaRepository } from "./repo";
 
 function json(value: unknown, field: string): string {
   try {
@@ -18,8 +18,8 @@ function json(value: unknown, field: string): string {
 /** Application operations for value schemas with injected persistence dependencies. */
 export class ValueSchemaService {
   constructor(
-    private readonly repository: ValueSchemaRepository,
-    private readonly projects: ProjectRepository,
+    private readonly repository: ValueSchemaRepository = new DrizzleValueSchemaRepository(),
+    private readonly projects: ProjectRepository = new DrizzleProjectRepository(),
   ) {}
 
   list = async ({ projectId, ownerId }: { projectId: string; ownerId: string }) => {

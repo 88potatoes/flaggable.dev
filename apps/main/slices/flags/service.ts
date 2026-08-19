@@ -4,9 +4,12 @@ import { ApiError } from "@/lib/api";
 import type { FlagRecord, NewFlagRecord } from "@/lib/db/schema";
 import { assertJsonSchemaValue, parseJson } from "@/lib/flags/json-schema";
 import type { JsonObject, JsonValue } from "@/lib/flags/types";
-import type { ProjectRepository } from "@/slices/projects/repo";
-import type { ValueSchemaRepository } from "@/slices/value-schemas/repo";
-import type { FlagRepository } from "./repo";
+import { DrizzleProjectRepository, type ProjectRepository } from "@/slices/projects/repo";
+import {
+  DrizzleValueSchemaRepository,
+  type ValueSchemaRepository,
+} from "@/slices/value-schemas/repo";
+import { DrizzleFlagRepository, type FlagRepository } from "./repo";
 
 function json(value: unknown, field: string): string {
   try {
@@ -19,9 +22,9 @@ function json(value: unknown, field: string): string {
 /** Application operations for feature flags with injected persistence dependencies. */
 export class FlagService {
   constructor(
-    private readonly repository: FlagRepository,
-    private readonly projects: ProjectRepository,
-    private readonly schemas: ValueSchemaRepository,
+    private readonly repository: FlagRepository = new DrizzleFlagRepository(),
+    private readonly projects: ProjectRepository = new DrizzleProjectRepository(),
+    private readonly schemas: ValueSchemaRepository = new DrizzleValueSchemaRepository(),
   ) {}
 
   list = async ({ projectId, ownerId }: { projectId: string; ownerId: string }) => {
