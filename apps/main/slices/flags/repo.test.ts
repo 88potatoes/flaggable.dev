@@ -38,7 +38,7 @@ describe("DrizzleFlagRepository", () => {
 
   test("creates and updates records", async () => {
     const { db, query } = createDatabase();
-    const record = { id: "flag-1", projectId: "project-1", key: "flag" } as never;
+    const record = { id: "flag-1", projectId: "project-1", name: "Flag" } as never;
     await new DrizzleFlagRepository(db).create({ record });
     await new DrizzleFlagRepository(db).update({ flagId: "flag-1", values: { name: "Updated" } });
     expect(query.values).toHaveBeenCalledWith(record);

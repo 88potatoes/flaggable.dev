@@ -19,10 +19,10 @@ describe("FlagService", () => {
     await mockFlagService({ repository: repo }).create({
       projectId: mockProject.id,
       ownerId: "owner-1",
-      values: { valueSchemaId: mockSchema.id, key: "new", name: "New", fallbackValue: "off" },
+      values: { valueSchemaId: mockSchema.id, name: "New", fallbackValue: "off" },
     });
     expect(repo.create).toHaveBeenCalledWith({
-      record: expect.objectContaining({ key: "new", fallbackValue: JSON.stringify("off") }),
+      record: expect.objectContaining({ name: "New", fallbackValue: JSON.stringify("off") }),
     });
   });
 

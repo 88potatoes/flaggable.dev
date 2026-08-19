@@ -27,7 +27,6 @@ export function useMutateCreateFlag(projectId: string) {
   return useMutation({
     mutationFn: (values: {
       valueSchemaId: string;
-      key: string;
       name: string;
       description?: string;
       fallbackValue: unknown;

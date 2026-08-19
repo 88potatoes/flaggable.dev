@@ -36,7 +36,6 @@ export const mockFlag: FlagRecord = {
   id: "flag-1",
   projectId: mockProject.id,
   valueSchemaId: mockSchema.id,
-  key: "flag",
   name: "Flag",
   description: null,
   enabled: true,

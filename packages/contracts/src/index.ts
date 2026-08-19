@@ -23,7 +23,6 @@ export type Flag = {
   id: string;
   projectId: string;
   valueSchemaId: string;
-  key: string;
   name: string;
   description: string | null;
   enabled: boolean;

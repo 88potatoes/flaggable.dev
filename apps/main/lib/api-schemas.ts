@@ -30,14 +30,13 @@ export const updateValueSchemaRequest = createValueSchemaRequest.partial();
 
 export const createFlagRequest = z.object({
   valueSchemaId: z.string().min(1),
-  key: z.string().trim().min(1).max(100),
   name: z.string().trim().min(1).max(100),
   description: z.string().trim().max(500).optional(),
   fallbackValue: jsonValue,
 });
 
 export const updateFlagRequest = createFlagRequest
-  .omit({ valueSchemaId: true, key: true })
+  .omit({ valueSchemaId: true })
   .partial()
   .extend({ enabled: z.boolean().optional() });
 

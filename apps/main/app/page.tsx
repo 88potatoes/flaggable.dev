@@ -31,7 +31,6 @@ export default function Dashboard() {
   const [query, setQuery] = useState("");
   const [projectId, setProjectId] = useState("");
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [newFlagKey, setNewFlagKey] = useState("");
   const [newFlagName, setNewFlagName] = useState("");
   const [newProjectName, setNewProjectName] = useState("");
   const [error, setError] = useState("");
@@ -67,7 +66,7 @@ export default function Dashboard() {
       { flagId: flag.id, values: { enabled: !flag.enabled } },
       {
         onSuccess: (updated) => {
-          const message = `${updated.key} is now ${updated.enabled ? "on" : "off"}.`;
+          const message = `${updated.name} is now ${updated.enabled ? "on" : "off"}.`;
           setNotice(message);
           toast.success("Flag updated", { description: message });
         },
@@ -113,17 +112,15 @@ export default function Dashboard() {
     createFlag.mutate(
       {
         valueSchemaId: schema.id,
-        key: newFlagKey,
-        name: newFlagName || newFlagKey,
+        name: newFlagName,
         fallbackValue: false,
       },
       {
         onSuccess: () => {
           setIsCreateOpen(false);
-          setNewFlagKey("");
           setNewFlagName("");
           setNotice("Flag created.");
-          toast.success("Flag created", { description: `${newFlagKey} is ready to use.` });
+          toast.success("Flag created", { description: `${newFlagName} is ready to use.` });
         },
         onError: (mutationError) => {
           setError(mutationError.message);
@@ -272,7 +269,7 @@ export default function Dashboard() {
                 <div className="inspector-label">SELECTED FLAG</div>
                 <div className="inspector-content">
                   <div>
-                    <h2>{selectedFlag.key}</h2>
+                    <h2>{selectedFlag.name}</h2>
                     <p>
                       {selectedFlag.description ?? "No description yet."} · Last changed{" "}
                       {formatUpdated(selectedFlag.updatedAt)}
@@ -282,7 +279,7 @@ export default function Dashboard() {
                     checked={selectedFlag.enabled}
                     onCheckedChange={() => toggleFlag(selected)}
                     disabled={updateFlag.isPending}
-                    aria-label={`Turn ${selectedFlag.enabled ? "off" : "on"} ${selectedFlag.key}`}
+                    aria-label={`Turn ${selectedFlag.enabled ? "off" : "on"} ${selectedFlag.name}`}
                   />
                   <span className="inspector-action">
                     {selectedFlag.enabled ? "Enabled" : "Currently off"}
@@ -313,22 +310,10 @@ export default function Dashboard() {
                 ) : (
                   <form className="grid gap-4" onSubmit={submitCreateFlag}>
                     <div className="grid gap-2">
-                      <Label htmlFor="dashboard-new-flag-key">Flag key</Label>
-                      <Input
-                        id="dashboard-new-flag-key"
-                        required
-                        pattern="[a-z0-9_-]+"
-                        value={newFlagKey}
-                        onChange={(event: ChangeEvent<HTMLInputElement>) =>
-                          setNewFlagKey(event.target.value)
-                        }
-                        placeholder="checkout-redesign"
-                      />
-                    </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="dashboard-new-flag-name">Display name</Label>
+                      <Label htmlFor="dashboard-new-flag-name">Flag name</Label>
                       <Input
                         id="dashboard-new-flag-name"
+                        required
                         value={newFlagName}
                         onChange={(event: ChangeEvent<HTMLInputElement>) =>
                           setNewFlagName(event.target.value)

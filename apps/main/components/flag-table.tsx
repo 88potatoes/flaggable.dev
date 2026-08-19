@@ -1,5 +1,6 @@
 "use client";
 
+import type { KeyboardEvent } from "react";
 import { ArrowUpRight } from "lucide-react";
 
 import type { Flag as FlagRecord } from "@flaggable/contracts";
@@ -50,7 +51,7 @@ export function FlagTable({
                 data-state={isSelected ? "selected" : undefined}
                 onClick={() => onSelect(flag.id)}
                 tabIndex={0}
-                onKeyDown={(event) => {
+                onKeyDown={(event: KeyboardEvent<HTMLTableRowElement>) => {
                   if (event.key === "Enter" || event.key === " ") {
                     event.preventDefault();
                     onSelect(flag.id);
@@ -60,8 +61,8 @@ export function FlagTable({
                 <TableCell className="flag-name">
                   <i className={`status-dot ${flag.enabled ? "green" : "purple"}`} />
                   <span>
-                    <b>{flag.key}</b>
-                    <small>{flag.description ?? flag.name}</small>
+                    <b>{flag.name}</b>
+                    <small>{flag.description ?? "No description yet."}</small>
                   </span>
                 </TableCell>
                 <TableCell>

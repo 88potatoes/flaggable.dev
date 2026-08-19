@@ -57,7 +57,6 @@ export const flagTable = sqliteTable(
     id: text("id").primaryKey(),
     projectId: text("project_id").notNull(),
     valueSchemaId: text("value_schema_id").notNull(),
-    key: text("key").notNull(),
     name: text("name").notNull(),
     description: text("description"),
     enabled: integer("enabled", { mode: "boolean" }).notNull(),
@@ -67,7 +66,7 @@ export const flagTable = sqliteTable(
     updatedAt: integer("updated_at", { mode: "timestamp_ms" }).notNull(),
   },
   (table) => [
-    unique("flag_project_key_unique").on(table.projectId, table.key),
+    unique("flag_project_name_unique").on(table.projectId, table.name),
     index("flag_project_id_idx").on(table.projectId),
     foreignKey({
       columns: [table.projectId],

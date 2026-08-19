@@ -15,6 +15,13 @@
       "when": 1786978812131,
       "tag": "0001_good_blade",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1787148933635,
+      "tag": "0002_clammy_guardsmen",
+      "breakpoints": true
     }
   ]
 }

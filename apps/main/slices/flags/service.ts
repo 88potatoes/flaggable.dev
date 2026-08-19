@@ -44,7 +44,6 @@ export class FlagService {
     ownerId: string;
     values: {
       valueSchemaId: string;
-      key: string;
       name: string;
       description?: string;
       fallbackValue: JsonValue;
@@ -65,7 +64,6 @@ export class FlagService {
       id: uuidv7(),
       projectId,
       valueSchemaId: values.valueSchemaId,
-      key: values.key,
       name: values.name,
       description: values.description,
       enabled: true,

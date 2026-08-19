@@ -51,7 +51,6 @@ export default function FlagsPage() {
   const [selectedFlagId, setSelectedFlagId] = useState("");
   const [isCreateFlagOpen, setIsCreateFlagOpen] = useState(false);
   const [isCreateSchemaOpen, setIsCreateSchemaOpen] = useState(false);
-  const [newFlagKey, setNewFlagKey] = useState("");
   const [newFlagName, setNewFlagName] = useState("");
   const [newFlagSchemaId, setNewFlagSchemaId] = useState("");
   const [newSchemaName, setNewSchemaName] = useState("");
@@ -96,9 +95,7 @@ export default function FlagsPage() {
   const visibleFlags = useMemo(
     () =>
       flags.filter((flag) =>
-        `${flag.key} ${flag.name} ${flag.description ?? ""}`
-          .toLowerCase()
-          .includes(query.toLowerCase()),
+        `${flag.name} ${flag.description ?? ""}`.toLowerCase().includes(query.toLowerCase()),
       ),
     [flags, query],
   );
@@ -119,17 +116,15 @@ export default function FlagsPage() {
     createFlag.mutate(
       {
         valueSchemaId: schema.id,
-        key: newFlagKey.trim(),
-        name: newFlagName.trim() || newFlagKey.trim(),
+        name: newFlagName.trim(),
         fallbackValue: fallbackForSchema(schema.schemaJson),
       },
       {
         onSuccess: (flag) => {
           setSelectedFlagId(flag.id);
-          setNewFlagKey("");
           setNewFlagName("");
           setIsCreateFlagOpen(false);
-          const message = `${flag.key} was created.`;
+          const message = `${flag.name} was created.`;
           setMessage(message);
           toast.success("Flag created", { description: message });
         },
@@ -365,7 +360,7 @@ export default function FlagsPage() {
 
           {selectedFlag && (
             <Card className="change-inspector m-0">
-              <div className="inspector-label">{selectedFlag.key.toUpperCase()}</div>
+              <div className="inspector-label">{selectedFlag.name.toUpperCase()}</div>
               <div className="inspector-content">
                 <div>
                   <h2>{selectedFlag.name}</h2>
@@ -379,7 +374,7 @@ export default function FlagsPage() {
                       {
                         onSuccess: () =>
                           toast.success("Flag updated", {
-                            description: `${selectedFlag.key} is now ${enabled ? "on" : "off"}.`,
+                            description: `${selectedFlag.name} is now ${enabled ? "on" : "off"}.`,
                           }),
                         onError: (error) =>
                           toast.error("Could not update flag", { description: error.message }),
@@ -387,7 +382,7 @@ export default function FlagsPage() {
                     )
                   }
                   disabled={updateFlag.isPending}
-                  aria-label={`Toggle ${selectedFlag.key}`}
+                  aria-label={`Toggle ${selectedFlag.name}`}
                 />
                 <Button
                   type="button"
@@ -474,22 +469,10 @@ export default function FlagsPage() {
             </DialogHeader>
             <form className="grid gap-4" onSubmit={submitCreateFlag}>
               <div className="grid gap-2">
-                <Label htmlFor="flags-new-flag-key">Flag key</Label>
-                <Input
-                  id="flags-new-flag-key"
-                  required
-                  pattern="[a-z0-9_-]+"
-                  value={newFlagKey}
-                  onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-                    setNewFlagKey(event.target.value)
-                  }
-                  placeholder="checkout-redesign"
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="flags-new-flag-name">Display name</Label>
+                <Label htmlFor="flags-new-flag-name">Flag name</Label>
                 <Input
                   id="flags-new-flag-name"
+                  required
                   value={newFlagName}
                   onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
                     setNewFlagName(event.target.value)
