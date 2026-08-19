@@ -19,6 +19,7 @@
     "./sheet": "./src/ui/sheet.tsx",
     "./sidebar": "./src/ui/sidebar.tsx",
     "./skeleton": "./src/ui/skeleton.tsx",
+    "./sonner": "./src/ui/sonner.tsx",
     "./switch": "./src/ui/switch.tsx",
     "./tooltip": "./src/ui/tooltip.tsx",
     "./utils": "./src/utils.ts",
@@ -29,6 +30,7 @@
     "clsx": "2.1.1",
     "lucide-react": "1.31.0",
     "radix-ui": "1.6.7",
+    "sonner": "2.0.8",
     "tailwind-merge": "3.6.0"
   },
   "peerDependencies": {

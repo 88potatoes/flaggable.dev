@@ -44,6 +44,7 @@ import {
   useQuerySchemas,
 } from "@/slices/value-schemas/queries";
 import { useQueryProjects } from "@/slices/projects/queries";
+import { toast } from "sonner";
 export default function FlagsPage() {
   const [projectId, setProjectId] = useState("");
   const [query, setQuery] = useState("");
@@ -128,9 +129,14 @@ export default function FlagsPage() {
           setNewFlagKey("");
           setNewFlagName("");
           setIsCreateFlagOpen(false);
-          setMessage(`${flag.key} was created.`);
+          const message = `${flag.key} was created.`;
+          setMessage(message);
+          toast.success("Flag created", { description: message });
         },
-        onError: (error) => setMessage(error.message),
+        onError: (error) => {
+          setMessage(error.message);
+          toast.error("Could not create flag", { description: error.message });
+        },
       },
     );
   }
@@ -144,9 +150,14 @@ export default function FlagsPage() {
           setNewSchemaName("");
           setNewFlagSchemaId(schema.id);
           setIsCreateSchemaOpen(false);
-          setMessage(`${schema.name} was created.`);
+          const message = `${schema.name} was created.`;
+          setMessage(message);
+          toast.success("Schema created", { description: message });
         },
-        onError: (error) => setMessage(error.message),
+        onError: (error) => {
+          setMessage(error.message);
+          toast.error("Could not create schema", { description: error.message });
+        },
       },
     );
   }
@@ -159,8 +170,12 @@ export default function FlagsPage() {
         onSuccess: () => {
           setEditingSchemaId("");
           setMessage("Schema renamed.");
+          toast.success("Schema renamed");
         },
-        onError: (error) => setMessage(error.message),
+        onError: (error) => {
+          setMessage(error.message);
+          toast.error("Could not rename schema", { description: error.message });
+        },
       },
     );
   }
@@ -182,8 +197,12 @@ export default function FlagsPage() {
           setConditionValue("");
           setConditionResult("");
           setMessage("Targeting rule added.");
+          toast.success("Targeting rule added");
         },
-        onError: (error) => setMessage(error.message),
+        onError: (error) => {
+          setMessage(error.message);
+          toast.error("Could not add targeting rule", { description: error.message });
+        },
       },
     );
   }
@@ -355,7 +374,17 @@ export default function FlagsPage() {
                 <Switch
                   checked={selectedFlag.enabled}
                   onCheckedChange={(enabled: boolean) =>
-                    updateFlag.mutate({ flagId: selectedFlag.id, values: { enabled } })
+                    updateFlag.mutate(
+                      { flagId: selectedFlag.id, values: { enabled } },
+                      {
+                        onSuccess: () =>
+                          toast.success("Flag updated", {
+                            description: `${selectedFlag.key} is now ${enabled ? "on" : "off"}.`,
+                          }),
+                        onError: (error) =>
+                          toast.error("Could not update flag", { description: error.message }),
+                      },
+                    )
                   }
                   disabled={updateFlag.isPending}
                   aria-label={`Toggle ${selectedFlag.key}`}
@@ -367,8 +396,14 @@ export default function FlagsPage() {
                     archiveFlag.mutate(
                       { flagId: selectedFlag.id },
                       {
-                        onSuccess: () => setMessage("Flag archived."),
-                        onError: (error) => setMessage(error.message),
+                        onSuccess: () => {
+                          setMessage("Flag archived.");
+                          toast.success("Flag archived");
+                        },
+                        onError: (error) => {
+                          setMessage(error.message);
+                          toast.error("Could not archive flag", { description: error.message });
+                        },
                       },
                     )
                   }

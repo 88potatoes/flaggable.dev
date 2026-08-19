@@ -24,6 +24,7 @@ import { FlagTable } from "@/components/flag-table";
 import { useMutateCreateFlag, useMutateUpdateFlag, useQueryFlags } from "@/slices/flags/queries";
 import { useMutateCreateProject, useQueryProjects } from "@/slices/projects/queries";
 import { useQuerySchemas } from "@/slices/value-schemas/queries";
+import { toast } from "sonner";
 
 export default function Dashboard() {
   const [selected, setSelected] = useState(0);
@@ -35,7 +36,6 @@ export default function Dashboard() {
   const [newProjectName, setNewProjectName] = useState("");
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
-
   const projectsQuery = useQueryProjects();
   const projects = projectsQuery.data ?? [];
   const flagsQuery = useQueryFlags(projectId);
@@ -66,9 +66,15 @@ export default function Dashboard() {
     updateFlag.mutate(
       { flagId: flag.id, values: { enabled: !flag.enabled } },
       {
-        onSuccess: (updated) =>
-          setNotice(`${updated.key} is now ${updated.enabled ? "on" : "off"}.`),
-        onError: (mutationError) => setError(mutationError.message),
+        onSuccess: (updated) => {
+          const message = `${updated.key} is now ${updated.enabled ? "on" : "off"}.`;
+          setNotice(message);
+          toast.success("Flag updated", { description: message });
+        },
+        onError: (mutationError) => {
+          setError(mutationError.message);
+          toast.error("Could not update flag", { description: mutationError.message });
+        },
       },
     );
   }
@@ -85,9 +91,14 @@ export default function Dashboard() {
         onSuccess: (project) => {
           setNewProjectName("");
           setProjectId(project.id);
-          setNotice(`${project.name} is ready.`);
+          const message = `${project.name} is ready.`;
+          setNotice(message);
+          toast.success("Project created", { description: message });
         },
-        onError: (mutationError) => setError(mutationError.message),
+        onError: (mutationError) => {
+          setError(mutationError.message);
+          toast.error("Could not create project", { description: mutationError.message });
+        },
       },
     );
   }
@@ -112,8 +123,12 @@ export default function Dashboard() {
           setNewFlagKey("");
           setNewFlagName("");
           setNotice("Flag created.");
+          toast.success("Flag created", { description: `${newFlagKey} is ready to use.` });
         },
-        onError: (mutationError) => setError(mutationError.message),
+        onError: (mutationError) => {
+          setError(mutationError.message);
+          toast.error("Could not create flag", { description: mutationError.message });
+        },
       },
     );
   }
