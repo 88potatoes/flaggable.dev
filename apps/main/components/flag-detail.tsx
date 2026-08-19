@@ -4,7 +4,7 @@ import { Trash2 } from "lucide-react";
 import type { Flag } from "@flaggable/contracts";
 
 import { Button } from "@flaggable/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@flaggable/ui/card";
+
 import { Switch } from "@flaggable/ui/switch";
 import { useMutateUpdateFlag, useMutateArchiveFlag } from "@/slices/flags/queries";
 import { ConditionList } from "./condition-list";
@@ -42,76 +42,44 @@ export function FlagDetail({ flag, projectId }: { flag?: Flag; projectId: string
 
   return (
     <div className="space-y-6">
-      <Card className="overflow-hidden border bg-white shadow-lg">
-        <CardHeader className="bg-gradient-to-r from-gray-50/80 to-white/60 border-b pb-3">
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex-1">
-              <CardTitle className="text-base font-semibold text-gray-900">
-                Flag Configuration
-              </CardTitle>
-              <CardDescription className="mt-0.5 text-sm">
-                Manage global settings and behavior
-              </CardDescription>
-            </div>
-            <div className="flex flex-col items-end gap-2">
-              <Switch
-                checked={flag.enabled}
-                onCheckedChange={(enabled: boolean) =>
-                  updateFlag.mutate({ flagId: flag.id, values: { enabled } })
-                }
-                aria-label={`Toggle ${flag.name}`}
-              />
-              <span
-                className={`text-xs font-medium ${
-                  flag.enabled ? "text-green-600" : "text-gray-500"
-                }`}
-              >
-                {flag.enabled ? "Globally Active" : "Globally Inactive"}
-              </span>
-            </div>
+      <div className="flex items-start justify-between gap-4 rounded-lg bg-white p-4 shadow-sm">
+        <div className="flex-1">
+          <h1 className="text-xl font-semibold text-gray-900">{flag.name}</h1>
+          <p className="mt-1 text-sm text-gray-600">{flag.description || "No description yet."}</p>
+          <div className="mt-3 flex items-center gap-4 text-xs text-gray-500">
+            <span>Schema: Value schema</span>
+            <span className="text-gray-300">•</span>
+            <span className={flag.enabled ? "text-green-600" : "text-gray-500"}>
+              {flag.enabled ? "Globally Enabled" : "Globally Disabled"}
+            </span>
           </div>
-        </CardHeader>
-        <CardContent className="p-4">
-          <div className="grid gap-4 rounded-lg bg-gradient-to-r from-gray-50/80 to-white/60 p-4">
-            <dl className="grid gap-6 sm:grid-cols-3">
-              <div className="space-y-1.5">
-                <dt className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-                  Schema Type
-                </dt>
-                <dd className="text-sm font-medium text-gray-900">Value schema</dd>
-              </div>
-              <div className="space-y-1.5">
-                <dt className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-                  Global State
-                </dt>
-                <dd
-                  className={`text-sm font-semibold ${
-                    flag.enabled ? "text-green-700" : "text-gray-600"
-                  }`}
-                >
-                  {flag.enabled ? "Enabled" : "Disabled"}
-                </dd>
-              </div>
-              <div className="space-y-1.5">
-                <dt className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-                  Actions
-                </dt>
-                <dd>
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => archiveFlag.mutate({ flagId: flag.id })}
-                    disabled={archiveFlag.isPending}
-                    className="bg-red-500 hover:bg-red-600 focus:ring-red-500/20"
-                  >
-                    <Trash2 className="mr-2 h-3 w-3" /> Archive
-                  </Button>
-                </dd>
-              </div>
-            </dl>
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="flex flex-col items-end gap-2">
+            <Switch
+              checked={flag.enabled}
+              onCheckedChange={(enabled: boolean) =>
+                updateFlag.mutate({ flagId: flag.id, values: { enabled } })
+              }
+              aria-label={`Toggle ${flag.name}`}
+            />
+            <span
+              className={`text-xs font-medium ${flag.enabled ? "text-green-600" : "text-gray-500"}`}
+            >
+              {flag.enabled ? "Active" : "Inactive"}
+            </span>
           </div>
-        </CardContent>
-      </Card>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => archiveFlag.mutate({ flagId: flag.id })}
+            disabled={archiveFlag.isPending}
+            className="text-red-600 hover:bg-red-50 hover:text-red-700"
+          >
+            <Trash2 className="mr-2 h-3 w-3" /> Archive
+          </Button>
+        </div>
+      </div>
       <ConditionList flag={flag} />
     </div>
   );
