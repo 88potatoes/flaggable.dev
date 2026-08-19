@@ -21,12 +21,15 @@ import {
   useMutateUpdateCondition,
   useQueryConditions,
 } from "@/slices/conditions/queries";
+import { useQuerySchema } from "@/slices/value-schemas/queries";
 
 export function ConditionList({ flag }: { flag: Flag }) {
   const [property, setProperty] = useState("");
   const [operator, setOperator] = useState<ConditionOperator>("equals");
   const [predicateValue, setPredicateValue] = useState("");
   const [resultValue, setResultValue] = useState("");
+  const schemaQuery = useQuerySchema(flag.valueSchemaId);
+  const isBooleanSchema = schemaQuery.data?.name === "Boolean";
   const conditionsQuery = useQueryConditions(flag.id);
   const conditions = conditionsQuery.data ?? [];
   const createCondition = useMutateCreateCondition(flag.id);
@@ -44,7 +47,7 @@ export function ConditionList({ flag }: { flag: Flag }) {
         property: property.trim(),
         operator,
         predicateValue: parseValue(predicateValue),
-        resultValue: parseValue(resultValue),
+        resultValue: isBooleanSchema ? true : parseValue(resultValue),
       },
       {
         onSuccess: () => {
@@ -115,12 +118,14 @@ export function ConditionList({ flag }: { flag: Flag }) {
             onChange={(event) => setPredicateValue(event.target.value)}
             required
           />
-          <Input
-            placeholder="Result value"
-            value={resultValue}
-            onChange={(event) => setResultValue(event.target.value)}
-            required
-          />
+          {!isBooleanSchema && (
+            <Input
+              placeholder="Result value"
+              value={resultValue}
+              onChange={(event) => setResultValue(event.target.value)}
+              required
+            />
+          )}
         </div>
         <Button type="submit" disabled={createCondition.isPending}>
           <Plus /> Add condition
