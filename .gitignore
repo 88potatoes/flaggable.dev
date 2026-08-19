@@ -15,3 +15,4 @@ apps/*/dist
 apps/*/.vinext
 apps/*/.wrangler
 apps/*/tsconfig.tsbuildinfo
+.pi-subagents/*

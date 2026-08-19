@@ -1,7 +1,9 @@
 import { handleApiError, parseJsonBody, requireUserId } from "@/lib/api";
 import { createValueSchemaRequest, updateValueSchemaRequest } from "@/lib/api-schemas";
 import { getDb } from "@/lib/db";
-import { createValueSchemaService, serializeSchema } from "@/lib/services";
+import { ValueSchemaService, serializeSchema } from "@/slices/value-schemas/service";
+import { DrizzleValueSchemaRepository } from "@/slices/value-schemas/repo";
+import { DrizzleProjectRepository } from "@/slices/projects/repo";
 
 export async function GET(
   _request: Request,
@@ -9,7 +11,10 @@ export async function GET(
 ) {
   try {
     const { projectId } = await params;
-    const schemas = await createValueSchemaService(getDb()).list(projectId, await requireUserId());
+    const schemas = await new ValueSchemaService(
+      new DrizzleValueSchemaRepository(getDb()),
+      new DrizzleProjectRepository(getDb()),
+    ).list({ projectId, ownerId: await requireUserId() });
     return Response.json(schemas.map(serializeSchema));
   } catch (error) {
     return handleApiError(error);
@@ -23,12 +28,15 @@ export async function POST(
   try {
     const { projectId } = await params;
     const body = await parseJsonBody(request, createValueSchemaRequest);
-    const schema = await createValueSchemaService(getDb()).create(
+    const schema = await new ValueSchemaService(
+      new DrizzleValueSchemaRepository(getDb()),
+      new DrizzleProjectRepository(getDb()),
+    ).create({
       projectId,
-      await requireUserId(),
-      body.name,
-      body.schemaJson,
-    );
+      ownerId: await requireUserId(),
+      name: body.name,
+      schemaJson: body.schemaJson,
+    });
     return Response.json(serializeSchema(schema), { status: 201 });
   } catch (error) {
     return handleApiError(error);
