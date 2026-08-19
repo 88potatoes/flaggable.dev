@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Flag, LayoutDashboard } from "lucide-react";
+import { LayoutDashboard } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@flaggable/ui/avatar";
 import { useUser } from "@auth0/nextjs-auth0/client";
@@ -22,11 +22,12 @@ import {
   SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
-  SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarProvider,
   SidebarInset,
+  SidebarRail,
+  SidebarTrigger,
 } from "@flaggable/ui/sidebar";
 import type { Project } from "@flaggable/contracts";
 
@@ -35,12 +36,10 @@ const navButton = "text-sm text-sidebar-foreground/80";
 export function DashboardSidebar({
   projects,
   projectId,
-  flagCount,
   onProjectChange,
 }: {
   projects: Project[];
   projectId: string;
-  flagCount: number;
   onProjectChange: (projectId: string) => void;
 }) {
   const pathname = usePathname();
@@ -51,7 +50,7 @@ export function DashboardSidebar({
   const userInitials = getInitials(userName);
 
   return (
-    <Sidebar collapsible="none" className="h-svh max-h-svh border-r bg-sidebar">
+    <Sidebar collapsible="icon" className="h-svh max-h-svh border-r bg-sidebar">
       <SidebarHeader className="gap-2 p-2">
         <SidebarMenu>
           <SidebarMenuItem>
@@ -88,21 +87,17 @@ export function DashboardSidebar({
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton className={navButton} asChild isActive={pathname === "/"}>
+                <SidebarMenuButton
+                  className={navButton}
+                  tooltip="Overview"
+                  asChild
+                  isActive={pathname === "/"}
+                >
                   <Link href="/" title="Overview">
                     <LayoutDashboard />
                     <span>Overview</span>
                   </Link>
                 </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton className={navButton} asChild isActive={pathname === "/flags"}>
-                  <Link href="/flags" title="Feature flags">
-                    <Flag />
-                    <span>Feature flags</span>
-                  </Link>
-                </SidebarMenuButton>
-                <SidebarMenuBadge>{flagCount}</SidebarMenuBadge>
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
@@ -145,13 +140,11 @@ export function DashboardShell({
   children,
   projects,
   projectId,
-  flagCount,
   onProjectChange,
 }: {
   children: React.ReactNode;
   projects: Project[];
   projectId: string;
-  flagCount: number;
   onProjectChange: (projectId: string) => void;
 }) {
   return (
@@ -159,10 +152,15 @@ export function DashboardShell({
       <DashboardSidebar
         projects={projects}
         projectId={projectId}
-        flagCount={flagCount}
         onProjectChange={onProjectChange}
       />
-      <SidebarInset className="min-w-0 bg-background">{children}</SidebarInset>
+      <SidebarInset className="min-w-0 bg-background">
+        <div className="dashboard-page-header">
+          <SidebarTrigger />
+        </div>
+        {children}
+      </SidebarInset>
+      <SidebarRail />
     </SidebarProvider>
   );
 }

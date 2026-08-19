@@ -1,8 +1,7 @@
 "use client";
 
-import Link from "next/link";
-import { FormEvent, type ChangeEvent, useEffect, useState } from "react";
-import { ArrowUpRight, ChevronDown, Flag, Plus, Search } from "lucide-react";
+import { FormEvent, type ChangeEvent, useEffect, useMemo, useState } from "react";
+import { Flag, Plus } from "lucide-react";
 
 import { Alert } from "@flaggable/ui/alert";
 import { Button } from "@flaggable/ui/button";
@@ -18,16 +17,17 @@ import {
 import { Input } from "@flaggable/ui/input";
 import { Skeleton } from "@flaggable/ui/skeleton";
 import { Label } from "@flaggable/ui/label";
-import { Switch } from "@flaggable/ui/switch";
 import { DashboardShell } from "@/components/dashboard-sidebar";
-import { FlagTable } from "@/components/flag-table";
-import { useMutateCreateFlag, useMutateUpdateFlag, useQueryFlags } from "@/slices/flags/queries";
+import { FlagBrowser } from "@/components/flag-browser";
+import { FlagDetail } from "@/components/flag-detail";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
+import { useMutateCreateFlag, useQueryFlags } from "@/slices/flags/queries";
 import { useMutateCreateProject, useQueryProjects } from "@/slices/projects/queries";
 import { useQuerySchemas } from "@/slices/value-schemas/queries";
 import { toast } from "sonner";
 
 export default function Dashboard() {
-  const [selected, setSelected] = useState(0);
+  const [selectedFlagId, setSelectedFlagId] = useState("");
   const [query, setQuery] = useState("");
   const [projectId, setProjectId] = useState("");
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -37,16 +37,16 @@ export default function Dashboard() {
   const [notice, setNotice] = useState("");
   const projectsQuery = useQueryProjects();
   const projects = projectsQuery.data ?? [];
-  const flagsQuery = useQueryFlags(projectId);
   const schemasQuery = useQuerySchemas(projectId);
-  const updateFlag = useMutateUpdateFlag(projectId);
+  const debouncedQuery = useDebouncedValue(query);
+  const flagsQuery = useQueryFlags(projectId, debouncedQuery);
   const createFlag = useMutateCreateFlag(projectId);
   const createProject = useMutateCreateProject();
-  const flags = flagsQuery.data ?? [];
-  const selectedFlag = flags[selected] ?? flags[0];
-  const visibleFlags = flags.filter((flag) =>
-    `${flag.name} ${flag.description ?? ""}`.toLowerCase().includes(query.toLowerCase()),
+  const flags = useMemo(
+    () => flagsQuery.data?.pages.flatMap((page) => page.items) ?? [],
+    [flagsQuery.data],
   );
+  const selectedFlag = flags.find((flag) => flag.id === selectedFlagId) ?? flags[0];
 
   useEffect(() => {
     if (!projectId && projects[0]) setProjectId(projects[0].id);
@@ -54,28 +54,8 @@ export default function Dashboard() {
 
   function selectProject(nextProjectId: string) {
     setProjectId(nextProjectId);
-    setSelected(0);
+    setSelectedFlagId("");
     setError("");
-  }
-
-  function toggleFlag(index: number) {
-    const flag = flags[index];
-    if (!flag) return;
-    setError("");
-    updateFlag.mutate(
-      { flagId: flag.id, values: { enabled: !flag.enabled } },
-      {
-        onSuccess: (updated) => {
-          const message = `${updated.name} is now ${updated.enabled ? "on" : "off"}.`;
-          setNotice(message);
-          toast.success("Flag updated", { description: message });
-        },
-        onError: (mutationError) => {
-          setError(mutationError.message);
-          toast.error("Could not update flag", { description: mutationError.message });
-        },
-      },
-    );
   }
 
   function submitCreateProject(event: FormEvent<HTMLFormElement>) {
@@ -133,12 +113,7 @@ export default function Dashboard() {
   const alerts = projectsQuery.error || flagsQuery.error || error || notice;
 
   return (
-    <DashboardShell
-      projects={projects}
-      projectId={projectId}
-      flagCount={flags.length}
-      onProjectChange={selectProject}
-    >
+    <DashboardShell projects={projects} projectId={projectId} onProjectChange={selectProject}>
       <div className="dashboard-inner">
         {projectsQuery.isLoading ? (
           <Card className="project-empty-state" aria-busy="true">
@@ -192,76 +167,23 @@ export default function Dashboard() {
               </Alert>
             )}
 
-            <div className="dashboard-grid" id="flags">
-              <Card className="flags-panel gap-0 p-0">
-                <div className="panel-heading">
-                  <div>
-                    <h2>Feature flags</h2>
-                    <p>Manage and monitor your releases.</p>
-                  </div>
-                  <Link href="/flags" className="panel-link">
-                    View all <ArrowUpRight />
-                  </Link>
-                </div>
-                <div className="flag-toolbar">
-                  <div className="search-field">
-                    <Search aria-hidden="true" />
-                    <Label htmlFor="dashboard-flag-search" className="sr-only">
-                      Search flags
-                    </Label>
-                    <Input
-                      id="dashboard-flag-search"
-                      placeholder="Search flags"
-                      value={query}
-                      onChange={(event: ChangeEvent<HTMLInputElement>) =>
-                        setQuery(event.target.value)
-                      }
-                    />
-                  </div>
-                  <Button type="button" variant="outline" className="filter-button">
-                    All flags <ChevronDown />
-                  </Button>
-                </div>
-                <FlagTable
-                  flags={visibleFlags}
-                  selectedFlagId={selectedFlag?.id}
-                  onSelect={(flagId) => setSelected(flags.findIndex((flag) => flag.id === flagId))}
-                  isLoading={flagsQuery.isLoading}
-                  emptyMessage="No flags yet. Create your first flag to get started."
-                />
-              </Card>
+            <div className="flag-workspace" id="flags">
+              <FlagBrowser
+                flags={flags}
+                search={query}
+                onSearchChange={setQuery}
+                selectedFlagId={selectedFlag?.id}
+                onSelect={setSelectedFlagId}
+                isLoading={flagsQuery.isLoading}
+                isFetchingNextPage={flagsQuery.isFetchingNextPage}
+                hasNextPage={Boolean(flagsQuery.hasNextPage)}
+                onLoadMore={() => {
+                  if (flagsQuery.hasNextPage && !flagsQuery.isFetchingNextPage)
+                    flagsQuery.fetchNextPage();
+                }}
+              />
+              <FlagDetail flag={selectedFlag} projectId={projectId} />
             </div>
-
-            {selectedFlag && (
-              <Card className="change-inspector">
-                <div className="inspector-label">SELECTED FLAG</div>
-                <div className="inspector-content">
-                  <div>
-                    <h2>{selectedFlag.name}</h2>
-                    <p>
-                      {selectedFlag.description ?? "No description yet."} · Last changed{" "}
-                      {formatUpdated(selectedFlag.updatedAt)}
-                    </p>
-                  </div>
-                  <Switch
-                    checked={selectedFlag.enabled}
-                    onCheckedChange={() => toggleFlag(selected)}
-                    disabled={updateFlag.isPending}
-                    aria-label={`Turn ${selectedFlag.enabled ? "off" : "on"} ${selectedFlag.name}`}
-                  />
-                  <span className="inspector-action">
-                    {selectedFlag.enabled ? "Enabled" : "Currently off"}
-                  </span>
-                  <Button
-                    type="button"
-                    variant="quiet"
-                    onClick={() => setError("Flag editing is next; use the CRUD API for now.")}
-                  >
-                    Edit flag <ArrowUpRight />
-                  </Button>
-                </div>
-              </Card>
-            )}
 
             <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
               <DialogContent className="create-panel">
@@ -349,11 +271,4 @@ function ProjectEmptyState({
       </form>
     </Card>
   );
-}
-
-function formatUpdated(value: string) {
-  const date = new Date(value);
-  if (Number.isNaN(date.valueOf())) return "Recently";
-  const minutes = Math.max(1, Math.round((Date.now() - date.valueOf()) / 60000));
-  return minutes < 60 ? `${minutes}m ago` : `${Math.round(minutes / 60)}h ago`;
 }

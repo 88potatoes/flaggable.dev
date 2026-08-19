@@ -3,16 +3,22 @@ import { createFlagRequest } from "@/lib/api-schemas";
 import { FlagService, serializeFlag } from "@/slices/flags/service";
 
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ projectId: string }> },
 ) {
   try {
     const { projectId } = await params;
-    const flags = await new FlagService().list({
+    const url = new URL(request.url);
+    const rawLimit = Number(url.searchParams.get("limit") ?? "25");
+    const limit = Number.isInteger(rawLimit) ? Math.min(Math.max(rawLimit, 1), 100) : 25;
+    const page = await new FlagService().list({
       projectId,
       ownerId: await requireUserId(),
+      search: url.searchParams.get("search")?.trim() ?? "",
+      limit,
+      cursor: url.searchParams.get("cursor") ?? undefined,
     });
-    return Response.json(flags.map(serializeFlag));
+    return Response.json({ ...page, items: page.items.map(serializeFlag) });
   } catch (error) {
     return handleApiError(error);
   }

@@ -31,6 +31,11 @@ export type Flag = {
   updatedAt: string;
 };
 
+export type FlagPage = {
+  items: Flag[];
+  nextCursor: string | null;
+};
+
 export type Condition = {
   id: string;
   flagId: string;

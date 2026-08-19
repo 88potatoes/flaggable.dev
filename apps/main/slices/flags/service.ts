@@ -11,6 +11,26 @@ import {
 } from "@/slices/value-schemas/repo";
 import { DrizzleFlagRepository, type FlagRepository } from "./repo";
 
+function encodeCursor(record: Pick<FlagRecord, "createdAt" | "id">) {
+  return Buffer.from(
+    JSON.stringify({ createdAt: record.createdAt.toISOString(), id: record.id }),
+  ).toString("base64url");
+}
+
+function decodeCursor(cursor: string) {
+  try {
+    const value = JSON.parse(Buffer.from(cursor, "base64url").toString("utf8")) as {
+      createdAt?: string;
+      id?: string;
+    };
+    const createdAt = value.createdAt ? new Date(value.createdAt) : null;
+    if (!createdAt || Number.isNaN(createdAt.valueOf()) || !value.id) throw new Error();
+    return { createdAt, id: value.id };
+  } catch {
+    throw new ApiError(400, "Invalid flag pagination cursor.");
+  }
+}
+
 function json(value: unknown, field: string): string {
   try {
     return JSON.stringify(value);
@@ -27,9 +47,27 @@ export class FlagService {
     private readonly schemas: ValueSchemaRepository = new DrizzleValueSchemaRepository(),
   ) {}
 
-  list = async ({ projectId, ownerId }: { projectId: string; ownerId: string }) => {
+  list = async ({
+    projectId,
+    ownerId,
+    search = "",
+    limit = 25,
+    cursor,
+  }: {
+    projectId: string;
+    ownerId: string;
+    search?: string;
+    limit?: number;
+    cursor?: string;
+  }) => {
     await this.requireProject({ projectId, ownerId });
-    return this.repository.listByProject({ projectId });
+    const after = cursor ? decodeCursor(cursor) : undefined;
+    const page = await this.repository.listByProject({ projectId, search, limit, after });
+    const last = page.items.at(-1);
+    return {
+      items: page.items,
+      nextCursor: page.hasMore && last ? encodeCursor(last) : null,
+    };
   };
 
   get = async ({ flagId, ownerId }: { flagId: string; ownerId: string }) =>
