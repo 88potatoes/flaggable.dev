@@ -178,7 +178,6 @@ export default function Dashboard() {
               />
               <FlagDetail flag={selectedFlag} projectId={projectId} />
             </div>
-
             <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
               <DialogContent className="create-panel">
                 <DialogHeader>

@@ -75,6 +75,11 @@ export const updateConditionRequest = conditionFields
   .partial()
   .superRefine(validateConditionPredicate);
 
+export const evaluateRequest = z.object({
+  publicKey: z.string().trim().min(1),
+  context: jsonObject,
+});
+
 export function parseRequest<T>(schema: z.ZodType<T>, body: unknown): T {
   const result = schema.safeParse(body);
   if (!result.success) {

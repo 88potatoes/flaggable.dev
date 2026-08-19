@@ -11,7 +11,7 @@ import { ConditionService } from "@/slices/conditions/service";
 import type { FlagRepository } from "@/slices/flags/repo";
 import { FlagService } from "@/slices/flags/service";
 import type { ProjectRepository } from "@/slices/projects/repo";
-import { ProjectService } from "@/slices/projects/service";
+import { ProjectService, type ProjectPublicKeyService } from "@/slices/projects/service";
 import type { ValueSchemaRepository } from "@/slices/value-schemas/repo";
 import { ValueSchemaService } from "@/slices/value-schemas/service";
 
@@ -132,8 +132,11 @@ export function mockConditionRepo(
 }
 
 /** Creates a project service backed by a mock repository. */
-export const mockProjectService = (repository = mockProjectRepo(), schemas = mockSchemaRepo()) =>
-  new ProjectService(repository, schemas);
+export const mockProjectService = (
+  repository = mockProjectRepo(),
+  schemas = mockSchemaRepo(),
+  publicKeys: ProjectPublicKeyService = { create: vi.fn(async () => ({ publicKey: "pk_test" })) },
+) => new ProjectService(repository, schemas, publicKeys);
 
 /** Creates a value-schema service backed by mock repositories. */
 export const mockSchemaService = ({

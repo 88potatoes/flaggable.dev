@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Plus } from "lucide-react";
+import { KeyRound, LayoutDashboard, Plus } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@flaggable/ui/avatar";
 import {
@@ -49,7 +49,7 @@ export function DashboardSidebar({
   projects: Project[];
   projectId: string;
   onProjectChange: (projectId: string) => void;
-  onNewFlag: () => void;
+  onNewFlag?: () => void;
 }) {
   const pathname = usePathname();
   const { user } = useUser();
@@ -91,22 +91,24 @@ export function DashboardSidebar({
       </SidebarHeader>
 
       <SidebarContent>
-        <SidebarGroup className="pb-1">
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  className="h-9 bg-[var(--accent)] text-white shadow-sm hover:bg-[var(--accent-deep)] hover:text-white"
-                  tooltip="New flag"
-                  onClick={onNewFlag}
-                >
-                  <Plus />
-                  <span>New flag</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {onNewFlag && (
+          <SidebarGroup className="pb-1">
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    className="h-9 bg-[var(--accent)] text-white shadow-sm hover:bg-[var(--accent-deep)] hover:text-white"
+                    tooltip="New flag"
+                    onClick={onNewFlag}
+                  >
+                    <Plus />
+                    <span>New flag</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
 
         <SidebarGroup>
           <SidebarGroupContent>
@@ -121,6 +123,14 @@ export function DashboardSidebar({
                   <Link href="/" title="Overview">
                     <LayoutDashboard />
                     <span>Overview</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton className={navButton} tooltip="Public keys" asChild>
+                  <Link href="/public-keys" title="Public keys">
+                    <KeyRound />
+                    <span>Public keys</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -191,7 +201,7 @@ export function DashboardShell({
   projects: Project[];
   projectId: string;
   onProjectChange: (projectId: string) => void;
-  onNewFlag: () => void;
+  onNewFlag?: () => void;
 }) {
   return (
     <SidebarProvider className="flex min-h-svh w-full flex-row bg-background">

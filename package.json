@@ -5,6 +5,8 @@
   "scripts": {
     "dev:landing": "pnpm --filter @flaggable/landing dev",
     "dev:main": "pnpm --filter @flaggable/main dev",
+    "test:sdk": "pnpm --filter @flaggable/sdk test",
+    "typecheck:sdk": "pnpm --filter @flaggable/sdk typecheck",
     "build": "pnpm --filter @flaggable/landing build && pnpm --filter @flaggable/main build",
     "build:landing": "pnpm --filter @flaggable/landing build",
     "build:main": "pnpm --filter @flaggable/main build",

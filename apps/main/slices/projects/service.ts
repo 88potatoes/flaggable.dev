@@ -6,6 +6,7 @@ import {
   DrizzleValueSchemaRepository,
   type ValueSchemaRepository,
 } from "@/slices/value-schemas/repo";
+import { PublicKeyService } from "@/slices/public-keys/service";
 import { DrizzleProjectRepository, type ProjectRepository } from "./repo";
 
 /** Application operations for projects. Persistence is injected for unit testing. */
@@ -14,10 +15,18 @@ const DEFAULT_BOOLEAN_SCHEMA = {
   enum: [true, false],
 } as const;
 
+/** Creates the initial browser SDK credential for a new project. */
+export interface ProjectPublicKeyService {
+  create({ projectId, ownerId }: { projectId: string; ownerId: string }): Promise<{
+    publicKey: string;
+  }>;
+}
+
 export class ProjectService {
   constructor(
     private readonly repository: ProjectRepository = new DrizzleProjectRepository(),
     private readonly schemas: ValueSchemaRepository = new DrizzleValueSchemaRepository(),
+    private readonly publicKeys?: ProjectPublicKeyService,
   ) {}
 
   list = ({ ownerId }: { ownerId: string }) => this.repository.listByOwner({ ownerId });
@@ -48,7 +57,13 @@ export class ProjectService {
       },
     });
 
-    return project;
+    const { publicKey } = await (
+      this.publicKeys ?? new PublicKeyService(undefined, this.repository)
+    ).create({
+      projectId: project.id,
+      ownerId,
+    });
+    return { ...project, publicKey };
   };
 
   update = async ({

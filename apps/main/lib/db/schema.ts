@@ -80,6 +80,26 @@ export const flagTable = sqliteTable(
   ],
 );
 
+export const publicKeyTable = sqliteTable(
+  "public_key",
+  {
+    id: text("id").primaryKey(),
+    projectId: text("project_id").notNull(),
+    keyHash: text("key_hash").notNull(),
+    createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull(),
+    revokedAt: integer("revoked_at", { mode: "timestamp_ms" }),
+  },
+  (table) => [
+    unique("public_key_hash_unique").on(table.keyHash),
+    index("public_key_project_id_idx").on(table.projectId),
+    foreignKey({
+      columns: [table.projectId],
+      foreignColumns: [projectTable.id],
+      name: "public_key_project_id_fk",
+    }),
+  ],
+);
+
 export const conditionTable = sqliteTable(
   "condition",
   {
@@ -111,5 +131,7 @@ export type ValueSchemaRecord = typeof valueSchemaTable.$inferSelect;
 export type NewValueSchemaRecord = typeof valueSchemaTable.$inferInsert;
 export type FlagRecord = typeof flagTable.$inferSelect;
 export type NewFlagRecord = typeof flagTable.$inferInsert;
+export type PublicKeyRecord = typeof publicKeyTable.$inferSelect;
+export type NewPublicKeyRecord = typeof publicKeyTable.$inferInsert;
 export type ConditionRecord = typeof conditionTable.$inferSelect;
 export type NewConditionRecord = typeof conditionTable.$inferInsert;

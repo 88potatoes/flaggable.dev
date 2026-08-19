@@ -29,6 +29,13 @@
       "when": 1787151226641,
       "tag": "0003_aromatic_rawhide_kid",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1787153284851,
+      "tag": "0004_fluffy_supreme_intelligence",
+      "breakpoints": true
     }
   ]
 }

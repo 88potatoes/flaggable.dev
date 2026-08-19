@@ -1,0 +1,24 @@
+{
+  "name": "@flaggable/sdk",
+  "version": "0.1.0",
+  "private": false,
+  "type": "module",
+  "exports": {
+    ".": "./frontend/core/index.ts",
+    "./core": "./frontend/core/index.ts",
+    "./react": "./frontend/react/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run --config frontend/vitest.config.ts",
+    "typecheck": "tsgo --noEmit -p frontend/tsconfig.json"
+  },
+  "devDependencies": {
+    "@types/react": "19.2.18",
+    "react": "19.2.8",
+    "typescript": "7.0.2",
+    "vitest": "4.1.10"
+  },
+  "peerDependencies": {
+    "react": ">=18"
+  }
+}
