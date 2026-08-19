@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, type ChangeEvent, type ReactNode, useEffect, useState } from "react";
+import { FormEvent, type ChangeEvent, useEffect, useState } from "react";
 import { ArrowUpRight, ChevronDown, Flag, Plus, Search } from "lucide-react";
 
 import { Alert } from "@flaggable/ui/alert";
@@ -230,38 +230,6 @@ export default function Dashboard() {
                   emptyMessage="No flags yet. Create your first flag to get started."
                 />
               </Card>
-
-              <Card className="activity-panel gap-0 p-0" id="activity">
-                <div className="panel-heading">
-                  <div>
-                    <h2>Recent activity</h2>
-                    <p>The latest changes in your workspace.</p>
-                  </div>
-                  <Link href="#activity" className="panel-link">
-                    View all <ArrowUpRight />
-                  </Link>
-                </div>
-                <div className="activity-list">
-                  <div className="activity-day">TODAY</div>
-                  <ActivityItem
-                    icon={<ArrowUpRight />}
-                    tone="orange"
-                    title="Feature flags"
-                    body="Activity history will appear here"
-                    actor="System"
-                    time="Ready"
-                  />
-                  <div className="activity-day yesterday">NEXT</div>
-                  <ActivityItem
-                    icon={<Flag />}
-                    tone="blue"
-                    title="Targeting rules"
-                    body="Build ordered conditions from the flag detail view"
-                    actor="flaggable"
-                    time="Coming soon"
-                  />
-                </div>
-              </Card>
             </div>
 
             {selectedFlag && (
@@ -388,33 +356,4 @@ function formatUpdated(value: string) {
   if (Number.isNaN(date.valueOf())) return "Recently";
   const minutes = Math.max(1, Math.round((Date.now() - date.valueOf()) / 60000));
   return minutes < 60 ? `${minutes}m ago` : `${Math.round(minutes / 60)}h ago`;
-}
-
-function ActivityItem({
-  icon,
-  tone,
-  title,
-  body,
-  actor,
-  time,
-}: {
-  icon: ReactNode;
-  tone: string;
-  title: string;
-  body: string;
-  actor: string;
-  time: string;
-}) {
-  return (
-    <div className="activity-item">
-      <span className={`activity-icon ${tone}`}>{icon}</span>
-      <div>
-        <b>{title}</b>
-        <p>{body}</p>
-        <small>
-          {actor} · {time}
-        </small>
-      </div>
-    </div>
-  );
 }
