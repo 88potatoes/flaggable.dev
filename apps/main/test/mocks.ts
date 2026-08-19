@@ -100,6 +100,9 @@ export function mockFlagRepo(overrides: Partial<FlagRepository> = {}): FlagRepos
       hasMore: false,
     })),
     findById: vi.fn(async ({ flagId }) => records.find((item) => item.id === flagId)),
+    findByProjectAndName: vi.fn(async ({ projectId, name }) =>
+      records.find((item) => item.projectId === projectId && item.name === name),
+    ),
     create: vi.fn(async ({ record }) => {
       records.push(record as FlagRecord);
       return record as FlagRecord;

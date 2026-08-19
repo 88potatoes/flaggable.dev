@@ -16,6 +16,15 @@ function encodeCursor(record: Pick<FlagRecord, "createdAt" | "id">) {
   ).toString("base64url");
 }
 
+function isFlagNameConflict(error: unknown) {
+  if (!(error instanceof Error)) return false;
+  const message = error.message.toLowerCase();
+  return (
+    message.includes("flag_project_name_unique") ||
+    message.includes("unique constraint failed: flag.project_id, flag.name")
+  );
+}
+
 function decodeCursor(cursor: string) {
   try {
     const value = JSON.parse(Buffer.from(cursor, "base64url").toString("utf8")) as {
@@ -82,6 +91,13 @@ export class FlagService {
     if (!schema || schema.projectId !== projectId) {
       throw new ApiError(400, "Value schema does not belong to this project.");
     }
+    const existingFlag = await this.repository.findByProjectAndName({
+      projectId,
+      name: values.name,
+    });
+    if (existingFlag) {
+      throw new ApiError(409, `A flag named "${values.name}" already exists in this project.`);
+    }
     const timestamp = new Date();
     const record: NewFlagRecord = {
       id: uuidv7(),
@@ -93,7 +109,14 @@ export class FlagService {
       createdAt: timestamp,
       updatedAt: timestamp,
     };
-    return this.repository.create({ record });
+    try {
+      return await this.repository.create({ record });
+    } catch (error) {
+      if (isFlagNameConflict(error)) {
+        throw new ApiError(409, `A flag named "${values.name}" already exists in this project.`);
+      }
+      throw error;
+    }
   };
 
   update = async ({
@@ -106,15 +129,32 @@ export class FlagService {
     values: { name?: string; description?: string; enabled?: boolean };
   }) => {
     const flag = await this.requireFlag({ flagId, ownerId });
-    return this.repository.update({
-      flagId: flag.id,
-      values: {
-        ...(values.name === undefined ? {} : { name: values.name }),
-        ...(values.description === undefined ? {} : { description: values.description }),
-        ...(values.enabled === undefined ? {} : { enabled: values.enabled }),
-        updatedAt: new Date(),
-      },
-    });
+    if (values.name !== undefined) {
+      const existingFlag = await this.repository.findByProjectAndName({
+        projectId: flag.projectId,
+        name: values.name,
+      });
+      if (existingFlag && existingFlag.id !== flag.id) {
+        throw new ApiError(409, `A flag named "${values.name}" already exists in this project.`);
+      }
+    }
+
+    try {
+      return await this.repository.update({
+        flagId: flag.id,
+        values: {
+          ...(values.name === undefined ? {} : { name: values.name }),
+          ...(values.description === undefined ? {} : { description: values.description }),
+          ...(values.enabled === undefined ? {} : { enabled: values.enabled }),
+          updatedAt: new Date(),
+        },
+      });
+    } catch (error) {
+      if (isFlagNameConflict(error)) {
+        throw new ApiError(409, `A flag named "${values.name}" already exists in this project.`);
+      }
+      throw error;
+    }
   };
 
   archive = async ({ flagId, ownerId }: { flagId: string; ownerId: string }) => {

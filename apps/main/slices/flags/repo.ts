@@ -17,6 +17,13 @@ export interface FlagRepository {
     after?: { createdAt: Date; id: string };
   }): Promise<{ items: FlagRecord[]; hasMore: boolean }>;
   findById({ flagId }: { flagId: string }): Promise<FlagRecord | undefined>;
+  findByProjectAndName({
+    projectId,
+    name,
+  }: {
+    projectId: string;
+    name: string;
+  }): Promise<FlagRecord | undefined>;
   create({ record }: { record: NewFlagRecord }): Promise<FlagRecord>;
   update({
     flagId,
@@ -59,6 +66,14 @@ export class DrizzleFlagRepository implements FlagRepository {
 
   findById({ flagId }: { flagId: string }) {
     return this.db.select().from(flagTable).where(eq(flagTable.id, flagId)).get();
+  }
+
+  findByProjectAndName({ projectId, name }: { projectId: string; name: string }) {
+    return this.db
+      .select()
+      .from(flagTable)
+      .where(and(eq(flagTable.projectId, projectId), eq(flagTable.name, name)))
+      .get();
   }
 
   create({ record }: { record: NewFlagRecord }) {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type KeyboardEvent } from "react";
 import { Command, Plus, Search } from "lucide-react";
 
 import {
@@ -34,7 +34,7 @@ export function CommandPalette({
     if (open) setSearch("");
   }, [open]);
 
-  function handleSearchKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
+  function handleSearchKeyDown(event: KeyboardEvent<HTMLInputElement>) {
     if (event.key === "Enter" && canShowCreateFlag) {
       event.preventDefault();
       onCreateFlag();

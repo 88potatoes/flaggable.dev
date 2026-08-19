@@ -48,10 +48,6 @@ export function FlagDetail({ flag, projectId }: { flag?: Flag; projectId: string
           <p className="mt-1 text-sm text-gray-600">{flag.description || "No description yet."}</p>
           <div className="mt-3 flex items-center gap-4 text-xs text-gray-500">
             <span>Schema: Value schema</span>
-            <span className="text-gray-300">•</span>
-            <span className={flag.enabled ? "text-green-600" : "text-gray-500"}>
-              {flag.enabled ? "Globally Enabled" : "Globally Disabled"}
-            </span>
           </div>
         </div>
         <div className="flex items-center gap-3">

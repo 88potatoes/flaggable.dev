@@ -1,6 +1,7 @@
 "use client";
 
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { HTTPError } from "ky";
 import type { Flag, FlagPage } from "@flaggable/contracts";
 
 import { api } from "@/slices/http";
@@ -33,11 +34,21 @@ function invalidateProjectFlags(queryClient: ReturnType<typeof useQueryClient>, 
   return queryClient.invalidateQueries({ queryKey: ["flags", projectId] });
 }
 
+async function readApiError(error: unknown): Promise<never> {
+  if (error instanceof HTTPError) {
+    const body = await error.response
+      .json<{ error?: string }>()
+      .catch((): { error?: string } => ({}));
+    throw new Error(body.error ?? error.message);
+  }
+  throw error;
+}
+
 export function useMutateCreateFlag(projectId: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (values: { valueSchemaId: string; name: string; description?: string }) =>
-      api.post(`projects/${projectId}/flags`, { json: values }).json<Flag>(),
+    mutationFn: async (values: { valueSchemaId: string; name: string; description?: string }) =>
+      api.post(`projects/${projectId}/flags`, { json: values }).json<Flag>().catch(readApiError),
     onSuccess: async (flag) => {
       queryClient.setQueryData(flagQueryKeys.byId(flag.id), flag);
       await invalidateProjectFlags(queryClient, projectId);

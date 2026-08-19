@@ -27,6 +27,13 @@ import { useMutateCreateProject, useQueryProjects } from "@/slices/projects/quer
 import { useQuerySchemas } from "@/slices/value-schemas/queries";
 import { toast } from "sonner";
 
+function getApiErrorMessage(error: Error, fallback: string) {
+  if ("response" in error && error.response instanceof Response) {
+    return fallback;
+  }
+  return error.message || fallback;
+}
+
 export default function Dashboard() {
   const [selectedFlagId, setSelectedFlagId] = useState("");
   const [query, setQuery] = useState("");
@@ -117,8 +124,9 @@ export default function Dashboard() {
           toast.success("Flag created", { description: `${newFlagName} is ready to use.` });
         },
         onError: (mutationError) => {
-          setError(mutationError.message);
-          toast.error("Could not create flag", { description: mutationError.message });
+          const message = getApiErrorMessage(mutationError, "Could not create flag.");
+          setError(message);
+          toast.error("Could not create flag", { description: message });
         },
       },
     );
@@ -195,7 +203,7 @@ export default function Dashboard() {
             setNewProjectName={setNewProjectName}
             onSubmit={submitCreateProject}
             isPending={createProject.isPending}
-            message={error || projectsQuery.error?.message}
+            message={error || projectsQuery.error?.message || ""}
             isError={Boolean(error || projectsQuery.error)}
           />
         ) : (

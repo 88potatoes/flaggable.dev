@@ -28,6 +28,7 @@ test("evaluates active flags and returns null when conditions do not match", asy
   const flags: FlagRepository = {
     listByProject: vi.fn(async () => ({ items: [mockFlag], hasMore: false })),
     findById: vi.fn(),
+    findByProjectAndName: vi.fn(),
     create: vi.fn(),
     update: vi.fn(),
   };

@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
 import { mockFlag, mockFlagRepo, mockFlagService, mockProject, mockSchema } from "../../test/mocks";
 
@@ -25,6 +25,24 @@ describe("FlagService", () => {
     expect(repo.create).toHaveBeenCalledWith({
       record: expect.objectContaining({ name: "New" }),
     });
+  });
+
+  test("rejects duplicate active flag names in a project", async () => {
+    const repo = mockFlagRepo({
+      findByProjectAndName: vi.fn(async () => mockFlag),
+    });
+
+    await expect(
+      mockFlagService({ repository: repo }).create({
+        projectId: mockProject.id,
+        ownerId: "owner-1",
+        values: { valueSchemaId: mockSchema.id, name: mockFlag.name },
+      }),
+    ).rejects.toMatchObject({
+      status: 409,
+      message: `A flag named "${mockFlag.name}" already exists in this project.`,
+    });
+    expect(repo.create).not.toHaveBeenCalled();
   });
 
   test("updates and archives a flag", async () => {
