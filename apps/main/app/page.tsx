@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, type ChangeEvent, useEffect, useMemo, useState, useCallback } from "react";
+import { FormEvent, type ChangeEvent, useEffect, useMemo, useState } from "react";
 import { Flag, LoaderCircle } from "lucide-react";
 
 import { Alert } from "@flaggable/ui/alert";
@@ -17,6 +17,7 @@ import {
 import { Input } from "@flaggable/ui/input";
 import { Skeleton } from "@flaggable/ui/skeleton";
 import { Label } from "@flaggable/ui/label";
+import { CommandPalette } from "@/components/command-palette";
 import { DashboardShell } from "@/components/dashboard-sidebar";
 import { FlagBrowser } from "@/components/flag-browser";
 import { FlagDetail } from "@/components/flag-detail";
@@ -31,10 +32,10 @@ export default function Dashboard() {
   const [query, setQuery] = useState("");
   const [projectId, setProjectId] = useState("");
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isCommandOpen, setIsCommandOpen] = useState(false);
   const [newFlagName, setNewFlagName] = useState("");
   const [newProjectName, setNewProjectName] = useState("");
   const [error, setError] = useState("");
-  const [notice, setNotice] = useState("");
   const projectsQuery = useQueryProjects();
   const projects = projectsQuery.data ?? [];
   const schemasQuery = useQuerySchemas(projectId);
@@ -52,6 +53,23 @@ export default function Dashboard() {
     if (!projectId && projects[0]) setProjectId(projects[0].id);
   }, [projectId, projects]);
 
+  useEffect(() => {
+    function handleCommandShortcut(event: KeyboardEvent) {
+      if (projectId && (event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        setIsCommandOpen(true);
+      }
+    }
+
+    window.addEventListener("keydown", handleCommandShortcut);
+    return () => window.removeEventListener("keydown", handleCommandShortcut);
+  }, []);
+
+  function openCreateFlag() {
+    setIsCommandOpen(false);
+    setIsCreateOpen(true);
+  }
+
   function selectProject(nextProjectId: string) {
     setProjectId(nextProjectId);
     setSelectedFlagId("");
@@ -63,7 +81,6 @@ export default function Dashboard() {
     const name = newProjectName.trim();
     if (!name) return;
     setError("");
-    setNotice("");
     createProject.mutate(
       { name },
       {
@@ -71,7 +88,6 @@ export default function Dashboard() {
           setNewProjectName("");
           setProjectId(project.id);
           const message = `${project.name} is ready.`;
-          setNotice(message);
           toast.success("Project created", { description: message });
         },
         onError: (mutationError) => {
@@ -98,7 +114,6 @@ export default function Dashboard() {
         onSuccess: () => {
           setIsCreateOpen(false);
           setNewFlagName("");
-          setNotice("Flag created.");
           toast.success("Flag created", { description: `${newFlagName} is ready to use.` });
         },
         onError: (mutationError) => {
@@ -109,7 +124,7 @@ export default function Dashboard() {
     );
   }
 
-  const alerts = projectsQuery.error || flagsQuery.error || error || notice;
+  const alerts = projectsQuery.error || flagsQuery.error || error;
 
   const flagSidebar =
     projects.length > 0 ? (
@@ -133,7 +148,8 @@ export default function Dashboard() {
       projects={projects}
       projectId={projectId}
       onProjectChange={selectProject}
-      onNewFlag={() => setIsCreateOpen(true)}
+      onNewFlag={openCreateFlag}
+      onOpenCommandPalette={() => setIsCommandOpen(true)}
       flagSidebar={flagSidebar}
     >
       <div className="dashboard-inner">
@@ -179,7 +195,7 @@ export default function Dashboard() {
             setNewProjectName={setNewProjectName}
             onSubmit={submitCreateProject}
             isPending={createProject.isPending}
-            message={error || projectsQuery.error?.message || notice}
+            message={error || projectsQuery.error?.message}
             isError={Boolean(error || projectsQuery.error)}
           />
         ) : (
@@ -192,7 +208,7 @@ export default function Dashboard() {
                 className="mb-8 flex items-center justify-between rounded-lg border shadow-sm"
               >
                 <span className="font-medium">
-                  {error || projectsQuery.error?.message || flagsQuery.error?.message || notice}
+                  {error || projectsQuery.error?.message || flagsQuery.error?.message}
                 </span>
                 <Button
                   type="button"
@@ -200,7 +216,6 @@ export default function Dashboard() {
                   size="sm"
                   onClick={() => {
                     setError("");
-                    setNotice("");
                   }}
                   aria-label="Dismiss message"
                   className="h-6 w-6 rounded-md p-0 hover:bg-gray-100"
@@ -246,6 +261,12 @@ export default function Dashboard() {
               </div>
               <FlagDetail flag={selectedFlag} projectId={projectId} />
             </div>
+            <CommandPalette
+              open={isCommandOpen}
+              onOpenChange={setIsCommandOpen}
+              onCreateFlag={openCreateFlag}
+              canCreateFlag={Boolean(projectId)}
+            />
             <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
               <DialogContent className="create-panel max-w-md">
                 <DialogHeader className="text-left">
