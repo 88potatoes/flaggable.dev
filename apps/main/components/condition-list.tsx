@@ -28,6 +28,7 @@ export function ConditionList({ flag }: { flag: Flag }) {
   const [operator, setOperator] = useState<ConditionOperator>("equals");
   const [predicateValue, setPredicateValue] = useState("");
   const [resultValue, setResultValue] = useState("");
+  const [isAdding, setIsAdding] = useState(false);
   const schemaQuery = useQuerySchema(flag.valueSchemaId);
   const isBooleanSchema = schemaQuery.data?.name === "Boolean";
   const conditionsQuery = useQueryConditions(flag.id);
@@ -53,6 +54,8 @@ export function ConditionList({ flag }: { flag: Flag }) {
         onSuccess: () => {
           setProperty("");
           setPredicateValue("");
+          setResultValue("");
+          setIsAdding(false);
         },
       },
     );
@@ -87,50 +90,63 @@ export function ConditionList({ flag }: { flag: Flag }) {
           </div>
         ))}
       </CardContent>
-      <form className="grid gap-3 px-6 pb-6" onSubmit={submit}>
-        <Label htmlFor="condition-property">New condition</Label>
-        <div className="grid gap-2 md:grid-cols-[1.2fr_0.9fr_1fr_1fr]">
-          <Input
-            id="condition-property"
-            placeholder="Property (e.g. country)"
-            value={property}
-            onChange={(event) => setProperty(event.target.value)}
-            required
-          />
-          <Select
-            value={operator}
-            onValueChange={(value) => setOperator(value as ConditionOperator)}
-          >
-            <SelectTrigger aria-label="Operator">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {["equals", "not_equals", "in", "not_in"].map((value) => (
-                <SelectItem key={value} value={value}>
-                  {value}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Input
-            placeholder="Match value"
-            value={predicateValue}
-            onChange={(event) => setPredicateValue(event.target.value)}
-            required
-          />
-          {!isBooleanSchema && (
+      {!isAdding ? (
+        <div className="px-6 pb-6">
+          <Button type="button" variant="outline" size="sm" onClick={() => setIsAdding(true)}>
+            <Plus /> Add condition
+          </Button>
+        </div>
+      ) : (
+        <form className="grid gap-3 px-6 pb-6" onSubmit={submit}>
+          <Label htmlFor="condition-property">New condition</Label>
+          <div className="grid gap-2 md:grid-cols-[1.2fr_0.9fr_1fr_1fr]">
             <Input
-              placeholder="Result value"
-              value={resultValue}
-              onChange={(event) => setResultValue(event.target.value)}
+              id="condition-property"
+              placeholder="Property (e.g. country)"
+              value={property}
+              onChange={(event) => setProperty(event.target.value)}
               required
             />
-          )}
-        </div>
-        <Button type="submit" disabled={createCondition.isPending}>
-          <Plus /> Add condition
-        </Button>
-      </form>
+            <Select
+              value={operator}
+              onValueChange={(value) => setOperator(value as ConditionOperator)}
+            >
+              <SelectTrigger aria-label="Operator">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {["equals", "not_equals", "in", "not_in"].map((value) => (
+                  <SelectItem key={value} value={value}>
+                    {value}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Input
+              placeholder="Match value"
+              value={predicateValue}
+              onChange={(event) => setPredicateValue(event.target.value)}
+              required
+            />
+            {!isBooleanSchema && (
+              <Input
+                placeholder="Result value"
+                value={resultValue}
+                onChange={(event) => setResultValue(event.target.value)}
+                required
+              />
+            )}
+          </div>
+          <div className="flex gap-2">
+            <Button type="submit" disabled={createCondition.isPending}>
+              <Plus /> Add condition
+            </Button>
+            <Button type="button" variant="ghost" onClick={() => setIsAdding(false)}>
+              Cancel
+            </Button>
+          </div>
+        </form>
+      )}
     </Card>
   );
 }
