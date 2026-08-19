@@ -6,6 +6,7 @@ import { ArrowUpRight, ChevronDown, Flag, Plus, Search } from "lucide-react";
 
 import { Alert } from "@flaggable/ui/alert";
 import { Button } from "@flaggable/ui/button";
+import { Card } from "@flaggable/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -15,6 +16,7 @@ import {
   DialogTitle,
 } from "@flaggable/ui/dialog";
 import { Input } from "@flaggable/ui/input";
+import { Skeleton } from "@flaggable/ui/skeleton";
 import { Label } from "@flaggable/ui/label";
 import { Switch } from "@flaggable/ui/switch";
 import { DashboardShell } from "@/components/dashboard-sidebar";
@@ -127,9 +129,11 @@ export default function Dashboard() {
     >
       <div className="dashboard-inner">
         {projectsQuery.isLoading ? (
-          <div className="project-empty-state">
-            <p>Loading projects…</p>
-          </div>
+          <Card className="project-empty-state" aria-busy="true">
+            <Skeleton className="h-6 w-32" />
+            <Skeleton className="h-4 w-full max-w-sm" />
+            <Skeleton className="h-8 w-full" />
+          </Card>
         ) : projects.length === 0 ? (
           <ProjectEmptyState
             newProjectName={newProjectName}
@@ -177,7 +181,7 @@ export default function Dashboard() {
             )}
 
             <div className="dashboard-grid" id="flags">
-              <section className="flags-panel">
+              <Card className="flags-panel gap-0 p-0">
                 <div className="panel-heading">
                   <div>
                     <h2>Feature flags</h2>
@@ -213,9 +217,9 @@ export default function Dashboard() {
                   isLoading={flagsQuery.isLoading}
                   emptyMessage="No flags yet. Create your first flag to get started."
                 />
-              </section>
+              </Card>
 
-              <aside className="activity-panel" id="activity">
+              <Card className="activity-panel gap-0 p-0" id="activity">
                 <div className="panel-heading">
                   <div>
                     <h2>Recent activity</h2>
@@ -245,11 +249,11 @@ export default function Dashboard() {
                     time="Coming soon"
                   />
                 </div>
-              </aside>
+              </Card>
             </div>
 
             {selectedFlag && (
-              <section className="change-inspector">
+              <Card className="change-inspector">
                 <div className="inspector-label">SELECTED FLAG</div>
                 <div className="inspector-content">
                   <div>
@@ -276,7 +280,7 @@ export default function Dashboard() {
                     Edit flag <ArrowUpRight />
                   </Button>
                 </div>
-              </section>
+              </Card>
             )}
 
             <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
@@ -349,7 +353,7 @@ function ProjectEmptyState({
   isError: boolean;
 }) {
   return (
-    <section className="project-empty-state">
+    <Card className="project-empty-state">
       <div className="project-empty-icon">
         <Flag />
       </div>
@@ -375,7 +379,7 @@ function ProjectEmptyState({
           {isPending ? "Creating…" : "Create project"}
         </Button>
       </form>
-    </section>
+    </Card>
   );
 }
 

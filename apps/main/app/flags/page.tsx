@@ -5,6 +5,7 @@ import { ArrowUpRight, Flag, Plus, Search, Trash2 } from "lucide-react";
 
 import { Alert } from "@flaggable/ui/alert";
 import { Button } from "@flaggable/ui/button";
+import { Card } from "@flaggable/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -14,6 +15,7 @@ import {
   DialogTitle,
 } from "@flaggable/ui/dialog";
 import { Input } from "@flaggable/ui/input";
+import { Skeleton } from "@flaggable/ui/skeleton";
 import { Label } from "@flaggable/ui/label";
 import {
   Select,
@@ -194,9 +196,10 @@ export default function FlagsPage() {
         flagCount={0}
         onProjectChange={selectProject}
       >
-        <div className="project-empty-state">
-          <p>Loading projects…</p>
-        </div>
+        <Card className="project-empty-state" aria-busy="true">
+          <Skeleton className="h-6 w-32" />
+          <Skeleton className="h-4 w-full max-w-sm" />
+        </Card>
       </DashboardShell>
     );
   }
@@ -209,7 +212,7 @@ export default function FlagsPage() {
         flagCount={0}
         onProjectChange={selectProject}
       >
-        <div className="project-empty-state">
+        <Card className="project-empty-state">
           <div className="project-empty-icon">
             <Flag />
           </div>
@@ -218,7 +221,7 @@ export default function FlagsPage() {
           <Button type="button" variant="primary" onClick={() => window.location.assign("/")}>
             Create project
           </Button>
-        </div>
+        </Card>
       </DashboardShell>
     );
   }
@@ -261,7 +264,7 @@ export default function FlagsPage() {
           </Alert>
         )}
 
-        <section className="flags-panel flags-page-panel">
+        <Card className="flags-panel flags-page-panel gap-0 p-0">
           <div className="panel-heading">
             <div>
               <h2>All flags</h2>
@@ -292,10 +295,10 @@ export default function FlagsPage() {
             isLoading={flagsQuery.isLoading}
             emptyMessage="No flags match your search."
           />
-        </section>
+        </Card>
 
         <section className="dashboard-grid mt-6">
-          <section className="change-inspector m-0">
+          <Card className="change-inspector m-0">
             <div className="inspector-label">VALUE SCHEMAS</div>
             {schemasQuery.isLoading ? (
               <p>Loading schemas…</p>
@@ -339,10 +342,10 @@ export default function FlagsPage() {
                 ),
               )
             )}
-          </section>
+          </Card>
 
           {selectedFlag && (
-            <section className="change-inspector m-0">
+            <Card className="change-inspector m-0">
               <div className="inspector-label">{selectedFlag.key.toUpperCase()}</div>
               <div className="inspector-content">
                 <div>
@@ -422,7 +425,7 @@ export default function FlagsPage() {
                   </Button>
                 </form>
               </div>
-            </section>
+            </Card>
           )}
         </section>
 
