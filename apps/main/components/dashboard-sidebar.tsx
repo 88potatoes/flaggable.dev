@@ -76,12 +76,8 @@ export function DashboardSidebar({
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton
-                  className={navButton}
-                  asChild
-                  isActive={pathname === "/dashboard"}
-                >
-                  <Link href="/dashboard" title="Overview">
+                <SidebarMenuButton className={navButton} asChild isActive={pathname === "/"}>
+                  <Link href="/" title="Overview">
                     <LayoutDashboard />
                     <span>Overview</span>
                   </Link>
@@ -106,7 +102,7 @@ export function DashboardSidebar({
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton className={navButton} asChild>
-                  <Link href="/dashboard#activity" title="Activity">
+                  <Link href="/#activity" title="Activity">
                     <Activity />
                     <span>Activity</span>
                   </Link>
@@ -114,7 +110,7 @@ export function DashboardSidebar({
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton className={navButton} asChild>
-                  <Link href="/dashboard#settings" title="Settings">
+                  <Link href="/#settings" title="Settings">
                     <Settings />
                     <span>Settings</span>
                   </Link>

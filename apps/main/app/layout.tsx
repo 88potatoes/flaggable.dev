@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Geist } from "next/font/google";
 import { cn } from "@flaggable/ui/utils";
-import { AuthProvider } from "@/components/auth-provider";
+import { AuthWrapper } from "@/components/auth-provider";
 import { QueryProvider } from "@/components/query-provider";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
@@ -16,9 +16,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en" className={cn("font-sans", geist.variable)}>
       <body>
-        <AuthProvider>
+        <AuthWrapper>
           <QueryProvider>{children}</QueryProvider>
-        </AuthProvider>
+        </AuthWrapper>
       </body>
     </html>
   );
