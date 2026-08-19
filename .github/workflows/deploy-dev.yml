@@ -45,7 +45,9 @@ jobs:
           cache: pnpm
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        # Temporary: allow fresh package versions while the lockfile contains recently published releases.
+        # Restore the default pnpm cooldown once dependencies are deliberately pinned/aged.
+        run: pnpm install --frozen-lockfile --config.minimumReleaseAge=0
 
       - name: Build both apps
         run: pnpm run build
