@@ -114,7 +114,6 @@ export function FlagBrowser({
         <div className="mb-4">
           <h2 className="text-lg font-semibold tracking-tight text-gray-900">Feature Flags</h2>
           <div className="flex items-center justify-between">
-            <p className="text-sm text-gray-600">↑↓ Navigate • ⏎ Select • / Search</p>
             <div className="text-xs text-gray-500">
               {flags.length} flag{flags.length !== 1 ? "s" : ""}
             </div>

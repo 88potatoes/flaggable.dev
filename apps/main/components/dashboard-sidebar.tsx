@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { KeyRound, LayoutDashboard, Plus } from "lucide-react";
+import { KeyRound, LayoutDashboard, Plus, PanelLeftClose } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@flaggable/ui/avatar";
 import {
@@ -34,6 +34,8 @@ import {
   SidebarProvider,
   SidebarInset,
   SidebarRail,
+  SidebarTrigger,
+  useSidebar,
 } from "@flaggable/ui/sidebar";
 import type { Project } from "@flaggable/contracts";
 import { logoutUrl } from "./auth-provider";
@@ -53,10 +55,12 @@ export function DashboardSidebar({
 }) {
   const pathname = usePathname();
   const { user } = useUser();
+  const { state } = useSidebar();
   const project = projects.find((item) => item.id === projectId);
   const userName = user?.name ?? user?.nickname ?? user?.email ?? "Account";
   const userEmail = user?.email ?? "";
   const userInitials = getInitials(userName);
+  const isCollapsed = state === "collapsed";
 
   return (
     <Sidebar collapsible="icon" className="h-svh max-h-svh border-r bg-sidebar">
@@ -72,10 +76,12 @@ export function DashboardSidebar({
                   <span className="flex size-8 shrink-0 items-center justify-center rounded-md border bg-background text-xs font-semibold">
                     {(project?.name?.[0] ?? "P").toUpperCase()}
                   </span>
-                  <span className="grid min-w-0 text-sm leading-tight">
-                    <SelectValue placeholder="No projects yet" />
-                    <span className="truncate text-xs text-muted-foreground">Project</span>
-                  </span>
+                  {!isCollapsed && (
+                    <span className="grid min-w-0 text-sm leading-tight">
+                      <SelectValue placeholder="No projects yet" />
+                      <span className="truncate text-xs text-muted-foreground">Project</span>
+                    </span>
+                  )}
                 </div>
               </SelectTrigger>
               <SelectContent align="start" className="min-w-(--radix-select-trigger-width)">
@@ -102,7 +108,7 @@ export function DashboardSidebar({
                     onClick={onNewFlag}
                   >
                     <Plus />
-                    <span>New flag</span>
+                    {!isCollapsed && <span>New flag</span>}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               </SidebarMenu>
@@ -122,7 +128,7 @@ export function DashboardSidebar({
                 >
                   <Link href="/" title="Overview">
                     <LayoutDashboard />
-                    <span>Overview</span>
+                    {!isCollapsed && <span>Overview</span>}
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -130,7 +136,7 @@ export function DashboardSidebar({
                 <SidebarMenuButton className={navButton} tooltip="Public keys" asChild>
                   <Link href="/public-keys" title="Public keys">
                     <KeyRound />
-                    <span>Public keys</span>
+                    {!isCollapsed && <span>Public keys</span>}
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -141,6 +147,18 @@ export function DashboardSidebar({
 
       <SidebarFooter className="p-2">
         <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              size="lg"
+              tooltip="Collapse sidebar"
+              className="mb-2 hover:bg-sidebar-accent"
+            >
+              <SidebarTrigger className="flex items-center gap-2">
+                <PanelLeftClose className="h-4 w-4" />
+                {!isCollapsed && <span>Collapse</span>}
+              </SidebarTrigger>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
           <SidebarMenuItem>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -153,10 +171,12 @@ export function DashboardSidebar({
                       {userInitials}
                     </AvatarFallback>
                   </Avatar>
-                  <span className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-medium">{userName}</span>
-                    <span className="truncate text-xs text-muted-foreground">{userEmail}</span>
-                  </span>
+                  {!isCollapsed && (
+                    <span className="grid flex-1 text-left text-sm leading-tight">
+                      <span className="truncate font-medium">{userName}</span>
+                      <span className="truncate text-xs text-muted-foreground">{userEmail}</span>
+                    </span>
+                  )}
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent side="right" align="end" className="w-56">
