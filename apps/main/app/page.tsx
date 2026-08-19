@@ -146,11 +146,7 @@ export default function Dashboard() {
                 <h1>Overview</h1>
                 <p className="dashboard-subtitle">Manage the flags powering your product.</p>
               </div>
-              <Button
-                type="button"
-                className="button-primary"
-                onClick={() => setIsCreateOpen(true)}
-              >
+              <Button type="button" variant="primary" onClick={() => setIsCreateOpen(true)}>
                 <Plus /> New flag
               </Button>
             </div>
@@ -274,8 +270,7 @@ export default function Dashboard() {
                   </span>
                   <Button
                     type="button"
-                    variant="outline"
-                    className="button-quiet"
+                    variant="quiet"
                     onClick={() => setError("Flag editing is next; use the CRUD API for now.")}
                   >
                     Edit flag <ArrowUpRight />
@@ -376,7 +371,7 @@ function ProjectEmptyState({
           onChange={(event: ChangeEvent<HTMLInputElement>) => setNewProjectName(event.target.value)}
           required
         />
-        <Button className="button-primary" type="submit" disabled={isPending}>
+        <Button variant="primary" type="submit" disabled={isPending}>
           {isPending ? "Creating…" : "Create project"}
         </Button>
       </form>

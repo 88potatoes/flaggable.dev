@@ -215,11 +215,7 @@ export default function FlagsPage() {
           </div>
           <h1>Create your first project</h1>
           <p>Projects keep your feature flags organized. Create one to get started.</p>
-          <Button
-            type="button"
-            className="button-primary"
-            onClick={() => window.location.assign("/")}
-          >
+          <Button type="button" variant="primary" onClick={() => window.location.assign("/")}>
             Create project
           </Button>
         </div>
@@ -244,11 +240,7 @@ export default function FlagsPage() {
             <Button type="button" variant="outline" onClick={() => setIsCreateSchemaOpen(true)}>
               New schema
             </Button>
-            <Button
-              type="button"
-              className="button-primary"
-              onClick={() => setIsCreateFlagOpen(true)}
-            >
+            <Button type="button" variant="primary" onClick={() => setIsCreateFlagOpen(true)}>
               <Plus /> New flag
             </Button>
           </div>
@@ -367,8 +359,7 @@ export default function FlagsPage() {
                 />
                 <Button
                   type="button"
-                  variant="outline"
-                  className="button-quiet"
+                  variant="quiet"
                   onClick={() =>
                     archiveFlag.mutate(
                       { flagId: selectedFlag.id },

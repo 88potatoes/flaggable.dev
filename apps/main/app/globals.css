@@ -929,22 +929,6 @@ input:focus-visible {
   color: #7b858b;
   font-size: 14px;
 }
-.button-primary {
-  padding: 13px 17px;
-  background: var(--navy);
-  color: white;
-  font-size: 12px;
-  box-shadow: 0 5px 13px rgba(16, 27, 45, 0.17);
-}
-.button-primary:hover {
-  background: #1b2b44;
-}
-.button-primary span {
-  color: var(--accent);
-  font-size: 20px;
-  font-weight: 400;
-  line-height: 10px;
-}
 .summary-row {
   display: grid;
   grid-template-columns: repeat(3, 1fr) 1.35fr;
@@ -1288,11 +1272,6 @@ input:focus-visible {
 }
 .button-quiet {
   margin-left: auto;
-  padding: 9px 11px;
-  border: 1px solid #e5c6bd;
-  background: white;
-  color: var(--accent-deep);
-  font-size: 10px;
 }
 .toggle {
   position: relative;
