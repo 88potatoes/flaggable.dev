@@ -239,13 +239,28 @@ export function DashboardShell({
         onProjectChange={onProjectChange}
         onNewFlag={onNewFlag}
       />
-      {flagSidebar && (
-        <div className="flex h-svh w-80 flex-col border-r border-sidebar-border bg-sidebar/30 overflow-hidden">
-          {flagSidebar}
-        </div>
-      )}
-      <SidebarInset className="min-w-0 bg-background flex-1">{children}</SidebarInset>
+      <FlagSidebarWrapper flagSidebar={flagSidebar} />
+      <SidebarInset className={`min-w-0 bg-background flex-1 ${flagSidebar ? "ml-80" : ""}`}>
+        {children}
+      </SidebarInset>
       <SidebarRail />
     </SidebarProvider>
+  );
+}
+
+function FlagSidebarWrapper({ flagSidebar }: { flagSidebar?: React.ReactNode }) {
+  const { state } = useSidebar();
+  const isCollapsed = state === "collapsed";
+
+  if (!flagSidebar) return null;
+
+  return (
+    <div
+      className={`fixed top-0 z-10 flex h-svh w-80 flex-col border-r border-sidebar-border bg-sidebar/30 overflow-hidden transition-[left] duration-200 ease-linear ${
+        isCollapsed ? "left-12" : "left-64"
+      }`}
+    >
+      {flagSidebar}
+    </div>
   );
 }
