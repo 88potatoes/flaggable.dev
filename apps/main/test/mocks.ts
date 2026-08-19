@@ -96,9 +96,10 @@ export function mockSchemaRepo(
 export function mockFlagRepo(overrides: Partial<FlagRepository> = {}): FlagRepository {
   const records = [mockFlag];
   return {
-    listByProject: vi.fn(async ({ projectId }) =>
-      records.filter((item) => item.projectId === projectId),
-    ),
+    listByProject: vi.fn(async ({ projectId, limit = 25 }) => ({
+      items: records.filter((item) => item.projectId === projectId).slice(0, limit),
+      hasMore: false,
+    })),
     findById: vi.fn(async ({ flagId }) => records.find((item) => item.id === flagId)),
     create: vi.fn(async ({ record }) => {
       records.push(record as FlagRecord);
