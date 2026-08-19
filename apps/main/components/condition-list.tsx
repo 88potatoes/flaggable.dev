@@ -122,12 +122,17 @@ export function ConditionList({ flag }: { flag: Flag }) {
                 ))}
               </SelectContent>
             </Select>
-            <Input
-              placeholder="Match value"
-              value={predicateValue}
-              onChange={(event) => setPredicateValue(event.target.value)}
-              required
-            />
+            <div className="flex gap-2">
+              <Input
+                placeholder="Match value"
+                value={predicateValue}
+                onChange={(event) => setPredicateValue(event.target.value)}
+                required
+              />
+              <Button type="submit" size="sm" disabled={createCondition.isPending}>
+                Save
+              </Button>
+            </div>
             {!isBooleanSchema && (
               <Input
                 placeholder="Result value"
@@ -137,14 +142,14 @@ export function ConditionList({ flag }: { flag: Flag }) {
               />
             )}
           </div>
-          <div className="flex gap-2">
-            <Button type="submit" disabled={createCondition.isPending}>
-              <Plus /> Add condition
-            </Button>
-            <Button type="button" variant="ghost" onClick={() => setIsAdding(false)}>
-              Cancel
-            </Button>
-          </div>
+          <Button
+            type="button"
+            variant="ghost"
+            className="w-fit"
+            onClick={() => setIsAdding(false)}
+          >
+            Cancel
+          </Button>
         </form>
       )}
     </Card>
