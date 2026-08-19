@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Activity, Flag, LayoutDashboard, Settings } from "lucide-react";
+import { Flag, LayoutDashboard } from "lucide-react";
 
-import { Avatar, AvatarFallback } from "@flaggable/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@flaggable/ui/avatar";
+import { useUser } from "@auth0/nextjs-auth0/client";
 import {
   Select,
   SelectContent,
@@ -27,7 +28,7 @@ import {
   SidebarProvider,
   SidebarInset,
 } from "@flaggable/ui/sidebar";
-import type { Project } from "@/slices/projects/types";
+import type { Project } from "@flaggable/contracts";
 
 const navButton = "text-sm text-sidebar-foreground/80";
 
@@ -43,7 +44,11 @@ export function DashboardSidebar({
   onProjectChange: (projectId: string) => void;
 }) {
   const pathname = usePathname();
+  const { user } = useUser();
   const project = projects.find((item) => item.id === projectId);
+  const userName = user?.name ?? user?.nickname ?? user?.email ?? "Account";
+  const userEmail = user?.email ?? "";
+  const userInitials = getInitials(userName);
 
   return (
     <Sidebar collapsible="none" className="h-svh max-h-svh border-r bg-sidebar">
@@ -102,30 +107,6 @@ export function DashboardSidebar({
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-
-        <SidebarGroup>
-          <SidebarGroupLabel>Manage</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton className={navButton} asChild>
-                  <Link href="/#activity" title="Activity">
-                    <Activity />
-                    <span>Activity</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton className={navButton} asChild>
-                  <Link href="/#settings" title="Settings">
-                    <Settings />
-                    <span>Settings</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
       </SidebarContent>
 
       <SidebarFooter className="p-2">
@@ -133,13 +114,14 @@ export function DashboardSidebar({
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" className="hover:bg-sidebar-accent">
               <Avatar className="size-8 rounded-lg">
+                {user?.picture && <AvatarImage src={user.picture} alt="" className="rounded-lg" />}
                 <AvatarFallback className="rounded-lg bg-[#f7d1c7] text-xs font-semibold text-[#ad503c]">
-                  AL
+                  {userInitials}
                 </AvatarFallback>
               </Avatar>
               <span className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">Alex Lee</span>
-                <span className="truncate text-xs text-muted-foreground">alex@flaggable.dev</span>
+                <span className="truncate font-medium">{userName}</span>
+                <span className="truncate text-xs text-muted-foreground">{userEmail}</span>
               </span>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -147,6 +129,16 @@ export function DashboardSidebar({
       </SidebarFooter>
     </Sidebar>
   );
+}
+
+function getInitials(value: string) {
+  const initials = value
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((part) => part[0])
+    .join("")
+    .slice(0, 2);
+  return initials.toUpperCase() || "A";
 }
 
 export function DashboardShell({
