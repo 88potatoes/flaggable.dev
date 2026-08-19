@@ -39,7 +39,6 @@ export const mockFlag: FlagRecord = {
   name: "Flag",
   description: null,
   enabled: true,
-  fallbackValue: JSON.stringify("off"),
   archivedAt: null,
   createdAt: new Date("2026-01-01"),
   updatedAt: new Date("2026-01-01"),

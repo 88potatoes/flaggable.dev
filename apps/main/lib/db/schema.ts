@@ -60,7 +60,6 @@ export const flagTable = sqliteTable(
     name: text("name").notNull(),
     description: text("description"),
     enabled: integer("enabled", { mode: "boolean" }).notNull(),
-    fallbackValue: text("fallback_value").notNull(),
     archivedAt: integer("archived_at", { mode: "timestamp_ms" }),
     createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull(),
     updatedAt: integer("updated_at", { mode: "timestamp_ms" }).notNull(),

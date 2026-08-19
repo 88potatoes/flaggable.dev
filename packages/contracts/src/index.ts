@@ -26,7 +26,6 @@ export type Flag = {
   name: string;
   description: string | null;
   enabled: boolean;
-  fallbackValue: unknown;
   archivedAt: string | null;
   updatedAt: string;
 };

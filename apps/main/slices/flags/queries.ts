@@ -36,12 +36,8 @@ function invalidateProjectFlags(queryClient: ReturnType<typeof useQueryClient>, 
 export function useMutateCreateFlag(projectId: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (values: {
-      valueSchemaId: string;
-      name: string;
-      description?: string;
-      fallbackValue: unknown;
-    }) => api.post(`projects/${projectId}/flags`, { json: values }).json<Flag>(),
+    mutationFn: (values: { valueSchemaId: string; name: string; description?: string }) =>
+      api.post(`projects/${projectId}/flags`, { json: values }).json<Flag>(),
     onSuccess: async (flag) => {
       queryClient.setQueryData(flagQueryKeys.byId(flag.id), flag);
       await invalidateProjectFlags(queryClient, projectId);
@@ -57,7 +53,7 @@ export function useMutateUpdateFlag(projectId: string) {
       values,
     }: {
       flagId: string;
-      values: { name?: string; description?: string; enabled?: boolean; fallbackValue?: unknown };
+      values: { name?: string; description?: string; enabled?: boolean };
     }) => api.patch(`flags/${flagId}`, { json: values }).json<Flag>(),
     onSuccess: async (flag) => {
       queryClient.setQueryData(flagQueryKeys.byId(flag.id), flag);

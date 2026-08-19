@@ -26,7 +26,7 @@ export function ConditionList({ flag }: { flag: Flag }) {
   const [property, setProperty] = useState("");
   const [operator, setOperator] = useState<ConditionOperator>("equals");
   const [predicateValue, setPredicateValue] = useState("");
-  const [resultValue, setResultValue] = useState(JSON.stringify(flag.fallbackValue));
+  const [resultValue, setResultValue] = useState("");
   const conditionsQuery = useQueryConditions(flag.id);
   const conditions = conditionsQuery.data ?? [];
   const createCondition = useMutateCreateCondition(flag.id);

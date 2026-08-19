@@ -2,7 +2,7 @@ import { uuidv7 } from "uuidv7";
 
 import { ApiError } from "@/lib/api";
 import type { FlagRecord, NewFlagRecord } from "@/lib/db/schema";
-import { assertJsonSchemaValue, parseJson } from "@/lib/flags/json-schema";
+import { parseJson } from "@/lib/flags/json-schema";
 import type { JsonObject, JsonValue } from "@/lib/flags/types";
 import { DrizzleProjectRepository, type ProjectRepository } from "@/slices/projects/repo";
 import {
@@ -84,7 +84,6 @@ export class FlagService {
       valueSchemaId: string;
       name: string;
       description?: string;
-      fallbackValue: JsonValue;
     };
   }) => {
     await this.requireProject({ projectId, ownerId });
@@ -92,11 +91,6 @@ export class FlagService {
     if (!schema || schema.projectId !== projectId) {
       throw new ApiError(400, "Value schema does not belong to this project.");
     }
-    assertJsonSchemaValue({
-      schema: parseJson<JsonObject>(schema.schemaJson, "schemaJson"),
-      value: values.fallbackValue,
-      field: "fallbackValue",
-    });
     const timestamp = new Date();
     const record: NewFlagRecord = {
       id: uuidv7(),
@@ -105,7 +99,6 @@ export class FlagService {
       name: values.name,
       description: values.description,
       enabled: true,
-      fallbackValue: json(values.fallbackValue, "fallbackValue"),
       createdAt: timestamp,
       updatedAt: timestamp,
     };
@@ -119,27 +112,15 @@ export class FlagService {
   }: {
     flagId: string;
     ownerId: string;
-    values: { name?: string; description?: string; enabled?: boolean; fallbackValue?: JsonValue };
+    values: { name?: string; description?: string; enabled?: boolean };
   }) => {
     const flag = await this.requireFlag({ flagId, ownerId });
-    if (values.fallbackValue !== undefined) {
-      const schema = await this.schemas.findById({ schemaId: flag.valueSchemaId });
-      if (!schema) throw new ApiError(500, "Flag value schema not found.");
-      assertJsonSchemaValue({
-        schema: parseJson<JsonObject>(schema.schemaJson, "schemaJson"),
-        value: values.fallbackValue,
-        field: "fallbackValue",
-      });
-    }
     return this.repository.update({
       flagId: flag.id,
       values: {
         ...(values.name === undefined ? {} : { name: values.name }),
         ...(values.description === undefined ? {} : { description: values.description }),
         ...(values.enabled === undefined ? {} : { enabled: values.enabled }),
-        ...(values.fallbackValue === undefined
-          ? {}
-          : { fallbackValue: json(values.fallbackValue, "fallbackValue") }),
         updatedAt: new Date(),
       },
     });
@@ -170,6 +151,4 @@ export class FlagService {
   }
 }
 
-export const serializeFlag = (
-  record: Pick<FlagRecord, "fallbackValue"> & Record<string, unknown>,
-) => ({ ...record, fallbackValue: parseJson<JsonValue>(record.fallbackValue, "fallbackValue") });
+export const serializeFlag = (record: FlagRecord) => record;

@@ -32,7 +32,6 @@ export const createFlagRequest = z.object({
   valueSchemaId: z.string().min(1),
   name: z.string().trim().min(1).max(100),
   description: z.string().trim().max(500).optional(),
-  fallbackValue: jsonValue,
 });
 
 export const updateFlagRequest = createFlagRequest

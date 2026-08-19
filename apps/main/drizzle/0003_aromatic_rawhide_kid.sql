@@ -1,0 +1,1 @@
+ALTER TABLE `flag` DROP COLUMN `fallback_value`;

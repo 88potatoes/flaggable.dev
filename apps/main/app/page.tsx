@@ -93,7 +93,6 @@ export default function Dashboard() {
       {
         valueSchemaId: schema.id,
         name: newFlagName,
-        fallbackValue: false,
       },
       {
         onSuccess: () => {

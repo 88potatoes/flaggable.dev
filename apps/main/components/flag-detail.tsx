@@ -41,11 +41,7 @@ export function FlagDetail({ flag, projectId }: { flag?: Flag; projectId: string
         <dl className="flag-detail-meta">
           <div>
             <dt>Type</dt>
-            <dd>{typeof flag.fallbackValue}</dd>
-          </div>
-          <div>
-            <dt>Fallback</dt>
-            <dd>{JSON.stringify(flag.fallbackValue)}</dd>
+            <dd>Value schema</dd>
           </div>
           <div>
             <dt>Status</dt>
