@@ -106,12 +106,12 @@ export function FlagBrowser({
   return (
     <div
       ref={containerRef}
-      className="flag-browser-container flex h-full flex-col bg-white"
+      className="flex h-full w-full flex-col bg-white focus:outline focus:outline-2 focus:outline-[rgba(240,100,69,0.2)] focus:-outline-offset-2 overflow-hidden"
       onKeyDown={handleKeyDown}
       tabIndex={-1}
     >
-      <div className="flag-browser-toolbar border-b border-sidebar-border bg-gradient-to-r from-white/80 to-gray-50/60 p-4">
-        <div className="mb-4">
+      <div className="border-b border-sidebar-border bg-gradient-to-r from-white/80 to-gray-50/60 p-3">
+        <div className="mb-3">
           <h2 className="text-lg font-semibold tracking-tight text-gray-900">Feature Flags</h2>
           <div className="flex items-center justify-between">
             <div className="text-xs text-gray-500">
@@ -122,8 +122,8 @@ export function FlagBrowser({
         <Label htmlFor="flag-search" className="sr-only">
           Search flags
         </Label>
-        <div className="search-field">
-          <Search className="h-4 w-4" aria-hidden="true" />
+        <div className="relative flex items-center gap-2 rounded-md border border-gray-200 px-3 py-2 transition-colors focus-within:border-gray-300 focus-within:ring-1 focus-within:ring-gray-200">
+          <Search className="h-4 w-4 text-gray-400" aria-hidden="true" />
           <Input
             ref={searchInputRef}
             id="flag-search"
@@ -132,7 +132,7 @@ export function FlagBrowser({
             onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
               onSearchChange(event.target.value)
             }
-            className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+            className="border-0 bg-transparent p-0 shadow-none focus-visible:ring-0 focus-visible:outline-none"
             onKeyDown={(event: React.KeyboardEvent<HTMLInputElement>) => {
               if (event.key === "ArrowDown" && flags.length > 0) {
                 event.preventDefault();
@@ -143,13 +143,13 @@ export function FlagBrowser({
           />
         </div>
       </div>
-      <div className="flag-browser-list flex-1 overflow-y-auto p-3" aria-busy={isLoading}>
+      <div className="flex-1 overflow-y-auto p-2" aria-busy={isLoading}>
         {isLoading ? (
           Array.from({ length: 5 }, (_, index) => (
-            <Skeleton key={index} className="mx-4 my-2 h-14" />
+            <Skeleton key={index} className="mx-2 my-1 h-12" />
           ))
         ) : flags.length === 0 ? (
-          <div className="flag-browser-empty py-12 text-center">
+          <div className="py-8 text-center">
             <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-gray-100">
               <Search className="h-5 w-5 text-gray-400" />
             </div>
@@ -167,14 +167,18 @@ export function FlagBrowser({
             <button
               type="button"
               key={flag.id}
-              className={`flag-browser-item relative ${selectedFlagId === flag.id ? "is-selected" : ""}`}
+              className={`relative flex w-full items-center justify-between gap-2 rounded-lg border p-2.5 text-left transition-all duration-150 ease-out focus:outline-none ${
+                selectedFlagId === flag.id
+                  ? "border-[rgba(240,100,69,0.24)] bg-gradient-to-br from-orange-50 to-orange-50/50 shadow-sm before:absolute before:-left-2 before:top-1/2 before:h-[70%] before:w-0.5 before:-translate-y-1/2 before:rounded-r before:bg-gradient-to-b before:from-[var(--accent)] before:to-[var(--accent-deep)] before:content-['']"
+                  : "border-transparent hover:border-[rgba(240,100,69,0.12)] hover:bg-gradient-to-br hover:from-gray-50 hover:to-gray-50/50 hover:-translate-y-px"
+              }`}
               aria-pressed={selectedFlagId === flag.id}
               onClick={() => onSelect(flag.id)}
               onFocus={() => onSelect(flag.id)}
             >
-              <div className="flex min-w-0 flex-1 items-center gap-3">
+              <div className="flex min-w-0 flex-1 items-center gap-2.5">
                 <div
-                  className={`flex h-8 w-8 items-center justify-center rounded-lg text-xs font-bold text-white ${
+                  className={`flex h-7 w-7 items-center justify-center rounded-md text-xs font-bold text-white ${
                     flag.enabled
                       ? "bg-gradient-to-br from-green-500 to-emerald-600"
                       : "bg-gradient-to-br from-gray-400 to-gray-500"
@@ -182,7 +186,7 @@ export function FlagBrowser({
                 >
                   {flag.name[0]?.toUpperCase() || "F"}
                 </div>
-                <span className="grid min-w-0 gap-1.5 text-left">
+                <span className="grid min-w-0 gap-1 text-left">
                   <strong className="truncate font-semibold text-gray-900">{flag.name}</strong>
                   <span className="truncate text-xs text-gray-500">
                     {flag.description ?? "No description yet."}

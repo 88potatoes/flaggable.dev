@@ -43,13 +43,13 @@ export function FlagDetail({ flag, projectId }: { flag?: Flag; projectId: string
   return (
     <div className="space-y-6">
       <Card className="overflow-hidden border bg-white shadow-lg">
-        <CardHeader className="bg-gradient-to-r from-gray-50/80 to-white/60 border-b">
+        <CardHeader className="bg-gradient-to-r from-gray-50/80 to-white/60 border-b pb-3">
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1">
-              <CardTitle className="text-lg font-semibold text-gray-900">
+              <CardTitle className="text-base font-semibold text-gray-900">
                 Flag Configuration
               </CardTitle>
-              <CardDescription className="mt-1">
+              <CardDescription className="mt-0.5 text-sm">
                 Manage global settings and behavior
               </CardDescription>
             </div>
@@ -71,7 +71,7 @@ export function FlagDetail({ flag, projectId }: { flag?: Flag; projectId: string
             </div>
           </div>
         </CardHeader>
-        <CardContent className="p-6">
+        <CardContent className="p-4">
           <div className="grid gap-4 rounded-lg bg-gradient-to-r from-gray-50/80 to-white/60 p-4">
             <dl className="grid gap-6 sm:grid-cols-3">
               <div className="space-y-1.5">

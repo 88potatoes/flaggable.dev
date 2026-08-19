@@ -70,9 +70,15 @@ export function DashboardSidebar({
             <Select value={projectId} onValueChange={onProjectChange}>
               <SelectTrigger
                 aria-label="Select project"
-                className="h-12 w-full border-0 bg-transparent px-2 shadow-none hover:bg-sidebar-accent"
+                className={`h-12 w-full border-0 bg-transparent shadow-none hover:bg-sidebar-accent ${
+                  isCollapsed ? "px-0 [&>svg]:hidden" : "px-2"
+                }`}
               >
-                <div className="flex min-w-0 flex-1 items-center gap-2 text-left">
+                <div
+                  className={`flex min-w-0 flex-1 items-center text-left ${
+                    isCollapsed ? "justify-center" : "gap-2"
+                  }`}
+                >
                   <span className="flex size-8 shrink-0 items-center justify-center rounded-md border bg-background text-xs font-semibold">
                     {(project?.name?.[0] ?? "P").toUpperCase()}
                   </span>
@@ -234,7 +240,7 @@ export function DashboardShell({
         onNewFlag={onNewFlag}
       />
       {flagSidebar && (
-        <div className="flex min-h-svh w-80 flex-col border-r border-sidebar-border bg-sidebar/30">
+        <div className="flex h-svh w-80 flex-col border-r border-sidebar-border bg-sidebar/30 overflow-hidden">
           {flagSidebar}
         </div>
       )}
