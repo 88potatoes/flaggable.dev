@@ -15,6 +15,7 @@ import {
   DialogTitle,
 } from "@flaggable/ui/dialog";
 import { Input } from "@flaggable/ui/input";
+import { Label } from "@flaggable/ui/label";
 import { Switch } from "@flaggable/ui/switch";
 import { DashboardShell } from "@/components/dashboard-sidebar";
 import { FlagTable } from "@/components/flag-table";
@@ -191,17 +192,20 @@ export default function Dashboard() {
                   </Link>
                 </div>
                 <div className="flag-toolbar">
-                  <label className="search-field">
-                    <Search />
+                  <div className="search-field">
+                    <Search aria-hidden="true" />
+                    <Label htmlFor="dashboard-flag-search" className="sr-only">
+                      Search flags
+                    </Label>
                     <Input
-                      aria-label="Search flags"
+                      id="dashboard-flag-search"
                       placeholder="Search flags"
                       value={query}
                       onChange={(event: ChangeEvent<HTMLInputElement>) =>
                         setQuery(event.target.value)
                       }
                     />
-                  </label>
+                  </div>
                   <Button type="button" variant="outline" className="filter-button">
                     All flags <ChevronDown />
                   </Button>
@@ -294,9 +298,10 @@ export default function Dashboard() {
                   </div>
                 ) : (
                   <form className="grid gap-4" onSubmit={submitCreateFlag}>
-                    <label>
-                      Flag key
+                    <div className="grid gap-2">
+                      <Label htmlFor="dashboard-new-flag-key">Flag key</Label>
                       <Input
+                        id="dashboard-new-flag-key"
                         required
                         pattern="[a-z0-9_-]+"
                         value={newFlagKey}
@@ -305,17 +310,18 @@ export default function Dashboard() {
                         }
                         placeholder="checkout-redesign"
                       />
-                    </label>
-                    <label>
-                      Display name
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="dashboard-new-flag-name">Display name</Label>
                       <Input
+                        id="dashboard-new-flag-name"
                         value={newFlagName}
                         onChange={(event: ChangeEvent<HTMLInputElement>) =>
                           setNewFlagName(event.target.value)
                         }
                         placeholder="Checkout redesign"
                       />
-                    </label>
+                    </div>
                     <DialogFooter>
                       <Button type="submit" disabled={createFlag.isPending}>
                         {createFlag.isPending ? "Creating…" : "Create flag"}
@@ -360,8 +366,11 @@ function ProjectEmptyState({
         </Alert>
       )}
       <form onSubmit={onSubmit}>
+        <Label htmlFor="project-name" className="sr-only">
+          Project name
+        </Label>
         <Input
-          aria-label="Project name"
+          id="project-name"
           placeholder="Project name"
           value={newProjectName}
           onChange={(event: ChangeEvent<HTMLInputElement>) => setNewProjectName(event.target.value)}

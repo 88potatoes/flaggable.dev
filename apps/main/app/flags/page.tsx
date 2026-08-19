@@ -3,8 +3,8 @@
 import { type FormEvent, useEffect, useMemo, useState } from "react";
 import { ArrowUpRight, Flag, Plus, Search, Trash2 } from "lucide-react";
 
-import { Button } from "@flaggable/ui/button";
 import { Alert } from "@flaggable/ui/alert";
+import { Button } from "@flaggable/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -14,6 +14,7 @@ import {
   DialogTitle,
 } from "@flaggable/ui/dialog";
 import { Input } from "@flaggable/ui/input";
+import { Label } from "@flaggable/ui/label";
 import {
   Select,
   SelectContent,
@@ -277,17 +278,20 @@ export default function FlagsPage() {
             <ArrowUpRight className="page-icon" aria-hidden="true" />
           </div>
           <div className="flag-toolbar">
-            <label className="search-field">
-              <Search />
+            <div className="search-field">
+              <Search aria-hidden="true" />
+              <Label htmlFor="flags-page-search" className="sr-only">
+                Search flags
+              </Label>
               <Input
-                aria-label="Search flags"
+                id="flags-page-search"
                 placeholder="Search flags"
                 value={query}
                 onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
                   setQuery(event.target.value)
                 }
               />
-            </label>
+            </div>
           </div>
           <FlagTable
             flags={visibleFlags}
@@ -440,9 +444,10 @@ export default function FlagsPage() {
               </DialogDescription>
             </DialogHeader>
             <form className="grid gap-4" onSubmit={submitCreateFlag}>
-              <label>
-                Flag key
+              <div className="grid gap-2">
+                <Label htmlFor="flags-new-flag-key">Flag key</Label>
                 <Input
+                  id="flags-new-flag-key"
                   required
                   pattern="[a-z0-9_-]+"
                   value={newFlagKey}
@@ -451,19 +456,20 @@ export default function FlagsPage() {
                   }
                   placeholder="checkout-redesign"
                 />
-              </label>
-              <label>
-                Display name
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="flags-new-flag-name">Display name</Label>
                 <Input
+                  id="flags-new-flag-name"
                   value={newFlagName}
                   onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
                     setNewFlagName(event.target.value)
                   }
                   placeholder="Checkout redesign"
                 />
-              </label>
-              <label>
-                Value schema
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="flags-value-schema">Value schema</Label>
                 <Select value={newFlagSchemaId} onValueChange={setNewFlagSchemaId} required>
                   <SelectTrigger aria-label="Value schema" className="w-full">
                     <SelectValue placeholder="Choose a schema" />
@@ -476,7 +482,7 @@ export default function FlagsPage() {
                     ))}
                   </SelectContent>
                 </Select>
-              </label>
+              </div>
               <DialogFooter>
                 <Button type="submit" disabled={createFlag.isPending || !schemas.length}>
                   {createFlag.isPending ? "Creating…" : "Create flag"}
@@ -492,9 +498,10 @@ export default function FlagsPage() {
               <DialogDescription>New schemas start as strings.</DialogDescription>
             </DialogHeader>
             <form className="grid gap-4" onSubmit={submitCreateSchema}>
-              <label>
-                Schema name
+              <div className="grid gap-2">
+                <Label htmlFor="new-schema-name">Schema name</Label>
                 <Input
+                  id="new-schema-name"
                   value={newSchemaName}
                   onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
                     setNewSchemaName(event.target.value)
@@ -502,7 +509,7 @@ export default function FlagsPage() {
                   placeholder="Text values"
                   required
                 />
-              </label>
+              </div>
               <DialogFooter>
                 <Button type="submit" disabled={createSchema.isPending}>
                   {createSchema.isPending ? "Creating…" : "Create schema"}

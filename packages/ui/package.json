@@ -12,6 +12,7 @@
     "./dialog": "./src/ui/dialog.tsx",
     "./dropdown-menu": "./src/ui/dropdown-menu.tsx",
     "./input": "./src/ui/input.tsx",
+    "./label": "./src/ui/label.tsx",
     "./select": "./src/ui/select.tsx",
     "./separator": "./src/ui/separator.tsx",
     "./table": "./src/ui/table.tsx",
