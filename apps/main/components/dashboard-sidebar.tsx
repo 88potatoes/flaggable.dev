@@ -2,9 +2,16 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Activity, ChevronDown, Flag, LayoutDashboard, Settings } from "lucide-react";
+import { Activity, Flag, LayoutDashboard, Settings } from "lucide-react";
 
 import { Avatar, AvatarFallback } from "@flaggable/ui/avatar";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@flaggable/ui/select";
 import {
   Sidebar,
   SidebarContent,
@@ -43,29 +50,29 @@ export function DashboardSidebar({
       <SidebarHeader className="gap-2 p-2">
         <SidebarMenu>
           <SidebarMenuItem>
-            <label className="flex h-12 min-w-0 items-center gap-2 rounded-lg px-2 hover:bg-sidebar-accent">
-              <span className="flex aspect-square size-8 shrink-0 items-center justify-center rounded-md border bg-background text-xs font-semibold">
-                {(project?.name?.[0] ?? "P").toUpperCase()}
-              </span>
-              <span className="grid min-w-0 flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{project?.name ?? "No projects yet"}</span>
-                <span className="truncate text-xs text-muted-foreground">Project</span>
-              </span>
-              <select
+            <Select value={projectId} onValueChange={onProjectChange}>
+              <SelectTrigger
                 aria-label="Select project"
-                value={projectId}
-                onChange={(event) => onProjectChange(event.target.value)}
-                className="absolute size-px opacity-0"
+                className="h-12 w-full border-0 bg-transparent px-2 shadow-none hover:bg-sidebar-accent"
               >
-                {!projects.length && <option value="">No projects yet</option>}
+                <span className="flex min-w-0 items-center gap-2 text-left">
+                  <span className="flex aspect-square size-8 shrink-0 items-center justify-center rounded-md border bg-background text-xs font-semibold">
+                    {(project?.name?.[0] ?? "P").toUpperCase()}
+                  </span>
+                  <span className="grid min-w-0 text-sm leading-tight">
+                    <SelectValue placeholder="No projects yet" />
+                    <span className="truncate text-xs text-muted-foreground">Project</span>
+                  </span>
+                </span>
+              </SelectTrigger>
+              <SelectContent align="start" className="min-w-(--radix-select-trigger-width)">
                 {projects.map((item) => (
-                  <option key={item.id} value={item.id}>
+                  <SelectItem key={item.id} value={item.id}>
                     {item.name}
-                  </option>
+                  </SelectItem>
                 ))}
-              </select>
-              <ChevronDown className="size-4 text-muted-foreground" aria-hidden="true" />
-            </label>
+              </SelectContent>
+            </Select>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>

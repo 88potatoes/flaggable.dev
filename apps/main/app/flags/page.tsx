@@ -5,7 +5,22 @@ import { ArrowUpRight, Flag, Plus, Search, Trash2 } from "lucide-react";
 
 import { Badge } from "@flaggable/ui/badge";
 import { Button } from "@flaggable/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@flaggable/ui/dialog";
 import { Input } from "@flaggable/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@flaggable/ui/select";
 import { Switch } from "@flaggable/ui/switch";
 import { DashboardShell } from "@/components/dashboard-sidebar";
 import {
@@ -261,7 +276,9 @@ export default function FlagsPage() {
                 aria-label="Search flags"
                 placeholder="Search flags"
                 value={query}
-                onChange={(event) => setQuery(event.target.value)}
+                onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                  setQuery(event.target.value)
+                }
               />
             </label>
           </div>
@@ -323,7 +340,9 @@ export default function FlagsPage() {
                   <form className="flex gap-2" key={schema.id} onSubmit={submitSchemaRename}>
                     <Input
                       value={editingSchemaName}
-                      onChange={(event) => setEditingSchemaName(event.target.value)}
+                      onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                        setEditingSchemaName(event.target.value)
+                      }
                       required
                     />
                     <Button type="submit" disabled={updateSchema.isPending}>
@@ -365,7 +384,7 @@ export default function FlagsPage() {
                 </div>
                 <Switch
                   checked={selectedFlag.enabled}
-                  onCheckedChange={(enabled) =>
+                  onCheckedChange={(enabled: boolean) =>
                     updateFlag.mutate({ flagId: selectedFlag.id, values: { enabled } })
                   }
                   disabled={updateFlag.isPending}
@@ -400,7 +419,7 @@ export default function FlagsPage() {
                     </span>
                     <Switch
                       checked={condition.enabled}
-                      onCheckedChange={(enabled) =>
+                      onCheckedChange={(enabled: boolean) =>
                         updateCondition.mutate({ conditionId: condition.id, values: { enabled } })
                       }
                     />
@@ -411,20 +430,26 @@ export default function FlagsPage() {
                     <Input
                       placeholder="Property (e.g. country)"
                       value={conditionProperty}
-                      onChange={(event) => setConditionProperty(event.target.value)}
+                      onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                        setConditionProperty(event.target.value)
+                      }
                       required
                     />
                     <Input
                       placeholder="Equals (e.g. US)"
                       value={conditionValue}
-                      onChange={(event) => setConditionValue(event.target.value)}
+                      onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                        setConditionValue(event.target.value)
+                      }
                       required
                     />
                   </div>
                   <Input
                     placeholder="Result value (optional)"
                     value={conditionResult}
-                    onChange={(event) => setConditionResult(event.target.value)}
+                    onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                      setConditionResult(event.target.value)
+                    }
                   />
                   <Button type="submit" variant="outline" disabled={createCondition.isPending}>
                     Add targeting rule
@@ -435,39 +460,24 @@ export default function FlagsPage() {
           )}
         </section>
 
-        {isCreateFlagOpen && (
-          <div
-            className="dialog-backdrop"
-            role="presentation"
-            onMouseDown={() => setIsCreateFlagOpen(false)}
-          >
-            <form
-              className="create-panel"
-              onSubmit={submitCreateFlag}
-              onMouseDown={(event) => event.stopPropagation()}
-            >
-              <div className="create-panel-heading">
-                <div>
-                  <h2>Create a flag</h2>
-                  <p>Choose the schema that validates its fallback value.</p>
-                </div>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setIsCreateFlagOpen(false)}
-                  aria-label="Close"
-                >
-                  ×
-                </Button>
-              </div>
+        <Dialog open={isCreateFlagOpen} onOpenChange={setIsCreateFlagOpen}>
+          <DialogContent className="create-panel">
+            <DialogHeader>
+              <DialogTitle>Create a flag</DialogTitle>
+              <DialogDescription>
+                Choose the schema that validates its fallback value.
+              </DialogDescription>
+            </DialogHeader>
+            <form className="grid gap-4" onSubmit={submitCreateFlag}>
               <label>
                 Flag key
                 <Input
                   required
                   pattern="[a-z0-9_-]+"
                   value={newFlagKey}
-                  onChange={(event) => setNewFlagKey(event.target.value)}
+                  onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                    setNewFlagKey(event.target.value)
+                  }
                   placeholder="checkout-redesign"
                 />
               </label>
@@ -475,76 +485,61 @@ export default function FlagsPage() {
                 Display name
                 <Input
                   value={newFlagName}
-                  onChange={(event) => setNewFlagName(event.target.value)}
+                  onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                    setNewFlagName(event.target.value)
+                  }
                   placeholder="Checkout redesign"
                 />
               </label>
               <label>
                 Value schema
-                <select
-                  className="h-8 rounded-lg border border-input bg-background px-2.5 text-sm"
-                  value={newFlagSchemaId}
-                  onChange={(event) => setNewFlagSchemaId(event.target.value)}
-                  required
-                >
-                  {schemas.map((schema) => (
-                    <option key={schema.id} value={schema.id}>
-                      {schema.name}
-                    </option>
-                  ))}
-                </select>
+                <Select value={newFlagSchemaId} onValueChange={setNewFlagSchemaId} required>
+                  <SelectTrigger aria-label="Value schema" className="w-full">
+                    <SelectValue placeholder="Choose a schema" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {schemas.map((schema) => (
+                      <SelectItem key={schema.id} value={schema.id}>
+                        {schema.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </label>
-              <Button
-                className="button-primary"
-                type="submit"
-                disabled={createFlag.isPending || !schemas.length}
-              >
-                {createFlag.isPending ? "Creating…" : "Create flag"}
-              </Button>
-            </form>
-          </div>
-        )}
-        {isCreateSchemaOpen && (
-          <div
-            className="dialog-backdrop"
-            role="presentation"
-            onMouseDown={() => setIsCreateSchemaOpen(false)}
-          >
-            <form
-              className="create-panel"
-              onSubmit={submitCreateSchema}
-              onMouseDown={(event) => event.stopPropagation()}
-            >
-              <div className="create-panel-heading">
-                <div>
-                  <h2>Create a schema</h2>
-                  <p>New schemas start as strings.</p>
-                </div>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setIsCreateSchemaOpen(false)}
-                  aria-label="Close"
-                >
-                  ×
+              <DialogFooter>
+                <Button type="submit" disabled={createFlag.isPending || !schemas.length}>
+                  {createFlag.isPending ? "Creating…" : "Create flag"}
                 </Button>
-              </div>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
+        <Dialog open={isCreateSchemaOpen} onOpenChange={setIsCreateSchemaOpen}>
+          <DialogContent className="create-panel">
+            <DialogHeader>
+              <DialogTitle>Create a schema</DialogTitle>
+              <DialogDescription>New schemas start as strings.</DialogDescription>
+            </DialogHeader>
+            <form className="grid gap-4" onSubmit={submitCreateSchema}>
               <label>
                 Schema name
                 <Input
                   value={newSchemaName}
-                  onChange={(event) => setNewSchemaName(event.target.value)}
+                  onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                    setNewSchemaName(event.target.value)
+                  }
                   placeholder="Text values"
                   required
                 />
               </label>
-              <Button className="button-primary" type="submit" disabled={createSchema.isPending}>
-                {createSchema.isPending ? "Creating…" : "Create schema"}
-              </Button>
+              <DialogFooter>
+                <Button type="submit" disabled={createSchema.isPending}>
+                  {createSchema.isPending ? "Creating…" : "Create schema"}
+                </Button>
+              </DialogFooter>
             </form>
-          </div>
-        )}
+          </DialogContent>
+        </Dialog>
       </div>
     </DashboardShell>
   );

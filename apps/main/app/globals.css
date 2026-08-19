@@ -1483,50 +1483,12 @@ input:focus-visible {
   width: 14px;
   height: 14px;
 }
-.dialog-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 20;
-  display: grid;
-  place-items: center;
-  padding: 20px;
-  background: rgba(16, 27, 45, 0.28);
-}
-.create-panel {
-  width: min(100%, 430px);
-  display: grid;
-  gap: 16px;
-  padding: 24px;
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  background: white;
-  box-shadow: var(--shadow);
-}
 .create-panel label {
   display: grid;
   gap: 7px;
   color: #536171;
   font-size: 11px;
   font-weight: 700;
-}
-.create-panel-heading {
-  display: flex;
-  align-items: start;
-  justify-content: space-between;
-}
-.create-panel-heading h2 {
-  margin: 0;
-  font-size: 18px;
-}
-.create-panel-heading p {
-  margin: 5px 0 0;
-  color: #9aa3a8;
-  font-size: 11px;
-}
-.dialog-close {
-  margin: -6px -6px 0 0;
-  color: #8d979c;
-  font-size: 18px;
 }
 .inline-empty {
   padding: 14px;

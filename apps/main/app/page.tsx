@@ -6,6 +6,14 @@ import { ArrowUpRight, ChevronDown, Flag, Plus, Search } from "lucide-react";
 
 import { Badge } from "@flaggable/ui/badge";
 import { Button } from "@flaggable/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@flaggable/ui/dialog";
 import { Input } from "@flaggable/ui/input";
 import { Switch } from "@flaggable/ui/switch";
 import { DashboardShell } from "@/components/dashboard-sidebar";
@@ -268,73 +276,51 @@ export default function Dashboard() {
               </section>
             )}
 
-            {isCreateOpen && (
-              <div
-                className="dialog-backdrop"
-                role="presentation"
-                onMouseDown={() => setIsCreateOpen(false)}
-              >
-                <form
-                  className="create-panel"
-                  onSubmit={submitCreateFlag}
-                  onMouseDown={(event) => event.stopPropagation()}
-                >
-                  <div className="create-panel-heading">
-                    <div>
-                      <h2>Create a flag</h2>
-                      <p>Flags need a value schema so every result stays valid.</p>
-                    </div>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="dialog-close"
-                      onClick={() => setIsCreateOpen(false)}
-                      aria-label="Close"
-                    >
-                      ×
-                    </Button>
+            <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+              <DialogContent className="create-panel">
+                <DialogHeader>
+                  <DialogTitle>Create a flag</DialogTitle>
+                  <DialogDescription>
+                    Flags need a value schema so every result stays valid.
+                  </DialogDescription>
+                </DialogHeader>
+                {schemasQuery.data?.length === 0 ? (
+                  <div className="inline-empty">
+                    Create a value schema first, then return here to create a flag.
                   </div>
-                  {schemasQuery.data?.length === 0 ? (
-                    <div className="inline-empty">
-                      Create a value schema first, then return here to create a flag.
-                    </div>
-                  ) : (
-                    <>
-                      <label>
-                        Flag key
-                        <Input
-                          required
-                          pattern="[a-z0-9_-]+"
-                          value={newFlagKey}
-                          onChange={(event: ChangeEvent<HTMLInputElement>) =>
-                            setNewFlagKey(event.target.value)
-                          }
-                          placeholder="checkout-redesign"
-                        />
-                      </label>
-                      <label>
-                        Display name
-                        <Input
-                          value={newFlagName}
-                          onChange={(event: ChangeEvent<HTMLInputElement>) =>
-                            setNewFlagName(event.target.value)
-                          }
-                          placeholder="Checkout redesign"
-                        />
-                      </label>
-                      <Button
-                        className="button-primary"
-                        type="submit"
-                        disabled={createFlag.isPending}
-                      >
+                ) : (
+                  <form className="grid gap-4" onSubmit={submitCreateFlag}>
+                    <label>
+                      Flag key
+                      <Input
+                        required
+                        pattern="[a-z0-9_-]+"
+                        value={newFlagKey}
+                        onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                          setNewFlagKey(event.target.value)
+                        }
+                        placeholder="checkout-redesign"
+                      />
+                    </label>
+                    <label>
+                      Display name
+                      <Input
+                        value={newFlagName}
+                        onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                          setNewFlagName(event.target.value)
+                        }
+                        placeholder="Checkout redesign"
+                      />
+                    </label>
+                    <DialogFooter>
+                      <Button type="submit" disabled={createFlag.isPending}>
                         {createFlag.isPending ? "Creating…" : "Create flag"}
                       </Button>
-                    </>
-                  )}
-                </form>
-              </div>
-            )}
+                    </DialogFooter>
+                  </form>
+                )}
+              </DialogContent>
+            </Dialog>
           </>
         )}
       </div>

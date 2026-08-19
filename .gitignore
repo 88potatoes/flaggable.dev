@@ -16,3 +16,4 @@ apps/*/.vinext
 apps/*/.wrangler
 apps/*/tsconfig.tsbuildinfo
 .pi-subagents/*
+*.DS_Store*
