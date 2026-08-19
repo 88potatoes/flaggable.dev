@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, type ChangeEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, type ChangeEvent, useEffect, useMemo, useState, useCallback } from "react";
 import { Flag, LoaderCircle } from "lucide-react";
 
 import { Alert } from "@flaggable/ui/alert";
@@ -111,20 +111,62 @@ export default function Dashboard() {
 
   const alerts = projectsQuery.error || flagsQuery.error || error || notice;
 
+  const flagSidebar =
+    projects.length > 0 ? (
+      <FlagBrowser
+        flags={flags}
+        search={query}
+        onSearchChange={setQuery}
+        selectedFlagId={selectedFlag?.id}
+        onSelect={setSelectedFlagId}
+        isLoading={flagsQuery.isLoading}
+        isFetchingNextPage={flagsQuery.isFetchingNextPage}
+        hasNextPage={Boolean(flagsQuery.hasNextPage)}
+        onLoadMore={() => {
+          if (flagsQuery.hasNextPage && !flagsQuery.isFetchingNextPage) flagsQuery.fetchNextPage();
+        }}
+      />
+    ) : null;
+
   return (
     <DashboardShell
       projects={projects}
       projectId={projectId}
       onProjectChange={selectProject}
       onNewFlag={() => setIsCreateOpen(true)}
+      flagSidebar={flagSidebar}
     >
       <div className="dashboard-inner">
-        <div className="mb-12">
-          <h1 className="text-3xl font-bold tracking-tight text-gray-900">Feature Flags</h1>
-          <p className="mt-2 text-base text-gray-600">
-            Control feature rollouts and manage your application's behavior
-          </p>
-        </div>
+        {selectedFlag ? (
+          <div className="mb-8">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-orange-500 to-red-600 text-sm font-bold text-white">
+                {selectedFlag.name[0]?.toUpperCase() || "F"}
+              </div>
+              <h1 className="text-2xl font-bold tracking-tight text-gray-900">
+                {selectedFlag.name}
+              </h1>
+              <div
+                className={`px-2 py-1 rounded text-xs font-semibold ${
+                  selectedFlag.enabled ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-600"
+                }`}
+              >
+                {selectedFlag.enabled ? "Active" : "Inactive"}
+              </div>
+            </div>
+            <p className="text-base text-gray-600">
+              {selectedFlag.description ||
+                "Configure targeting conditions and manage rollout for this feature flag."}
+            </p>
+          </div>
+        ) : (
+          <div className="mb-12">
+            <h1 className="text-3xl font-bold tracking-tight text-gray-900">Feature Flags</h1>
+            <p className="mt-2 text-base text-gray-600">
+              Control feature rollouts and manage your application's behavior
+            </p>
+          </div>
+        )}
         {projectsQuery.isLoading ? (
           <Card className="project-empty-state" aria-busy="true">
             <Skeleton className="h-6 w-32" />
@@ -168,21 +210,40 @@ export default function Dashboard() {
               </Alert>
             )}
 
-            <div className="flag-workspace" id="flags">
-              <FlagBrowser
-                flags={flags}
-                search={query}
-                onSearchChange={setQuery}
-                selectedFlagId={selectedFlag?.id}
-                onSelect={setSelectedFlagId}
-                isLoading={flagsQuery.isLoading}
-                isFetchingNextPage={flagsQuery.isFetchingNextPage}
-                hasNextPage={Boolean(flagsQuery.hasNextPage)}
-                onLoadMore={() => {
-                  if (flagsQuery.hasNextPage && !flagsQuery.isFetchingNextPage)
-                    flagsQuery.fetchNextPage();
-                }}
-              />
+            <div className="flag-detail-container">
+              {/* Mobile flag browser - only show on small screens when we have flags */}
+              <div className="mb-8 block md:hidden">
+                {flags.length > 0 && (
+                  <div className="rounded-xl border bg-white p-4 shadow-sm">
+                    <h3 className="mb-4 text-lg font-semibold">Select Flag</h3>
+                    <div className="max-h-48 space-y-2 overflow-y-auto">
+                      {flags.slice(0, 5).map((flag) => (
+                        <button
+                          key={flag.id}
+                          onClick={() => setSelectedFlagId(flag.id)}
+                          className={`flex w-full items-center gap-3 rounded-lg p-3 text-left transition-colors ${
+                            selectedFlag?.id === flag.id
+                              ? "bg-orange-50 ring-1 ring-orange-200"
+                              : "hover:bg-gray-50"
+                          }`}
+                        >
+                          <div
+                            className={`flex h-6 w-6 items-center justify-center rounded text-xs font-bold text-white ${
+                              flag.enabled ? "bg-green-500" : "bg-gray-400"
+                            }`}
+                          >
+                            {flag.name[0]?.toUpperCase() || "F"}
+                          </div>
+                          <span className="text-sm font-medium">{flag.name}</span>
+                        </button>
+                      ))}
+                      {flags.length > 5 && (
+                        <p className="text-xs text-gray-500">+ {flags.length - 5} more flags</p>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
               <FlagDetail flag={selectedFlag} projectId={projectId} />
             </div>
             <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>

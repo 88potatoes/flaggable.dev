@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useCallback, KeyboardEvent } from "react";
 import { LoaderCircle, Search } from "lucide-react";
 
 import { Badge } from "@flaggable/ui/badge";
@@ -32,6 +32,8 @@ export function FlagBrowser({
   onLoadMore: () => void;
 }) {
   const sentinelRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const sentinel = sentinelRef.current;
@@ -43,12 +45,80 @@ export function FlagBrowser({
     return () => observer.disconnect();
   }, [hasNextPage, onLoadMore]);
 
+  // Keyboard navigation
+  const handleKeyDown = useCallback(
+    (event: KeyboardEvent<HTMLDivElement>) => {
+      if (flags.length === 0) return;
+
+      const currentIndex = selectedFlagId
+        ? flags.findIndex((flag) => flag.id === selectedFlagId)
+        : -1;
+      let nextIndex = currentIndex;
+
+      switch (event.key) {
+        case "ArrowDown":
+          event.preventDefault();
+          nextIndex = currentIndex < flags.length - 1 ? currentIndex + 1 : 0;
+          break;
+        case "ArrowUp":
+          event.preventDefault();
+          nextIndex = currentIndex > 0 ? currentIndex - 1 : flags.length - 1;
+          break;
+        case "Enter":
+        case " ":
+          event.preventDefault();
+          if (currentIndex >= 0) {
+            onSelect(flags[currentIndex].id);
+          }
+          return;
+        case "Escape":
+          event.preventDefault();
+          searchInputRef.current?.focus();
+          return;
+        case "/":
+          event.preventDefault();
+          searchInputRef.current?.focus();
+          return;
+        default:
+          return;
+      }
+
+      if (nextIndex >= 0 && nextIndex < flags.length) {
+        onSelect(flags[nextIndex].id);
+      }
+    },
+    [flags, selectedFlagId, onSelect],
+  );
+
+  // Focus management and auto-select first flag
+  useEffect(() => {
+    if (flags.length > 0 && !selectedFlagId) {
+      onSelect(flags[0].id);
+    }
+  }, [flags, selectedFlagId, onSelect]);
+
+  useEffect(() => {
+    if (containerRef.current && !searchInputRef.current?.matches(":focus")) {
+      containerRef.current.focus();
+    }
+  }, [selectedFlagId]);
+
   return (
-    <Card className="flag-browser gap-0 overflow-hidden p-0">
-      <div className="flag-browser-toolbar">
+    <div
+      ref={containerRef}
+      className="flag-browser-container flex h-full flex-col bg-white"
+      onKeyDown={handleKeyDown}
+      tabIndex={-1}
+    >
+      <div className="flag-browser-toolbar border-b border-sidebar-border bg-gradient-to-r from-white/80 to-gray-50/60 p-4">
         <div className="mb-4">
           <h2 className="text-lg font-semibold tracking-tight text-gray-900">Feature Flags</h2>
-          <p className="text-sm text-gray-600">Manage and control your feature releases</p>
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-gray-600">↑↓ Navigate • ⏎ Select • / Search</p>
+            <div className="text-xs text-gray-500">
+              {flags.length} flag{flags.length !== 1 ? "s" : ""}
+            </div>
+          </div>
         </div>
         <Label htmlFor="flag-search" className="sr-only">
           Search flags
@@ -56,15 +126,25 @@ export function FlagBrowser({
         <div className="search-field">
           <Search className="h-4 w-4" aria-hidden="true" />
           <Input
+            ref={searchInputRef}
             id="flag-search"
-            placeholder="Search flags by name..."
+            placeholder="Search flags (press / to focus)..."
             value={search}
-            onChange={(event) => onSearchChange(event.target.value)}
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+              onSearchChange(event.target.value)
+            }
             className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+            onKeyDown={(event: React.KeyboardEvent<HTMLInputElement>) => {
+              if (event.key === "ArrowDown" && flags.length > 0) {
+                event.preventDefault();
+                containerRef.current?.focus();
+                onSelect(flags[0].id);
+              }
+            }}
           />
         </div>
       </div>
-      <div className="flag-browser-list" aria-busy={isLoading}>
+      <div className="flag-browser-list flex-1 overflow-y-auto p-3" aria-busy={isLoading}>
         {isLoading ? (
           Array.from({ length: 5 }, (_, index) => (
             <Skeleton key={index} className="mx-4 my-2 h-14" />
@@ -91,6 +171,7 @@ export function FlagBrowser({
               className={`flag-browser-item relative ${selectedFlagId === flag.id ? "is-selected" : ""}`}
               aria-pressed={selectedFlagId === flag.id}
               onClick={() => onSelect(flag.id)}
+              onFocus={() => onSelect(flag.id)}
             >
               <div className="flex min-w-0 flex-1 items-center gap-3">
                 <div
@@ -135,6 +216,6 @@ export function FlagBrowser({
           </div>
         )}
       </div>
-    </Card>
+    </div>
   );
 }

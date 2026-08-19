@@ -1,11 +1,13 @@
 /** JSON values supported by flag values and evaluation properties. */
-export type {
+import type {
   ConditionOperator,
   JsonObject,
   JsonPrimitive,
   JsonSchema,
   JsonValue,
 } from "@flaggable/contracts";
+
+export type { ConditionOperator, JsonObject, JsonPrimitive, JsonSchema, JsonValue };
 
 export type ConditionPredicate = {
   /** A literal top-level property name. Nested paths are not supported yet. */

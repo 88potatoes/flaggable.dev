@@ -76,6 +76,8 @@ function matchesPredicate({
         Array.isArray(predicate.value) &&
         !predicate.value.some((candidate) => deepEqual(propertyValue, candidate))
       );
+    default:
+      return false;
   }
 }
 

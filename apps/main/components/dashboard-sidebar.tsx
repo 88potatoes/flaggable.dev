@@ -196,12 +196,14 @@ export function DashboardShell({
   projectId,
   onProjectChange,
   onNewFlag,
+  flagSidebar,
 }: {
   children: React.ReactNode;
   projects: Project[];
   projectId: string;
   onProjectChange: (projectId: string) => void;
   onNewFlag?: () => void;
+  flagSidebar?: React.ReactNode;
 }) {
   return (
     <SidebarProvider className="flex min-h-svh w-full flex-row bg-background">
@@ -211,7 +213,12 @@ export function DashboardShell({
         onProjectChange={onProjectChange}
         onNewFlag={onNewFlag}
       />
-      <SidebarInset className="min-w-0 bg-background">{children}</SidebarInset>
+      {flagSidebar && (
+        <div className="flex min-h-svh w-80 flex-col border-r border-sidebar-border bg-sidebar/30">
+          {flagSidebar}
+        </div>
+      )}
+      <SidebarInset className="min-w-0 bg-background flex-1">{children}</SidebarInset>
       <SidebarRail />
     </SidebarProvider>
   );
