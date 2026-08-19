@@ -3,8 +3,8 @@
 import { type FormEvent, useEffect, useMemo, useState } from "react";
 import { ArrowUpRight, Flag, Plus, Search, Trash2 } from "lucide-react";
 
-import { Badge } from "@flaggable/ui/badge";
 import { Button } from "@flaggable/ui/button";
+import { Alert } from "@flaggable/ui/alert";
 import {
   Dialog,
   DialogContent,
@@ -23,6 +23,7 @@ import {
 } from "@flaggable/ui/select";
 import { Switch } from "@flaggable/ui/switch";
 import { DashboardShell } from "@/components/dashboard-sidebar";
+import { FlagTable } from "@/components/flag-table";
 import {
   useMutateArchiveFlag,
   useMutateCreateFlag,
@@ -253,12 +254,18 @@ export default function FlagsPage() {
         </div>
 
         {message && (
-          <div className="dashboard-alert is-success" role="status">
+          <Alert variant="success" className="mb-6 flex items-center justify-between">
             <span>{message}</span>
-            <button type="button" onClick={() => setMessage("")} aria-label="Dismiss message">
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-xs"
+              onClick={() => setMessage("")}
+              aria-label="Dismiss message"
+            >
               ×
-            </button>
-          </div>
+            </Button>
+          </Alert>
         )}
 
         <section className="flags-panel flags-page-panel">
@@ -282,49 +289,13 @@ export default function FlagsPage() {
               />
             </label>
           </div>
-          <div className="flags-table">
-            <div className="flag-row table-heading">
-              <span>Flag</span>
-              <span>Status</span>
-              <span>Updated</span>
-              <span />
-            </div>
-            {flagsQuery.isLoading ? (
-              <div className="table-empty">Loading flags…</div>
-            ) : visibleFlags.length === 0 ? (
-              <div className="table-empty">No flags match your search.</div>
-            ) : (
-              visibleFlags.map((flag) => (
-                <button
-                  type="button"
-                  className={`flag-row ${selectedFlag?.id === flag.id ? "selected" : ""}`}
-                  key={flag.id}
-                  onClick={() => setSelectedFlagId(flag.id)}
-                >
-                  <span className="flag-name">
-                    <i className={`status-dot ${flag.enabled ? "green" : "purple"}`} />
-                    <span>
-                      <b>{flag.key}</b>
-                      <small>{flag.description ?? flag.name}</small>
-                    </span>
-                  </span>
-                  <span>
-                    <Badge
-                      variant={flag.enabled ? "default" : "secondary"}
-                      className={`rollout-pill ${flag.enabled ? "on" : "off"}`}
-                    >
-                      <i />
-                      {flag.enabled ? "Enabled" : "Off"}
-                    </Badge>
-                  </span>
-                  <span className="updated">{formatUpdated(flag.updatedAt)}</span>
-                  <span className="row-arrow">
-                    <ArrowUpRight />
-                  </span>
-                </button>
-              ))
-            )}
-          </div>
+          <FlagTable
+            flags={visibleFlags}
+            selectedFlagId={selectedFlag?.id}
+            onSelect={setSelectedFlagId}
+            isLoading={flagsQuery.isLoading}
+            emptyMessage="No flags match your search."
+          />
         </section>
 
         <section className="dashboard-grid mt-6">
@@ -549,11 +520,4 @@ function fallbackForSchema(schema: Record<string, unknown>) {
   if (schema.type === "number") return 0;
   if (schema.type === "boolean") return false;
   return "";
-}
-
-function formatUpdated(value: string) {
-  const date = new Date(value);
-  if (Number.isNaN(date.valueOf())) return "Recently";
-  const minutes = Math.max(1, Math.round((Date.now() - date.valueOf()) / 60000));
-  return minutes < 60 ? `${minutes}m ago` : `${Math.round(minutes / 60)}h ago`;
 }

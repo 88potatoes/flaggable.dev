@@ -4,7 +4,7 @@ import Link from "next/link";
 import { FormEvent, type ChangeEvent, type ReactNode, useEffect, useState } from "react";
 import { ArrowUpRight, ChevronDown, Flag, Plus, Search } from "lucide-react";
 
-import { Badge } from "@flaggable/ui/badge";
+import { Alert } from "@flaggable/ui/alert";
 import { Button } from "@flaggable/ui/button";
 import {
   Dialog,
@@ -17,8 +17,8 @@ import {
 import { Input } from "@flaggable/ui/input";
 import { Switch } from "@flaggable/ui/switch";
 import { DashboardShell } from "@/components/dashboard-sidebar";
+import { FlagTable } from "@/components/flag-table";
 import { useMutateCreateFlag, useMutateUpdateFlag, useQueryFlags } from "@/slices/flags/queries";
-import type { Flag as FlagRecord } from "@flaggable/contracts";
 import { useMutateCreateProject, useQueryProjects } from "@/slices/projects/queries";
 import { useQuerySchemas } from "@/slices/value-schemas/queries";
 
@@ -155,15 +155,19 @@ export default function Dashboard() {
             </div>
 
             {alerts && (
-              <div
-                className={`dashboard-alert ${error || projectsQuery.error || flagsQuery.error ? "is-error" : "is-success"}`}
-                role="status"
+              <Alert
+                variant={
+                  error || projectsQuery.error || flagsQuery.error ? "destructive" : "success"
+                }
+                className="mb-6 flex items-center justify-between"
               >
                 <span>
                   {error || projectsQuery.error?.message || flagsQuery.error?.message || notice}
                 </span>
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
+                  size="icon-xs"
                   onClick={() => {
                     setError("");
                     setNotice("");
@@ -171,8 +175,8 @@ export default function Dashboard() {
                   aria-label="Dismiss message"
                 >
                   ×
-                </button>
-              </div>
+                </Button>
+              </Alert>
             )}
 
             <div className="dashboard-grid" id="flags">
@@ -203,11 +207,11 @@ export default function Dashboard() {
                   </Button>
                 </div>
                 <FlagTable
-                  flags={flags}
-                  visibleFlags={visibleFlags}
-                  selected={selected}
-                  setSelected={setSelected}
+                  flags={visibleFlags}
+                  selectedFlagId={selectedFlag?.id}
+                  onSelect={(flagId) => setSelected(flags.findIndex((flag) => flag.id === flagId))}
                   isLoading={flagsQuery.isLoading}
+                  emptyMessage="No flags yet. Create your first flag to get started."
                 />
               </section>
 
@@ -351,9 +355,9 @@ function ProjectEmptyState({
       <h1>Create your first project</h1>
       <p>Projects keep your feature flags organized. Create one to get started.</p>
       {message && (
-        <div className={`dashboard-alert ${isError ? "is-error" : "is-success"}`} role="status">
-          <span>{message}</span>
-        </div>
+        <Alert variant={isError ? "destructive" : "success"} className="mb-5">
+          {message}
+        </Alert>
       )}
       <form onSubmit={onSubmit}>
         <Input
@@ -368,69 +372,6 @@ function ProjectEmptyState({
         </Button>
       </form>
     </section>
-  );
-}
-
-function FlagTable({
-  flags,
-  visibleFlags,
-  selected,
-  setSelected,
-  isLoading,
-}: {
-  flags: FlagRecord[];
-  visibleFlags: FlagRecord[];
-  selected: number;
-  setSelected: (index: number) => void;
-  isLoading: boolean;
-}) {
-  return (
-    <div className="flags-table">
-      <div className="flag-row table-heading">
-        <span>Flag</span>
-        <span>Status</span>
-        <span>Updated</span>
-        <span />
-      </div>
-      {isLoading ? (
-        <div className="table-empty">Loading flags…</div>
-      ) : visibleFlags.length === 0 ? (
-        <div className="table-empty">No flags yet. Create your first flag to get started.</div>
-      ) : (
-        visibleFlags.map((flag) => {
-          const originalIndex = flags.indexOf(flag);
-          return (
-            <button
-              type="button"
-              className={`flag-row ${selected === originalIndex ? "selected" : ""}`}
-              key={flag.id}
-              onClick={() => setSelected(originalIndex)}
-            >
-              <span className="flag-name">
-                <i className={`status-dot ${flag.enabled ? "green" : "purple"}`} />
-                <span>
-                  <b>{flag.key}</b>
-                  <small>{flag.description ?? flag.name}</small>
-                </span>
-              </span>
-              <span>
-                <Badge
-                  variant={flag.enabled ? "default" : "secondary"}
-                  className={`rollout-pill ${flag.enabled ? "on" : "off"}`}
-                >
-                  <i />
-                  {flag.enabled ? "Enabled" : "Off"}
-                </Badge>
-              </span>
-              <span className="updated">{formatUpdated(flag.updatedAt)}</span>
-              <span className="row-arrow">
-                <ArrowUpRight />
-              </span>
-            </button>
-          );
-        })
-      )}
-    </div>
   );
 }
 
