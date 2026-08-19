@@ -60,7 +60,7 @@ export function DashboardSidebar({
                 aria-label="Select project"
                 className="h-12 w-full border-0 bg-transparent px-2 shadow-none hover:bg-sidebar-accent"
               >
-                <span className="flex min-w-0 flex-1 items-center gap-2 text-left">
+                <div className="flex min-w-0 flex-1 items-center gap-2 text-left">
                   <span className="flex size-8 shrink-0 items-center justify-center rounded-md border bg-background text-xs font-semibold">
                     {(project?.name?.[0] ?? "P").toUpperCase()}
                   </span>
@@ -68,7 +68,7 @@ export function DashboardSidebar({
                     <SelectValue placeholder="No projects yet" />
                     <span className="truncate text-xs text-muted-foreground">Project</span>
                   </span>
-                </span>
+                </div>
               </SelectTrigger>
               <SelectContent align="start" className="min-w-(--radix-select-trigger-width)">
                 {projects.map((item) => (
