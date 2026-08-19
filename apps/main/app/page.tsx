@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, type ChangeEvent, useEffect, useMemo, useState } from "react";
-import { Flag, Plus } from "lucide-react";
+import { Flag } from "lucide-react";
 
 import { Alert } from "@flaggable/ui/alert";
 import { Button } from "@flaggable/ui/button";
@@ -113,7 +113,12 @@ export default function Dashboard() {
   const alerts = projectsQuery.error || flagsQuery.error || error || notice;
 
   return (
-    <DashboardShell projects={projects} projectId={projectId} onProjectChange={selectProject}>
+    <DashboardShell
+      projects={projects}
+      projectId={projectId}
+      onProjectChange={selectProject}
+      onNewFlag={() => setIsCreateOpen(true)}
+    >
       <div className="dashboard-inner">
         {projectsQuery.isLoading ? (
           <Card className="project-empty-state" aria-busy="true">
@@ -137,9 +142,6 @@ export default function Dashboard() {
                 <h1>Overview</h1>
                 <p className="dashboard-subtitle">Manage the flags powering your product.</p>
               </div>
-              <Button type="button" variant="primary" onClick={() => setIsCreateOpen(true)}>
-                <Plus /> New flag
-              </Button>
             </div>
 
             {alerts && (
