@@ -2,8 +2,7 @@ import { uuidv7 } from "uuidv7";
 
 import { ApiError } from "@/lib/api";
 import type { FlagRecord, NewFlagRecord } from "@/lib/db/schema";
-import { parseJson } from "@/lib/flags/json-schema";
-import type { JsonObject, JsonValue } from "@/lib/flags/types";
+
 import { DrizzleProjectRepository, type ProjectRepository } from "@/slices/projects/repo";
 import {
   DrizzleValueSchemaRepository,
@@ -28,14 +27,6 @@ function decodeCursor(cursor: string) {
     return { createdAt, id: value.id };
   } catch {
     throw new ApiError(400, "Invalid flag pagination cursor.");
-  }
-}
-
-function json(value: unknown, field: string): string {
-  try {
-    return JSON.stringify(value);
-  } catch {
-    throw new ApiError(400, `${field} must be JSON serializable.`);
   }
 }
 

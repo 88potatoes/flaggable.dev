@@ -27,7 +27,6 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -154,7 +153,13 @@ export function DashboardSidebar({
                 <DropdownMenuLabel>{userName}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                  <a href={logoutUrl}>Log out</a>
+                  <button
+                    type="button"
+                    className="w-full text-left"
+                    onClick={() => window.location.assign(logoutUrl)}
+                  >
+                    Log out
+                  </button>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
