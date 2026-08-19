@@ -2,6 +2,9 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+/* Shared shadcn primitives live in packages/ui. */
+@source "../../../packages/ui/src";
+
 @custom-variant dark (&:is(.dark *));
 
 :root {
@@ -358,6 +361,10 @@ input:focus-visible {
   color: #65c494;
   font-size: 10px;
 }
+.proof-mark svg {
+  width: 10px;
+  height: 10px;
+}
 .hero-console {
   overflow: hidden;
   border: 1px solid #354255;
@@ -449,10 +456,15 @@ input:focus-visible {
   font-weight: 500;
 }
 .nav-icon {
+  display: inline-flex;
   width: 12px;
   color: var(--accent);
   font-size: 12px;
   text-align: center;
+}
+.nav-icon svg {
+  width: 12px;
+  height: 12px;
 }
 .console-sidebar-bottom {
   position: absolute;
@@ -495,12 +507,17 @@ input:focus-visible {
   letter-spacing: -0.055em;
 }
 .console-add {
+  height: auto;
   padding: 7px 9px;
   border-radius: 4px;
   background: var(--accent);
   color: white;
   font-size: 8px;
   font-weight: 700;
+}
+.console-add svg {
+  width: 10px;
+  height: 10px;
 }
 .console-summary {
   display: grid;
@@ -621,8 +638,9 @@ input:focus-visible {
   font-size: 13px;
 }
 .signal-arrow {
+  width: 18px;
+  height: 18px;
   color: var(--accent);
-  font-size: 18px;
 }
 .how-section {
   padding: 150px 0 160px;

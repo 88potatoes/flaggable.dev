@@ -11,7 +11,9 @@
     "preview": "pnpm run build && pnpm run start"
   },
   "dependencies": {
+    "@flaggable/ui": "workspace:*",
     "@vinext/cloudflare": "1.0.0-beta.5",
+    "lucide-react": "1.31.0",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "react-server-dom-webpack": "19.2.8",

@@ -1,14 +1,20 @@
 import Link from "next/link";
+import {
+  ArrowUpRight,
+  Check,
+  ChevronDown,
+  CircleDot,
+  Flag,
+  Grid2X2,
+  Layers,
+  Plus,
+  Settings,
+} from "lucide-react";
+
+import { Badge } from "@flaggable/ui/badge";
+import { Button } from "@flaggable/ui/button";
 
 const MAIN_APP_URL = process.env.MAIN_APP_URL ?? "http://localhost:3000";
-
-function ArrowUpRight() {
-  return (
-    <svg aria-hidden="true" viewBox="0 0 20 20" className="icon">
-      <path d="M5 15 15 5M7 5h8v8" />
-    </svg>
-  );
-}
 
 function ActivityMini({
   title,
@@ -50,9 +56,11 @@ export default function Home() {
           <a href="#activity">Activity</a>
           <a href={`${MAIN_APP_URL}/auth/login?screen_hint=signup`}>Sign up</a>
           <a href={`${MAIN_APP_URL}/auth/login`}>Log in</a>
-          <a href={`${MAIN_APP_URL}/dashboard`} className="button button-light button-small">
-            Start now <ArrowUpRight />
-          </a>
+          <Button asChild variant="light" size="sm" className="button button-light button-small">
+            <a href={`${MAIN_APP_URL}/dashboard`}>
+              Start now <ArrowUpRight />
+            </a>
+          </Button>
         </div>
       </nav>
 
@@ -71,15 +79,19 @@ export default function Home() {
             follow rollouts, and move with confidence.
           </p>
           <div className="hero-actions">
-            <a href={`${MAIN_APP_URL}/dashboard`} className="button button-accent">
-              Start now <ArrowUpRight />
-            </a>
+            <Button asChild variant="accent" size="lg" className="button button-accent">
+              <a href={`${MAIN_APP_URL}/dashboard`}>
+                Start now <ArrowUpRight />
+              </a>
+            </Button>
             <a href="#how-it-works" className="text-link light-link">
               See how it works <span>↓</span>
             </a>
           </div>
           <div className="hero-proof">
-            <span className="proof-mark">✓</span>
+            <span className="proof-mark">
+              <Check aria-hidden="true" />
+            </span>
             <span>Built for teams that ship often</span>
           </div>
         </div>
@@ -99,20 +111,35 @@ export default function Home() {
             <aside className="console-sidebar">
               <div className="console-sidebar-label">Workspace</div>
               <div className="console-nav active">
-                <span className="nav-icon">◈</span> Overview
+                <span className="nav-icon">
+                  <Grid2X2 aria-hidden="true" />
+                </span>{" "}
+                Overview
               </div>
               <div className="console-nav">
-                <span className="nav-icon">◇</span> Feature flags <b>12</b>
+                <span className="nav-icon">
+                  <Flag aria-hidden="true" />
+                </span>{" "}
+                Feature flags <b>12</b>
               </div>
               <div className="console-nav">
-                <span className="nav-icon">⌁</span> Environments
+                <span className="nav-icon">
+                  <Layers aria-hidden="true" />
+                </span>{" "}
+                Environments
               </div>
               <div className="console-sidebar-label second">Manage</div>
               <div className="console-nav">
-                <span className="nav-icon">◌</span> Activity
+                <span className="nav-icon">
+                  <CircleDot aria-hidden="true" />
+                </span>{" "}
+                Activity
               </div>
               <div className="console-nav">
-                <span className="nav-icon">⊙</span> Settings
+                <span className="nav-icon">
+                  <Settings aria-hidden="true" />
+                </span>{" "}
+                Settings
               </div>
               <div className="console-sidebar-bottom">
                 <span className="online-dot" /> All systems operational
@@ -124,7 +151,9 @@ export default function Home() {
                   <span className="console-kicker">MONDAY, MAY 12</span>
                   <h2>Good morning, Alex.</h2>
                 </div>
-                <span className="console-add">+ New flag</span>
+                <Badge className="console-add">
+                  <Plus aria-hidden="true" /> New flag
+                </Badge>
               </div>
               <div className="console-summary">
                 <div>
@@ -174,7 +203,7 @@ export default function Home() {
           <span className="signal-pulse" /> The signal, in context
         </div>
         <p>Every change leaves a clear trail—from first toggle to full rollout.</p>
-        <span className="signal-arrow">↓</span>
+        <ChevronDown className="signal-arrow" aria-hidden="true" />
       </section>
 
       <section className="how-section shell" id="how-it-works">
@@ -223,12 +252,11 @@ export default function Home() {
           </p>
           <h2>Make it visible.</h2>
         </div>
-        <a
-          href={`${MAIN_APP_URL}/auth/login?screen_hint=signup`}
-          className="button button-accent button-large"
-        >
-          Sign up <ArrowUpRight />
-        </a>
+        <Button asChild variant="accent" size="lg" className="button button-accent button-large">
+          <a href={`${MAIN_APP_URL}/auth/login?screen_hint=signup`}>
+            Sign up <ArrowUpRight />
+          </a>
+        </Button>
       </section>
 
       <footer className="landing-footer shell">
