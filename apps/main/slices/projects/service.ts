@@ -2,11 +2,23 @@ import { ApiError } from "@/lib/api";
 import { uuidv7 } from "uuidv7";
 
 import type { NewProjectRecord, ProjectRecord } from "@/lib/db/schema";
+import {
+  DrizzleValueSchemaRepository,
+  type ValueSchemaRepository,
+} from "@/slices/value-schemas/repo";
 import { DrizzleProjectRepository, type ProjectRepository } from "./repo";
 
 /** Application operations for projects. Persistence is injected for unit testing. */
+const DEFAULT_BOOLEAN_SCHEMA = {
+  type: "boolean",
+  enum: [true, false],
+} as const;
+
 export class ProjectService {
-  constructor(private readonly repository: ProjectRepository = new DrizzleProjectRepository()) {}
+  constructor(
+    private readonly repository: ProjectRepository = new DrizzleProjectRepository(),
+    private readonly schemas: ValueSchemaRepository = new DrizzleValueSchemaRepository(),
+  ) {}
 
   list = ({ ownerId }: { ownerId: string }) => this.repository.listByOwner({ ownerId });
 
@@ -15,7 +27,7 @@ export class ProjectService {
     return this.assertOwnedActive(project, ownerId);
   };
 
-  create = ({ ownerId, name }: { ownerId: string; name: string }) => {
+  create = async ({ ownerId, name }: { ownerId: string; name: string }) => {
     const timestamp = new Date();
     const record: NewProjectRecord = {
       id: uuidv7(),
@@ -24,7 +36,19 @@ export class ProjectService {
       createdAt: timestamp,
       updatedAt: timestamp,
     };
-    return this.repository.create({ record });
+    const project = await this.repository.create({ record });
+
+    await this.schemas.create({
+      record: {
+        id: uuidv7(),
+        projectId: project.id,
+        name: "Boolean",
+        schemaJson: JSON.stringify(DEFAULT_BOOLEAN_SCHEMA),
+        createdAt: timestamp,
+      },
+    });
+
+    return project;
   };
 
   update = async ({

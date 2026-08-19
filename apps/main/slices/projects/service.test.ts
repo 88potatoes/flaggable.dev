@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from "vitest";
 
-import { mockProject, mockProjectRepo, mockProjectService } from "../../test/mocks";
+import { mockProject, mockProjectRepo, mockProjectService, mockSchemaRepo } from "../../test/mocks";
 
 describe("ProjectService", () => {
   test("lists projects for an owner", async () => {
@@ -42,14 +42,24 @@ describe("ProjectService", () => {
     ).rejects.toMatchObject({ status: 409 });
   });
 
-  test("creates a UUIDv7 project", async () => {
+  test("creates a UUIDv7 project and default Boolean schema", async () => {
     const repo = mockProjectRepo();
-    await mockProjectService(repo).create({ ownerId: "owner-1", name: "New project" });
+    const schemas = mockSchemaRepo({
+      create: vi.fn(async ({ record }) => record as never),
+    });
+    await mockProjectService(repo, schemas).create({ ownerId: "owner-1", name: "New project" });
     const [[{ record }]] = (repo.create as ReturnType<typeof vi.fn>).mock.calls;
     expect(record).toMatchObject({ ownerUserId: "owner-1", name: "New project" });
     expect(record.id).toMatch(
       /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
     );
+    expect(schemas.create).toHaveBeenCalledWith({
+      record: expect.objectContaining({
+        projectId: record.id,
+        name: "Boolean",
+        schemaJson: JSON.stringify({ type: "boolean", enum: [true, false] }),
+      }),
+    });
   });
 
   test("updates an owned project", async () => {

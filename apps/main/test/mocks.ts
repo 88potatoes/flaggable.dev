@@ -133,8 +133,8 @@ export function mockConditionRepo(
 }
 
 /** Creates a project service backed by a mock repository. */
-export const mockProjectService = (repository = mockProjectRepo()) =>
-  new ProjectService(repository);
+export const mockProjectService = (repository = mockProjectRepo(), schemas = mockSchemaRepo()) =>
+  new ProjectService(repository, schemas);
 
 /** Creates a value-schema service backed by mock repositories. */
 export const mockSchemaService = ({
