@@ -5,6 +5,14 @@ import { usePathname } from "next/navigation";
 import { LayoutDashboard } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@flaggable/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@flaggable/ui/dropdown-menu";
 import { useUser } from "@auth0/nextjs-auth0/client";
 import {
   Select,
@@ -29,6 +37,7 @@ import {
   SidebarRail,
 } from "@flaggable/ui/sidebar";
 import type { Project } from "@flaggable/contracts";
+import { logoutUrl } from "./auth-provider";
 
 const navButton = "text-sm text-sidebar-foreground/80";
 
@@ -106,18 +115,31 @@ export function DashboardSidebar({
       <SidebarFooter className="p-2">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" className="hover:bg-sidebar-accent">
-              <Avatar className="size-8 rounded-lg">
-                {user?.picture && <AvatarImage src={user.picture} alt="" className="rounded-lg" />}
-                <AvatarFallback className="rounded-lg bg-[#f7d1c7] text-xs font-semibold text-[#ad503c]">
-                  {userInitials}
-                </AvatarFallback>
-              </Avatar>
-              <span className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{userName}</span>
-                <span className="truncate text-xs text-muted-foreground">{userEmail}</span>
-              </span>
-            </SidebarMenuButton>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <SidebarMenuButton size="lg" tooltip="Account" className="hover:bg-sidebar-accent">
+                  <Avatar className="size-8 rounded-lg">
+                    {user?.picture && (
+                      <AvatarImage src={user.picture} alt="" className="rounded-lg" />
+                    )}
+                    <AvatarFallback className="rounded-lg bg-[#f7d1c7] text-xs font-semibold text-[#ad503c]">
+                      {userInitials}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="grid flex-1 text-left text-sm leading-tight">
+                    <span className="truncate font-medium">{userName}</span>
+                    <span className="truncate text-xs text-muted-foreground">{userEmail}</span>
+                  </span>
+                </SidebarMenuButton>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent side="right" align="end" className="w-56">
+                <DropdownMenuLabel>{userName}</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <a href={logoutUrl}>Log out</a>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>

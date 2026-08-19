@@ -3,6 +3,8 @@
 import { useUser } from "@auth0/nextjs-auth0/client";
 import { useEffect } from "react";
 
+export const logoutUrl = "/auth/logout";
+
 export function AuthWrapper({ children }: Readonly<{ children: React.ReactNode }>) {
   const { user, isLoading, error } = useUser();
 
