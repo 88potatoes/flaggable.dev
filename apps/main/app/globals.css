@@ -1440,17 +1440,12 @@ input:focus-visible {
 .dashboard-subtitle {
   margin-top: 7px;
 }
-.flag-row {
-  grid-template-columns: minmax(180px, 1fr) minmax(105px, 0.8fr) 78px 20px;
+.flags-table th:first-child,
+.flags-table td:first-child {
+  width: auto;
 }
-.flag-row > :nth-child(2) {
+.flags-table td:nth-child(2) {
   color: inherit;
-}
-.flag-row > :nth-child(3) {
-  grid-column: 3;
-}
-.flag-row > :nth-child(4) {
-  grid-column: 4;
 }
 .rollout-pill.on {
   background: #e8f5ee;
