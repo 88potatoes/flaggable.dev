@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, type ChangeEvent, useEffect, useMemo, useState } from "react";
-import { Flag } from "lucide-react";
+import { Flag, LoaderCircle } from "lucide-react";
 
 import { Alert } from "@flaggable/ui/alert";
 import { Button } from "@flaggable/ui/button";
@@ -119,6 +119,12 @@ export default function Dashboard() {
       onNewFlag={() => setIsCreateOpen(true)}
     >
       <div className="dashboard-inner">
+        <div className="mb-12">
+          <h1 className="text-3xl font-bold tracking-tight text-gray-900">Feature Flags</h1>
+          <p className="mt-2 text-base text-gray-600">
+            Control feature rollouts and manage your application's behavior
+          </p>
+        </div>
         {projectsQuery.isLoading ? (
           <Card className="project-empty-state" aria-busy="true">
             <Skeleton className="h-6 w-32" />
@@ -141,20 +147,21 @@ export default function Dashboard() {
                 variant={
                   error || projectsQuery.error || flagsQuery.error ? "destructive" : "success"
                 }
-                className="mb-6 flex items-center justify-between"
+                className="mb-8 flex items-center justify-between rounded-lg border shadow-sm"
               >
-                <span>
+                <span className="font-medium">
                   {error || projectsQuery.error?.message || flagsQuery.error?.message || notice}
                 </span>
                 <Button
                   type="button"
                   variant="ghost"
-                  size="icon-xs"
+                  size="sm"
                   onClick={() => {
                     setError("");
                     setNotice("");
                   }}
                   aria-label="Dismiss message"
+                  className="h-6 w-6 rounded-md p-0 hover:bg-gray-100"
                 >
                   ×
                 </Button>
@@ -179,34 +186,67 @@ export default function Dashboard() {
               <FlagDetail flag={selectedFlag} projectId={projectId} />
             </div>
             <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-              <DialogContent className="create-panel">
-                <DialogHeader>
-                  <DialogTitle>Create a flag</DialogTitle>
-                  <DialogDescription>
-                    Flags need a value schema so every result stays valid.
+              <DialogContent className="create-panel max-w-md">
+                <DialogHeader className="text-left">
+                  <DialogTitle className="text-xl font-semibold">Create a new flag</DialogTitle>
+                  <DialogDescription className="text-gray-600">
+                    Feature flags need a value schema to ensure consistent results across
+                    environments.
                   </DialogDescription>
                 </DialogHeader>
                 {schemasQuery.data?.length === 0 ? (
-                  <div className="inline-empty">
-                    Create a value schema first, then return here to create a flag.
+                  <div className="rounded-lg bg-amber-50 p-4 text-sm text-amber-800">
+                    <div className="flex items-start gap-3">
+                      <div className="mt-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-amber-200">
+                        <span className="text-xs font-bold">!</span>
+                      </div>
+                      <div>
+                        <p className="font-medium">Value schema required</p>
+                        <p className="mt-1 text-amber-700">
+                          Create a value schema first, then return here to create a flag.
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 ) : (
                   <form className="grid gap-4" onSubmit={submitCreateFlag}>
-                    <div className="grid gap-2">
-                      <Label htmlFor="dashboard-new-flag-name">Flag name</Label>
-                      <Input
-                        id="dashboard-new-flag-name"
-                        required
-                        value={newFlagName}
-                        onChange={(event: ChangeEvent<HTMLInputElement>) =>
-                          setNewFlagName(event.target.value)
-                        }
-                        placeholder="Checkout redesign"
-                      />
+                    <div className="space-y-3">
+                      <div>
+                        <Label
+                          htmlFor="dashboard-new-flag-name"
+                          className="text-sm font-medium text-gray-900"
+                        >
+                          Flag name
+                        </Label>
+                        <Input
+                          id="dashboard-new-flag-name"
+                          required
+                          value={newFlagName}
+                          onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                            setNewFlagName(event.target.value)
+                          }
+                          placeholder="e.g., checkout-redesign"
+                          className="mt-2 block w-full rounded-md"
+                        />
+                        <p className="mt-1 text-xs text-gray-500">
+                          Choose a descriptive name that identifies the feature
+                        </p>
+                      </div>
                     </div>
-                    <DialogFooter>
-                      <Button type="submit" disabled={createFlag.isPending}>
-                        {createFlag.isPending ? "Creating…" : "Create flag"}
+                    <DialogFooter className="pt-4">
+                      <Button
+                        type="submit"
+                        disabled={createFlag.isPending}
+                        className="w-full bg-orange-600 hover:bg-orange-700 focus:ring-orange-500/20"
+                      >
+                        {createFlag.isPending ? (
+                          <>
+                            <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+                            Creating flag...
+                          </>
+                        ) : (
+                          "Create feature flag"
+                        )}
                       </Button>
                     </DialogFooter>
                   </form>
@@ -238,28 +278,46 @@ function ProjectEmptyState({
   return (
     <Card className="project-empty-state">
       <div className="project-empty-icon">
-        <Flag />
+        <Flag className="h-6 w-6" />
       </div>
       <h1>Create your first project</h1>
-      <p>Projects keep your feature flags organized. Create one to get started.</p>
+      <p>
+        Projects organize your feature flags and help manage releases across different environments.
+      </p>
       {message && (
-        <Alert variant={isError ? "destructive" : "success"} className="mb-5">
+        <Alert variant={isError ? "destructive" : "success"} className="mb-6">
           {message}
         </Alert>
       )}
-      <form onSubmit={onSubmit}>
-        <Label htmlFor="project-name" className="sr-only">
-          Project name
-        </Label>
-        <Input
-          id="project-name"
-          placeholder="Project name"
-          value={newProjectName}
-          onChange={(event: ChangeEvent<HTMLInputElement>) => setNewProjectName(event.target.value)}
-          required
-        />
-        <Button variant="primary" type="submit" disabled={isPending}>
-          {isPending ? "Creating…" : "Create project"}
+      <form onSubmit={onSubmit} className="space-y-4">
+        <div>
+          <Label htmlFor="project-name" className="sr-only">
+            Project name
+          </Label>
+          <Input
+            id="project-name"
+            placeholder="Enter project name"
+            value={newProjectName}
+            onChange={(event: ChangeEvent<HTMLInputElement>) =>
+              setNewProjectName(event.target.value)
+            }
+            required
+            className="h-12 rounded-lg border-gray-300 text-base"
+          />
+        </div>
+        <Button
+          type="submit"
+          disabled={isPending}
+          className="h-12 w-full bg-orange-600 text-base font-semibold hover:bg-orange-700 focus:ring-orange-500/20"
+        >
+          {isPending ? (
+            <>
+              <LoaderCircle className="mr-2 h-5 w-5 animate-spin" />
+              Creating project...
+            </>
+          ) : (
+            "Create project"
+          )}
         </Button>
       </form>
     </Card>
