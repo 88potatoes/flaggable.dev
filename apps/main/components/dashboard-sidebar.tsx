@@ -20,7 +20,7 @@ import {
   SidebarProvider,
   SidebarInset,
 } from "@flaggable/ui/sidebar";
-import type { Project } from "@/lib/queries";
+import type { Project } from "@/slices/projects/types";
 
 const navButton = "text-sm text-sidebar-foreground/80";
 

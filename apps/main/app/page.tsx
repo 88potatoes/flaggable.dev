@@ -9,15 +9,10 @@ import { Button } from "@flaggable/ui/button";
 import { Input } from "@flaggable/ui/input";
 import { Switch } from "@flaggable/ui/switch";
 import { DashboardShell } from "@/components/dashboard-sidebar";
-import {
-  useCreateFlagMutation,
-  useCreateProjectMutation,
-  useFlagsQuery,
-  useProjectsQuery,
-  useSchemasQuery,
-  useUpdateFlagMutation,
-  type Flag as FlagRecord,
-} from "@/lib/queries";
+import { useMutateCreateFlag, useMutateUpdateFlag, useQueryFlags } from "@/slices/flags/queries";
+import type { Flag as FlagRecord } from "@flaggable/contracts";
+import { useMutateCreateProject, useQueryProjects } from "@/slices/projects/queries";
+import { useQuerySchemas } from "@/slices/value-schemas/queries";
 
 export default function Dashboard() {
   const [selected, setSelected] = useState(0);
@@ -30,13 +25,13 @@ export default function Dashboard() {
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
 
-  const projectsQuery = useProjectsQuery();
+  const projectsQuery = useQueryProjects();
   const projects = projectsQuery.data ?? [];
-  const flagsQuery = useFlagsQuery(projectId);
-  const schemasQuery = useSchemasQuery(projectId);
-  const updateFlag = useUpdateFlagMutation(projectId);
-  const createFlag = useCreateFlagMutation(projectId);
-  const createProject = useCreateProjectMutation();
+  const flagsQuery = useQueryFlags(projectId);
+  const schemasQuery = useQuerySchemas(projectId);
+  const updateFlag = useMutateUpdateFlag(projectId);
+  const createFlag = useMutateCreateFlag(projectId);
+  const createProject = useMutateCreateProject();
   const flags = flagsQuery.data ?? [];
   const selectedFlag = flags[selected] ?? flags[0];
   const visibleFlags = flags.filter((flag) =>
@@ -58,7 +53,7 @@ export default function Dashboard() {
     if (!flag) return;
     setError("");
     updateFlag.mutate(
-      { flagId: flag.id, enabled: !flag.enabled },
+      { flagId: flag.id, values: { enabled: !flag.enabled } },
       {
         onSuccess: (updated) =>
           setNotice(`${updated.key} is now ${updated.enabled ? "on" : "off"}.`),
@@ -73,14 +68,17 @@ export default function Dashboard() {
     if (!name) return;
     setError("");
     setNotice("");
-    createProject.mutate(name, {
-      onSuccess: (project) => {
-        setNewProjectName("");
-        setProjectId(project.id);
-        setNotice(`${project.name} is ready.`);
+    createProject.mutate(
+      { name },
+      {
+        onSuccess: (project) => {
+          setNewProjectName("");
+          setProjectId(project.id);
+          setNotice(`${project.name} is ready.`);
+        },
+        onError: (mutationError) => setError(mutationError.message),
       },
-      onError: (mutationError) => setError(mutationError.message),
-    });
+    );
   }
 
   function submitCreateFlag(event: FormEvent<HTMLFormElement>) {

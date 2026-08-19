@@ -20,10 +20,12 @@
   "dependencies": {
     "@auth0/nextjs-auth0": "^4.26.0",
     "@cfworker/json-schema": "^4.1.1",
+    "@flaggable/contracts": "workspace:*",
     "@flaggable/ui": "workspace:*",
     "@tanstack/react-query": "^5.101.4",
     "@vinext/cloudflare": "1.0.0-beta.5",
     "drizzle-orm": "^0.45.2",
+    "ky": "^2.0.2",
     "lucide-react": "^1.31.0",
     "react": "latest",
     "react-dom": "latest",

@@ -1,2 +1,2 @@
-pnpm exec lint-staged
-pnpm run lint
+pnpm --config.minimum-release-age=0 exec lint-staged
+pnpm --config.minimum-release-age=0 run lint
