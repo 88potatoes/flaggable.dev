@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, type ChangeEvent, useEffect, useMemo, useState } from "react";
-import { Flag, LoaderCircle } from "lucide-react";
+import { Flag, LoaderCircle, MoreHorizontal } from "lucide-react";
 
 import { Alert } from "@flaggable/ui/alert";
 import { Button } from "@flaggable/ui/button";
@@ -17,12 +17,24 @@ import {
 import { Input } from "@flaggable/ui/input";
 import { Skeleton } from "@flaggable/ui/skeleton";
 import { Label } from "@flaggable/ui/label";
+import { Switch } from "@flaggable/ui/switch";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@flaggable/ui/dropdown-menu";
 import { CommandPalette } from "@/components/command-palette";
 import { DashboardShell } from "@/components/dashboard-sidebar";
 import { FlagBrowser } from "@/components/flag-browser";
 import { FlagDetail } from "@/components/flag-detail";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
-import { useMutateCreateFlag, useQueryFlags } from "@/slices/flags/queries";
+import {
+  useMutateArchiveFlag,
+  useMutateCreateFlag,
+  useMutateUpdateFlag,
+  useQueryFlags,
+} from "@/slices/flags/queries";
 import { useMutateCreateProject, useQueryProjects } from "@/slices/projects/queries";
 import { useQuerySchemas } from "@/slices/value-schemas/queries";
 import { toast } from "sonner";
@@ -49,6 +61,8 @@ export default function Dashboard() {
   const debouncedQuery = useDebouncedValue(query);
   const flagsQuery = useQueryFlags(projectId, debouncedQuery);
   const createFlag = useMutateCreateFlag(projectId);
+  const updateFlag = useMutateUpdateFlag(projectId);
+  const archiveFlag = useMutateArchiveFlag(projectId);
   const createProject = useMutateCreateProject();
   const flags = useMemo(
     () => flagsQuery.data?.pages.flatMap((page) => page.items) ?? [],
@@ -177,11 +191,38 @@ export default function Dashboard() {
               >
                 {selectedFlag.enabled ? "Active" : "Inactive"}
               </div>
+              <div className="ml-auto flex items-center gap-2">
+                <Switch
+                  checked={selectedFlag.enabled}
+                  onCheckedChange={(enabled: boolean) =>
+                    updateFlag.mutate({ flagId: selectedFlag.id, values: { enabled } })
+                  }
+                  disabled={updateFlag.isPending}
+                  aria-label={`${selectedFlag.enabled ? "Disable" : "Enable"} ${selectedFlag.name}`}
+                />
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      className="text-gray-500 hover:text-gray-900"
+                      aria-label={`More actions for ${selectedFlag.name}`}
+                    >
+                      <MoreHorizontal className="size-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem
+                      variant="destructive"
+                      onClick={() => archiveFlag.mutate({ flagId: selectedFlag.id })}
+                      disabled={archiveFlag.isPending}
+                    >
+                      Archive flag
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             </div>
-            <p className="text-base text-gray-600">
-              {selectedFlag.description ||
-                "Configure targeting conditions and manage rollout for this feature flag."}
-            </p>
           </div>
         ) : (
           <div className="mb-12">
