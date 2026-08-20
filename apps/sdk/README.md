@@ -20,8 +20,8 @@ yarn add @flaggable/sdk
 ### 2. Environment Variables (`.env.local`)
 
 ```env
-NEXT_PUBLIC_FLAGGABLE_BASE_URL="https://flaggable.dev"
 NEXT_PUBLIC_FLAGGABLE_PUBLIC_KEY="pk_your_project_public_key"
+FLAGGABLE_INTERNAL_API_KEY="ik_your_internal_api_key"
 ```
 
 ### 3. Create Client Provider (`components/flaggable-provider.tsx`)
@@ -34,14 +34,13 @@ import { FlagProvider } from "@flaggable/sdk/react";
 
 export function FlaggableClientProvider({ children }: { children: ReactNode }) {
   const publicKey = process.env.NEXT_PUBLIC_FLAGGABLE_PUBLIC_KEY ?? "";
-  const baseUrl = process.env.NEXT_PUBLIC_FLAGGABLE_BASE_URL ?? "https://flaggable.dev";
 
   if (!publicKey) {
     return <>{children}</>;
   }
 
   return (
-    <FlagProvider publicKey={publicKey} baseUrl={baseUrl} pollInterval={30000}>
+    <FlagProvider publicKey={publicKey} pollInterval={30000}>
       {children}
     </FlagProvider>
   );
@@ -102,7 +101,6 @@ Context provider that manages the Flaggable client lifecycle, evaluation caching
 ```tsx
 <FlagProvider
   publicKey="pk_..."
-  baseUrl="https://flaggable.dev"
   pollInterval={30000} // optional, in ms (default: 30000)
 >
   {children}
@@ -156,7 +154,6 @@ import { Flaggable } from "@flaggable/sdk";
 
 const flaggable = new Flaggable({
   publicKey: "pk_...",
-  baseUrl: "https://flaggable.dev",
   pollInterval: 30000,
 });
 

@@ -152,7 +152,11 @@ export function OnboardingWizard({
     ? `${internalKey.slice(0, 5)}••••••••••••••••••••••••`
     : "ik_••••••••••••••••••••••••";
 
-  const maskedEnvSnippet = `NEXT_PUBLIC_FLAGGABLE_BASE_URL="${cleanBaseUrl}"\nNEXT_PUBLIC_FLAGGABLE_PUBLIC_KEY="${envPublicKey}"\nFLAGGABLE_INTERNAL_API_KEY="${displayMaskedInternalKey}"`;
+  const maskedEnvSnippet = generateEnvSnippet({
+    baseUrl,
+    publicKey: envPublicKey,
+    internalKey: displayMaskedInternalKey,
+  });
 
   const promptText = generateAgentPrompt({
     baseUrl,

@@ -23,7 +23,6 @@ When asked to add Flaggable to a Next.js project using App Router (`app/` direct
 In `.env.local` (and add example keys to `.env.example`):
 
 ```env
-NEXT_PUBLIC_FLAGGABLE_BASE_URL="<BASE_URL>"
 NEXT_PUBLIC_FLAGGABLE_PUBLIC_KEY="<PUBLIC_KEY>"
 FLAGGABLE_INTERNAL_API_KEY="<INTERNAL_KEY>"
 ```
@@ -48,15 +47,14 @@ import { FlagProvider } from "@flaggable/sdk/react";
 
 export function FlaggableClientProvider({ children }: { children: ReactNode }) {
   const publicKey = process.env.NEXT_PUBLIC_FLAGGABLE_PUBLIC_KEY;
-  const baseUrl = process.env.NEXT_PUBLIC_FLAGGABLE_BASE_URL;
 
   // Fallback gracefully if keys are missing (prevents crash in preview/build)
-  if (!publicKey || !baseUrl) {
+  if (!publicKey) {
     return <>{children}</>;
   }
 
   return (
-    <FlagProvider publicKey={publicKey} baseUrl={baseUrl} pollInterval={30000}>
+    <FlagProvider publicKey={publicKey} pollInterval={30000}>
       {children}
     </FlagProvider>
   );

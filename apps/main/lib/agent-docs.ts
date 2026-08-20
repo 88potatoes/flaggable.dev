@@ -10,16 +10,25 @@ export interface AgentPromptOptions {
 }
 
 export function generateEnvSnippet({
-  baseUrl,
   publicKey = "pk_your_project_public_key",
   internalKey = "ik_your_internal_api_key",
+  baseUrl,
 }: {
-  baseUrl: string;
   publicKey?: string;
   internalKey?: string;
+  baseUrl?: string;
 }): string {
-  const cleanBaseUrl = baseUrl.replace(/\/$/, "");
-  return `NEXT_PUBLIC_FLAGGABLE_BASE_URL="${cleanBaseUrl}"\nNEXT_PUBLIC_FLAGGABLE_PUBLIC_KEY="${publicKey}"\nFLAGGABLE_INTERNAL_API_KEY="${internalKey}"`;
+  const lines = [`NEXT_PUBLIC_FLAGGABLE_PUBLIC_KEY="${publicKey}"`];
+  if (internalKey) {
+    lines.push(`FLAGGABLE_INTERNAL_API_KEY="${internalKey}"`);
+  }
+  if (baseUrl) {
+    const clean = baseUrl.replace(/\/$/, "");
+    if (clean && clean !== "https://flaggable.dev") {
+      lines.unshift(`NEXT_PUBLIC_FLAGGABLE_BASE_URL="${clean}"`);
+    }
+  }
+  return lines.join("\n");
 }
 
 export function generateAgentPrompt({
@@ -34,10 +43,9 @@ export function generateAgentPrompt({
 
 ### Configuration
 - Package: \`@flaggable/sdk\`
-- Flaggable Base URL: \`${cleanBaseUrl}\`
 - Target Feature Flag: \`${flagName}\`${projectName ? `\n- Project: \`${projectName}\`` : ""}
 - SDK Documentation: \`${docsUrl}\`
-- Environment Variables: Assumed to be configured in \`.env.local\` (\`NEXT_PUBLIC_FLAGGABLE_BASE_URL\`, \`NEXT_PUBLIC_FLAGGABLE_PUBLIC_KEY\`, and \`FLAGGABLE_INTERNAL_API_KEY\`).
+- Environment Variables: Assumed to be configured in \`.env.local\` (\`NEXT_PUBLIC_FLAGGABLE_PUBLIC_KEY\` and \`FLAGGABLE_INTERNAL_API_KEY\`).
 
 ### Implementation Steps
 
@@ -58,14 +66,13 @@ export function generateAgentPrompt({
 
    export function FlaggableClientProvider({ children }: { children: ReactNode }) {
      const publicKey = process.env.NEXT_PUBLIC_FLAGGABLE_PUBLIC_KEY;
-     const baseUrl = process.env.NEXT_PUBLIC_FLAGGABLE_BASE_URL;
 
      if (!publicKey) {
        return <>{children}</>;
      }
 
      return (
-       <FlagProvider publicKey={publicKey} baseUrl={baseUrl} pollInterval={30000}>
+       <FlagProvider publicKey={publicKey} pollInterval={30000}>
          {children}
        </FlagProvider>
      );
@@ -172,8 +179,8 @@ yarn add @flaggable/sdk
 
 ### 1. Environment Variables (\`.env.local\`)
 \`\`\`env
-NEXT_PUBLIC_FLAGGABLE_BASE_URL="https://flaggable.dev"
 NEXT_PUBLIC_FLAGGABLE_PUBLIC_KEY="pk_your_project_public_key"
+FLAGGABLE_INTERNAL_API_KEY="ik_your_internal_api_key"
 \`\`\`
 
 ### 2. Client Provider (\`components/flaggable-provider.tsx\`)
@@ -185,12 +192,11 @@ import { FlagProvider } from "@flaggable/sdk/react";
 
 export function FlaggableClientProvider({ children }: { children: ReactNode }) {
   const publicKey = process.env.NEXT_PUBLIC_FLAGGABLE_PUBLIC_KEY ?? "";
-  const baseUrl = process.env.NEXT_PUBLIC_FLAGGABLE_BASE_URL ?? "https://flaggable.dev";
 
   if (!publicKey) return <>{children}</>;
 
   return (
-    <FlagProvider publicKey={publicKey} baseUrl={baseUrl} pollInterval={30000}>
+    <FlagProvider publicKey={publicKey} pollInterval={30000}>
       {children}
     </FlagProvider>
   );
@@ -286,7 +292,6 @@ import { Flaggable } from "@flaggable/sdk";
 
 const flaggable = new Flaggable({
   publicKey: "pk_...",
-  baseUrl: "https://flaggable.dev",
 });
 
 const isEnabled = await flaggable.get({ flagName: "feature-flag", fallbackValue: false });

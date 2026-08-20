@@ -50,7 +50,11 @@ export function AgentPromptDialog({
     ? `${knownInternalKey.slice(0, 5)}••••••••••••••••••••••••`
     : "ik_••••••••••••••••••••••••";
 
-  const maskedEnvSnippet = `NEXT_PUBLIC_FLAGGABLE_BASE_URL="${cleanBaseUrl}"\nNEXT_PUBLIC_FLAGGABLE_PUBLIC_KEY="${activePublicKey}"\nFLAGGABLE_INTERNAL_API_KEY="${displayMaskedInternalKey}"`;
+  const maskedEnvSnippet = generateEnvSnippet({
+    baseUrl,
+    publicKey: activePublicKey,
+    internalKey: displayMaskedInternalKey,
+  });
 
   const promptText = generateAgentPrompt({
     baseUrl,
