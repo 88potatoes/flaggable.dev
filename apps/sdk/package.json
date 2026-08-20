@@ -2,19 +2,34 @@
   "name": "@flaggable/sdk",
   "version": "0.1.0",
   "private": false,
+  "files": [
+    "dist"
+  ],
   "type": "module",
+  "sideEffects": false,
   "exports": {
-    ".": "./frontend/core/index.ts",
-    "./core": "./frontend/core/index.ts",
-    "./react": "./frontend/react/index.ts"
+    ".": {
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs"
+    },
+    "./core": {
+      "types": "./dist/core.d.mts",
+      "import": "./dist/core.mjs"
+    },
+    "./react": {
+      "types": "./dist/react.d.mts",
+      "import": "./dist/react.mjs"
+    }
   },
   "scripts": {
+    "build": "tsdown",
     "test": "vitest run --config frontend/vitest.config.ts",
     "typecheck": "tsgo --noEmit -p frontend/tsconfig.json"
   },
   "devDependencies": {
     "@types/react": "19.2.18",
     "react": "19.2.8",
+    "tsdown": "0.22.14",
     "typescript": "7.0.2",
     "vitest": "4.1.10"
   },

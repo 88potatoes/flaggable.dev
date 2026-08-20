@@ -2,6 +2,7 @@ node_modules
 .env*
 .next
 /dist/
+apps/sdk/dist
 .vinext/
 .wrangler/
 

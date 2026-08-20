@@ -5,6 +5,7 @@ Feature flags for people who ship. This repository contains two Cloudflare Worke
 - `apps/landing` — public marketing site for `flaggable.dev`.
 - `apps/main` — authenticated product app for `dev.flaggable.dev`, including Auth0, API routes, and D1.
 - `packages/ui` — shared design-system components, utilities, and responsive hooks.
+- `apps/sdk` — the published `@flaggable/sdk` frontend SDK, with core and React entry points.
 
 ## Development
 
@@ -50,6 +51,25 @@ Configure DNS or custom domains so that:
 - `flaggable.dev` points to `flaggable-dev-landing`.
 - `dev.flaggable.dev` points to the default `flaggable-dev-1` environment.
 - `app.flaggable.dev` points to the `production` environment of `flaggable-dev-1`.
+
+## SDK
+
+Build and publish the SDK manually from the repository root:
+
+```sh
+pnpm run build:sdk
+pnpm run publish:sdk
+```
+
+`publish:sdk` builds the SDK, bumps its patch version, and then runs the public npm publish command. It does not run in CI or publish automatically. Review the version change and authenticate with npm locally before running it. The package is built with tsdown into `apps/sdk/dist`, and only that directory is included in the published tarball.
+
+The SDK exposes these ESM entry points:
+
+```ts
+import { Flaggable } from "@flaggable/sdk";
+import { Flaggable } from "@flaggable/sdk/core";
+import { FlagProvider, useFlag } from "@flaggable/sdk/react";
+```
 
 ## Shared design system
 
