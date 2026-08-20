@@ -45,20 +45,29 @@ export function useFlagClient(): Flaggable {
   return client;
 }
 
-export function useFlag<T>(flagName: string, fallbackValue: T, context?: EvaluationContext): T {
+export type UseFlagOptions<T> = {
+  flagName: string;
+  fallbackValue: T;
+  context?: EvaluationContext;
+};
+
+export function useFlag<T>(options: UseFlagOptions<T>): T {
+  const { flagName, fallbackValue, context } = options;
   const client = useFlagClient();
   const [value, setValue] = useState<T>(fallbackValue);
   useEffect(() => {
     let active = true;
     void client
-      .get(flagName, fallbackValue, context)
+      .get({ flagName, fallbackValue, context })
       .then((next) => {
         if (active) setValue(next);
       })
       .catch(() => undefined);
-    const unsubscribe = client.subscribe((response) => {
-      const evaluation = response.evaluations.find((item) => item.name === flagName);
-      if (active && evaluation && evaluation.value !== null) setValue(evaluation.value as T);
+    const unsubscribe = client.subscribe({
+      listener: ({ response }) => {
+        const evaluation = response.evaluations.find((item) => item.name === flagName);
+        if (active && evaluation && evaluation.value !== null) setValue(evaluation.value as T);
+      },
     });
     return () => {
       active = false;
@@ -68,8 +77,13 @@ export function useFlag<T>(flagName: string, fallbackValue: T, context?: Evaluat
   return value;
 }
 
-export function useEvaluate(context?: EvaluationContext) {
+export type UseEvaluateOptions = {
+  context?: EvaluationContext;
+};
+
+export function useEvaluate(options?: UseEvaluateOptions) {
   const client = useFlagClient();
+  const context = options?.context;
   const [state, setState] = useState<{
     data: EvaluationResponse | null;
     error: Error | null;
@@ -80,7 +94,7 @@ export function useEvaluate(context?: EvaluationContext) {
     let active = true;
     setState((current) => ({ ...current, isLoading: true }));
     void client
-      .evaluate(context)
+      .evaluate({ context })
       .then((data) => {
         if (active) setState({ data, error: null, isLoading: false });
       })
@@ -92,8 +106,10 @@ export function useEvaluate(context?: EvaluationContext) {
             isLoading: false,
           });
       });
-    const unsubscribe = client.subscribe((data) => {
-      if (active) setState({ data, error: null, isLoading: false });
+    const unsubscribe = client.subscribe({
+      listener: ({ response: data }) => {
+        if (active) setState({ data, error: null, isLoading: false });
+      },
     });
     return () => {
       active = false;
@@ -104,5 +120,23 @@ export function useEvaluate(context?: EvaluationContext) {
   return { ...state, refresh: () => client.refresh() };
 }
 
-export { Flaggable } from "../core/index";
-export type { EvaluationContext, EvaluationResponse, FlaggableOptions } from "../core/index";
+export { Flaggable, createFlaggable, DEFAULT_BASE_URL, DEFAULT_POLL_INTERVAL } from "../core/index";
+export type {
+  FlaggableEvents,
+  FlaggableEventType,
+  FlaggableEventListener,
+  OnEventOptions,
+  EvaluationChange,
+  EvaluationChangePayload,
+  ContextChange,
+  ContextChangePayload,
+  EvaluationContext,
+  EvaluationResponse,
+  FlagEvaluation,
+  FlaggableOptions,
+  GetFlagOptions,
+  EvaluateOptions,
+  SetEvaluationContextOptions,
+  SubscribeOptions,
+  OnContextChangeOptions,
+} from "../core/index";

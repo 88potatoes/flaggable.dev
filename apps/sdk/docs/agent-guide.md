@@ -88,7 +88,7 @@ In any client component (`"use client"`):
 import { useFlag } from "@flaggable/sdk/react";
 
 export function Feature() {
-  const isEnabled = useFlag("<flag-name>", false);
+  const isEnabled = useFlag({ flagName: "<flag-name>", fallbackValue: false });
 
   if (!isEnabled) {
     return null;
@@ -111,7 +111,7 @@ import { useFlag, useFlagClient } from "@flaggable/sdk/react";
 import { useState } from "react";
 
 export function FlaggableDemo({ flagName = "my-first-flag" }: { flagName?: string }) {
-  const isEnabled = useFlag(flagName, false);
+  const isEnabled = useFlag({ flagName, fallbackValue: false });
   const client = useFlagClient();
   const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -208,17 +208,24 @@ const flaggable = new Flaggable({
 });
 
 // Single evaluate
-const isAllowed = await flaggable.get("beta-access", false, { userId: "user_456" });
+const isAllowed = await flaggable.get({
+  flagName: "beta-access",
+  fallbackValue: false,
+  context: { userId: "user_456" },
+});
 
 // Evaluate batch
-const result = await flaggable.evaluate({ userId: "user_456", country: "US" });
+const result = await flaggable.evaluate({
+  context: { userId: "user_456", country: "US" },
+});
 ```
 
 ---
 
 ## 6. Rules for Coding Agents
 
-1. **Never hardcode public keys or base URLs** in application code; always read from `process.env.NEXT_PUBLIC_*`.
-2. **Always include a fallback value** matching the expected type when calling `useFlag(name, fallback)`.
-3. **Use `"use client"`** at the top of any file containing `useFlag`, `useEvaluate`, or `FlagProvider`.
-4. **Wrap at the highest viable client boundary** so that all nested components share flag caching and polling.
+1. **Object Parameters**: Always use object parameters for SDK methods and hooks (e.g. `useFlag({ flagName, fallbackValue })`, `client.get({ flagName, fallbackValue })`, `client.setEvaluationContext({ context })`).
+2. **Never hardcode public keys or base URLs** in application code; always read from `process.env.NEXT_PUBLIC_*`.
+3. **Always include a fallback value** matching the expected type when calling `useFlag({ flagName, fallbackValue })`.
+4. **Use `"use client"`** at the top of any file containing `useFlag`, `useEvaluate`, or `FlagProvider`.
+5. **Wrap at the highest viable client boundary** so that all nested components share flag caching and polling.

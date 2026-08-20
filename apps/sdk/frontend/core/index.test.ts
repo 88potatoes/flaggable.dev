@@ -21,7 +21,13 @@ describe("Flaggable", () => {
     );
     const client = new Flaggable({ publicKey: "pk_test", baseUrl: "https://flags.example" });
 
-    await expect(client.get("checkout", false, { accountId: "acct-1" })).resolves.toBe(true);
+    await expect(
+      client.get({
+        flagName: "checkout",
+        fallbackValue: false,
+        context: { accountId: "acct-1" },
+      }),
+    ).resolves.toBe(true);
     expect(fetchSpy).toHaveBeenCalledWith(
       "https://flags.example/api/v1/evaluate",
       expect.objectContaining({ method: "POST" }),
@@ -43,11 +49,16 @@ describe("Flaggable", () => {
     );
     const client = new Flaggable({ publicKey: "pk_test", baseUrl: "https://flags.example" });
     const listener = vi.fn();
-    const unsubscribe = client.subscribe(listener);
+    const unsubscribe = client.on({ event: "change", listener });
     await client.refresh();
     value = true;
     await client.refresh();
     expect(listener).toHaveBeenCalledTimes(2);
+    expect(listener).toHaveBeenCalledWith(
+      expect.objectContaining({
+        response: expect.objectContaining({ projectId: "p" }),
+      }),
+    );
     unsubscribe();
 
     vi.spyOn(globalThis, "fetch").mockImplementation(async () =>
@@ -69,7 +80,9 @@ describe("Flaggable", () => {
     );
 
     const client = new Flaggable({ publicKey: "pk_test" });
-    client.setEvaluationContext({ userId: "user-123", role: "admin" });
+    client.setEvaluationContext({
+      context: { userId: "user-123", role: "admin" },
+    });
 
     expect(client.getEvaluationContext()).toMatchObject({
       userId: "user-123",
@@ -83,5 +96,33 @@ describe("Flaggable", () => {
         body: expect.stringContaining('"userId":"user-123"'),
       }),
     );
+  });
+
+  it("dispatches events for context changes and errors", async () => {
+    const client = new Flaggable({ publicKey: "pk_test" });
+    const contextListener = vi.fn();
+    const errorListener = vi.fn();
+
+    const unsubContext = client.on({ event: "contextChange", listener: contextListener });
+    const unsubError = client.on({ event: "error", listener: errorListener });
+
+    client.setEvaluationContext({ context: { role: "admin" } });
+    expect(contextListener).toHaveBeenCalledWith({
+      context: expect.objectContaining({ role: "admin" }),
+    });
+
+    vi.spyOn(globalThis, "fetch").mockImplementation(async () => {
+      throw new Error("Network offline");
+    });
+
+    await expect(client.refresh()).rejects.toThrow();
+    expect(errorListener).toHaveBeenCalledWith(
+      expect.objectContaining({
+        error: expect.any(Error),
+      }),
+    );
+
+    unsubContext();
+    unsubError();
   });
 });

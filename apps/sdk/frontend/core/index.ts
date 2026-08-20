@@ -64,8 +64,50 @@ export type FlaggableOptions = {
   pollInterval?: number;
 };
 
-export type ContextChange = (context: EvaluationContext) => void;
-export type EvaluationChange = (response: EvaluationResponse) => void;
+export type GetFlagOptions<T> = {
+  flagName: string;
+  fallbackValue: T;
+  context?: EvaluationContext;
+};
+
+export type EvaluateOptions = {
+  context?: EvaluationContext;
+};
+
+export type SetEvaluationContextOptions = {
+  context: EvaluationContext;
+};
+
+export type FlaggableEvents = {
+  change: { response: EvaluationResponse };
+  contextChange: { context: EvaluationContext };
+  error: { error: Error };
+};
+
+export type FlaggableEventType = keyof FlaggableEvents;
+
+export type FlaggableEventListener<E extends FlaggableEventType = FlaggableEventType> = (
+  payload: FlaggableEvents[E],
+) => void;
+
+export type OnEventOptions<E extends FlaggableEventType = FlaggableEventType> = {
+  event: E;
+  listener: FlaggableEventListener<E>;
+};
+
+export type EvaluationChangePayload = FlaggableEvents["change"];
+export type EvaluationChange = (payload: EvaluationChangePayload) => void;
+
+export type ContextChangePayload = FlaggableEvents["contextChange"];
+export type ContextChange = (payload: ContextChangePayload) => void;
+
+export type SubscribeOptions = {
+  listener: EvaluationChange;
+};
+
+export type OnContextChangeOptions = {
+  listener: ContextChange;
+};
 
 export class Flaggable {
   readonly publicKey: string;
@@ -74,8 +116,10 @@ export class Flaggable {
   private context: EvaluationContext;
   private cached: EvaluationResponse | null = null;
   private timer: ReturnType<typeof setInterval> | undefined;
-  private readonly contextListeners = new Set<ContextChange>();
-  private readonly changeListeners = new Set<EvaluationChange>();
+  private readonly listeners = new Map<
+    FlaggableEventType,
+    Set<FlaggableEventListener<FlaggableEventType>>
+  >();
   private refreshPromise: Promise<EvaluationResponse> | null = null;
 
   constructor(options: FlaggableOptions) {
@@ -94,7 +138,8 @@ export class Flaggable {
     return this.currentContext;
   }
 
-  async evaluate(context?: EvaluationContext): Promise<EvaluationResponse> {
+  async evaluate(options?: EvaluateOptions): Promise<EvaluationResponse> {
+    const context = options?.context;
     const effectiveContext = context ? { ...this.context, ...context } : this.context;
     if (this.refreshPromise) return this.refreshPromise;
     this.refreshPromise = fetch(`${this.baseUrl}/api/v1/evaluate`, {
@@ -117,15 +162,21 @@ export class Flaggable {
           throw new SdkApiError("Invalid evaluation response.", 502, body);
         const changed = JSON.stringify(this.cached) !== JSON.stringify(body);
         this.cached = body;
-        if (changed) this.changeListeners.forEach((listener) => listener(body));
+        if (changed) {
+          this.emit("change", { response: body });
+        }
         return body;
       })
       .catch((error: unknown) => {
-        if (error instanceof SdkError) throw error;
-        throw new SdkNetworkError(
-          error instanceof Error ? error.message : "Evaluation request failed.",
-          { cause: error },
-        );
+        const sdkError =
+          error instanceof SdkError
+            ? error
+            : new SdkNetworkError(
+                error instanceof Error ? error.message : "Evaluation request failed.",
+                { cause: error },
+              );
+        this.emit("error", { error: sdkError });
+        throw sdkError;
       })
       .finally(() => {
         this.refreshPromise = null;
@@ -133,11 +184,11 @@ export class Flaggable {
     return this.refreshPromise;
   }
 
-  async get<T>(flagName: string, fallbackValue: T, context?: EvaluationContext): Promise<T> {
-    const response = await this.evaluate(context);
-    const evaluation = response.evaluations.find((item) => item.name === flagName);
+  async get<T>(options: GetFlagOptions<T>): Promise<T> {
+    const response = await this.evaluate({ context: options.context });
+    const evaluation = response.evaluations.find((item) => item.name === options.flagName);
     return evaluation?.value === null || evaluation?.value === undefined
-      ? fallbackValue
+      ? options.fallbackValue
       : (evaluation.value as T);
   }
 
@@ -145,24 +196,54 @@ export class Flaggable {
     return this.evaluate();
   }
 
-  setEvaluationContext(context: EvaluationContext): void {
-    this.context = { ...getAnonymousContext(), ...context };
-    setAnonymousContext(this.context);
-    this.contextListeners.forEach((listener) => listener(this.currentContext));
+  setEvaluationContext(options: SetEvaluationContextOptions): void {
+    this.context = { ...getAnonymousContext(), ...options.context };
+    setAnonymousContext({ context: this.context });
+    this.emit("contextChange", { context: this.currentContext });
   }
 
-  subscribe(listener: EvaluationChange): () => void {
-    this.changeListeners.add(listener);
-    this.startPolling();
+  on<E extends FlaggableEventType>(options: OnEventOptions<E>): () => void {
+    const { event, listener } = options;
+    let set = this.listeners.get(event);
+    if (!set) {
+      set = new Set();
+      this.listeners.set(event, set);
+    }
+    set.add(listener as FlaggableEventListener<FlaggableEventType>);
+
+    if (event === "change") {
+      this.startPolling();
+    }
+
     return () => {
-      this.changeListeners.delete(listener);
-      if (!this.changeListeners.size) this.stopPolling();
+      set.delete(listener as FlaggableEventListener<FlaggableEventType>);
+      if (event === "change") {
+        const changeSet = this.listeners.get("change");
+        if (!changeSet || !changeSet.size) {
+          this.stopPolling();
+        }
+      }
     };
   }
 
-  onContextChange(listener: ContextChange): () => void {
-    this.contextListeners.add(listener);
-    return () => this.contextListeners.delete(listener);
+  subscribe(options: SubscribeOptions): () => void {
+    return this.on({ event: "change", listener: options.listener });
+  }
+
+  onContextChange(options: OnContextChangeOptions): () => void {
+    return this.on({ event: "contextChange", listener: options.listener });
+  }
+
+  private emit<E extends FlaggableEventType>(event: E, payload: FlaggableEvents[E]): void {
+    const set = this.listeners.get(event);
+    if (!set) return;
+    set.forEach((listener) => {
+      try {
+        listener(payload);
+      } catch {
+        // Prevent uncaught listener exception from halting emit chain
+      }
+    });
   }
 
   startPolling(): void {
@@ -177,14 +258,14 @@ export class Flaggable {
 
   destroy(): void {
     this.stopPolling();
-    this.contextListeners.clear();
-    this.changeListeners.clear();
+    this.listeners.clear();
   }
 }
 
 const ANONYMOUS_COOKIE = "flaggable_anonymous_id";
 
-export function getAnonymousContext(cookieName = ANONYMOUS_COOKIE): EvaluationContext {
+export function getAnonymousContext(options?: { cookieName?: string }): EvaluationContext {
+  const cookieName = options?.cookieName ?? ANONYMOUS_COOKIE;
   if (typeof document === "undefined") return {};
   const encoded = document.cookie
     .split("; ")
@@ -196,10 +277,11 @@ export function getAnonymousContext(cookieName = ANONYMOUS_COOKIE): EvaluationCo
   return { anonymousId: id };
 }
 
-export function setAnonymousContext(
-  context: EvaluationContext,
-  cookieName = ANONYMOUS_COOKIE,
-): void {
+export function setAnonymousContext(options: {
+  context: EvaluationContext;
+  cookieName?: string;
+}): void {
+  const { context, cookieName = ANONYMOUS_COOKIE } = options;
   if (typeof document === "undefined") return;
   const value = context.anonymousId;
   if (typeof value === "string" && value) {

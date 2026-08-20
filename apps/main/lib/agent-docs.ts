@@ -90,7 +90,7 @@ export function generateAgentPrompt({
    import { useState } from "react";
 
    export function FlaggableDemo() {
-     const isEnabled = useFlag("${flagName}", false);
+     const isEnabled = useFlag({ flagName: "${flagName}", fallbackValue: false });
      const client = useFlagClient();
      const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -210,7 +210,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 import { useFlag } from "@flaggable/sdk/react";
 
 export function CheckoutButton() {
-  const isNewCheckout = useFlag("new-checkout-flow", false);
+  const isNewCheckout = useFlag({ flagName: "new-checkout-flow", fallbackValue: false });
 
   if (isNewCheckout) {
     return <button className="bg-emerald-600 text-white px-4 py-2 rounded">New 1-Click Checkout</button>;
@@ -222,6 +222,12 @@ export function CheckoutButton() {
 
 ---
 
+## API Design: Object Parameters
+
+All Flaggable SDK methods and hooks take **object parameters** rather than positional arguments (e.g. \`useFlag({ flagName, fallbackValue })\`, \`client.get({ flagName, fallbackValue })\`, \`client.setEvaluationContext({ context })\`) to ensure maximum readability and future extensibility.
+
+---
+
 ## React API Reference (\`@flaggable/sdk/react\`)
 
 ### \`<FlagProvider>\`
@@ -230,14 +236,17 @@ Props:
 - \`baseUrl\` (string, optional): The Flaggable host URL (default: \`https://flaggable.dev\`).
 - \`pollInterval\` (number, optional): Polling interval in ms (default: \`30000\`).
 
-### \`useFlag<T>(flagName: string, fallbackValue: T, context?: EvaluationContext): T\`
+### \`useFlag<T>({ flagName, fallbackValue, context }): T\`
 Returns the reactive evaluation for the given flag name. Automatically re-evaluates when polling receives new evaluations.
+- \`flagName\` (string, required): Name of the flag to evaluate.
+- \`fallbackValue\` (T, required): Value returned before evaluation completes or if evaluation fails.
+- \`context\` (EvaluationContext, optional): Optional context override for this evaluation.
 
-### \`useEvaluate(context?: EvaluationContext)\`
+### \`useEvaluate({ context }?)\`
 Returns \`{ data: EvaluationResponse | null, error: Error | null, isLoading: boolean, refresh: () => Promise<EvaluationResponse> }\`.
 
 ### \`useFlagClient(): Flaggable\`
-Returns the underlying \`Flaggable\` client instance. Use \`client.setEvaluationContext({ ... })\` or \`client.refresh()\` directly.
+Returns the underlying \`Flaggable\` client instance. Use \`client.setEvaluationContext({ context: { ... } })\` or \`client.refresh()\` directly.
 
 ---
 
@@ -249,10 +258,14 @@ To target specific users, roles, or attributes:
 \`\`\`tsx
 // Set evaluation context on client
 const client = useFlagClient();
-client.setEvaluationContext({ userId: user.id, role: user.role });
+client.setEvaluationContext({ context: { userId: user.id, role: user.role } });
 
 // Or override per flag evaluation
-const isBetaUser = useFlag("beta-ui", false, { userId: user.id, role: user.role });
+const isBetaUser = useFlag({
+  flagName: "beta-ui",
+  fallbackValue: false,
+  context: { userId: user.id, role: user.role },
+});
 \`\`\`
 
 ---
@@ -267,6 +280,14 @@ const flaggable = new Flaggable({
   baseUrl: "https://flaggable.dev",
 });
 
-const isEnabled = await flaggable.get("feature-flag", false);
+const isEnabled = await flaggable.get({ flagName: "feature-flag", fallbackValue: false });
+
+// Listen for updates ('change', 'contextChange', 'error')
+const unsubscribe = flaggable.on({
+  event: "change",
+  listener: ({ response }) => {
+    console.log("Flags updated:", response.evaluations);
+  },
+});
 \`\`\`
 `;

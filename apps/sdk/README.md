@@ -73,7 +73,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 import { useFlag } from "@flaggable/sdk/react";
 
 export function Banner() {
-  const showBanner = useFlag("show-banner", false);
+  const showBanner = useFlag({ flagName: "show-banner", fallbackValue: false });
 
   if (!showBanner) return null;
 
@@ -84,6 +84,12 @@ export function Banner() {
   );
 }
 ```
+
+---
+
+## API Design: Object Parameters
+
+All Flaggable SDK methods and hooks take **object parameters** (e.g. `useFlag({ flagName, fallbackValue })`, `client.get({ flagName, fallbackValue })`, `client.setEvaluationContext({ context })`) rather than positional arguments for clarity, readability, and future extensibility.
 
 ---
 
@@ -103,17 +109,21 @@ Context provider that manages the Flaggable client lifecycle, evaluation caching
 </FlagProvider>
 ```
 
-### `useFlag<T>(flagName: string, fallbackValue: T, context?: EvaluationContext): T`
+### `useFlag<T>({ flagName, fallbackValue, context }): T`
 
 React hook returning the reactive value of a feature flag. Automatically re-evaluates when flags change on the server or polling updates.
 
 ```tsx
-const isNewCheckout = useFlag("new-checkout", false);
-const maxItems = useFlag<number>("cart-limit", 10);
-const brandTheme = useFlag<string>("theme-color", "blue", { role: "admin" });
+const isNewCheckout = useFlag({ flagName: "new-checkout", fallbackValue: false });
+const maxItems = useFlag<number>({ flagName: "cart-limit", fallbackValue: 10 });
+const brandTheme = useFlag<string>({
+  flagName: "theme-color",
+  fallbackValue: "blue",
+  context: { role: "admin" },
+});
 ```
 
-### `useEvaluate(context?: EvaluationContext)`
+### `useEvaluate({ context }?)`
 
 Hook returning the raw evaluation response payload, loading state, error, and a manual `refresh()` method.
 
@@ -129,7 +139,9 @@ Accesses the underlying `Flaggable` core instance to manipulate context directly
 const client = useFlagClient();
 
 function handleLogin(user: { id: string; email: string }) {
-  client.setEvaluationContext({ userId: user.id, email: user.email });
+  client.setEvaluationContext({
+    context: { userId: user.id, email: user.email },
+  });
 }
 ```
 
@@ -149,15 +161,18 @@ const flaggable = new Flaggable({
 });
 
 // Single flag evaluation with fallback
-const isEnabled = await flaggable.get("new-feature", false);
+const isEnabled = await flaggable.get({ flagName: "new-feature", fallbackValue: false });
 
 // Evaluate all flags
-const response = await flaggable.evaluate({ userId: "user_123" });
+const response = await flaggable.evaluate({ context: { userId: "user_123" } });
 console.log(response.evaluations);
 
-// Subscribe to real-time changes
-const unsubscribe = flaggable.subscribe((response) => {
-  console.log("Flags updated:", response.evaluations);
+// Subscribe to real-time events ('change', 'contextChange', 'error')
+const unsubscribe = flaggable.on({
+  event: "change",
+  listener: ({ response }) => {
+    console.log("Flags updated:", response.evaluations);
+  },
 });
 
 // Cleanup
@@ -173,15 +188,20 @@ The SDK automatically assigns and persists an anonymous ID cookie (`flaggable_an
 You can supply additional custom attributes for targeting rules (e.g. user ID, role, plan, region):
 
 ```tsx
-// Global context on provider:
-<FlagProvider publicKey={key} baseUrl={url} context={{ env: "staging", team: "core" }}>
-  {children}
-</FlagProvider>;
+// Global context on client:
+const client = useFlagClient();
+client.setEvaluationContext({
+  context: { env: "staging", team: "core" },
+});
 
 // Per-hook context override:
-const featureActive = useFlag("beta-flow", false, {
-  userId: currentUser.id,
-  role: currentUser.role,
+const featureActive = useFlag({
+  flagName: "beta-flow",
+  fallbackValue: false,
+  context: {
+    userId: currentUser.id,
+    role: currentUser.role,
+  },
 });
 ```
 
