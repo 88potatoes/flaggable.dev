@@ -290,4 +290,20 @@ const unsubscribe = flaggable.on({
   },
 });
 \`\`\`
+
+---
+
+## Type Generation (\`flaggable typegen\`)
+
+Generate TypeScript definitions from your project's flag schemas:
+
+\`\`\`bash
+# 1. Add internal API key to .env.local:
+# FLAGGABLE_INTERNAL_API_KEY="ik_..."
+
+# 2. Run typegen
+npx flaggable typegen
+\`\`\`
+
+This creates \`flaggable.d.ts\` with module augmentation, providing autocomplete for flag names and automatic type inference in \`useFlag\` and \`client.get\`.
 `;

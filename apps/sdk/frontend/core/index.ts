@@ -1,5 +1,16 @@
 export type EvaluationContext = Record<string, unknown>;
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface FlaggableFlags {}
+
+export type KnownFlagName = keyof FlaggableFlags extends never
+  ? string
+  : keyof FlaggableFlags & string;
+
+export type FlagValue<K extends string, Fallback> = K extends keyof FlaggableFlags
+  ? FlaggableFlags[K]
+  : Fallback;
+
 export type FlagEvaluation = {
   flagId: string;
   name: string;
@@ -64,9 +75,9 @@ export type FlaggableOptions = {
   pollInterval?: number;
 };
 
-export type GetFlagOptions<T> = {
-  flagName: string;
-  fallbackValue: T;
+export type GetFlagOptions<K extends KnownFlagName = string, T = unknown> = {
+  flagName: K;
+  fallbackValue: FlagValue<K, T>;
   context?: EvaluationContext;
 };
 
@@ -184,12 +195,14 @@ export class Flaggable {
     return this.refreshPromise;
   }
 
-  async get<T>(options: GetFlagOptions<T>): Promise<T> {
+  async get<K extends KnownFlagName = string, T = unknown>(
+    options: GetFlagOptions<K, T>,
+  ): Promise<FlagValue<K, T>> {
     const response = await this.evaluate({ context: options.context });
     const evaluation = response.evaluations.find((item) => item.name === options.flagName);
     return evaluation?.value === null || evaluation?.value === undefined
       ? options.fallbackValue
-      : (evaluation.value as T);
+      : (evaluation.value as FlagValue<K, T>);
   }
 
   async refresh(): Promise<EvaluationResponse> {

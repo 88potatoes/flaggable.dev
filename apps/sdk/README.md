@@ -207,6 +207,39 @@ const featureActive = useFlag({
 
 ---
 
+## Type Generation & Schema Safety (`flaggable typegen`)
+
+Generate end-to-end TypeScript types for all flags in your project:
+
+### 1. Set Internal API Key (`.env.local`)
+
+```env
+FLAGGABLE_INTERNAL_API_KEY="ik_..."
+```
+
+### 2. Run Typegen
+
+```bash
+npx flaggable typegen
+# Or custom output path:
+npx flaggable typegen --out ./src/types/flaggable.d.ts
+```
+
+### 3. Autocomplete & Type Inference in React Hooks
+
+Once generated, `useFlag` and `client.get` automatically autocomplete flag names and infer expected return types:
+
+```tsx
+// TypeScript autocompletes valid flag names and infers the schema type:
+const isEnabled = useFlag({ flagName: "new-checkout-flow", fallbackValue: false });
+// isEnabled is automatically typed: boolean
+
+const theme = useFlag({ flagName: "theme-color", fallbackValue: "dark" });
+// theme is automatically typed: "dark" | "light" | "system"
+```
+
+---
+
 ## Agent Guide & Best Practices
 
 When configuring AI coding agents (Cursor, Claude Code, Pi, Windsurf, Copilot):

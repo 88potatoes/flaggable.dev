@@ -5,6 +5,7 @@ export default defineConfig({
     index: "frontend/core/index.ts",
     core: "frontend/core/index.ts",
     react: "frontend/react/index.tsx",
+    cli: "frontend/cli.ts",
   },
   format: ["esm"],
   dts: true,

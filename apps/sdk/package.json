@@ -2,6 +2,9 @@
   "name": "@flaggable/sdk",
   "version": "0.1.1",
   "private": false,
+  "bin": {
+    "flaggable": "./dist/cli.mjs"
+  },
   "files": [
     "dist",
     "README.md",
@@ -25,8 +28,8 @@
   },
   "scripts": {
     "build": "tsdown",
-    "test": "vitest run --config frontend/vitest.config.ts",
-    "typecheck": "tsgo --noEmit -p frontend/tsconfig.json"
+    "typecheck": "tsgo --noEmit -p frontend/tsconfig.json",
+    "test": "vitest run --config frontend/vitest.config.ts"
   },
   "devDependencies": {
     "@types/react": "19.2.18",

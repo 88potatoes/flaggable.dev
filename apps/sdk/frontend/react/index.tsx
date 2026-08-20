@@ -6,7 +6,10 @@ import {
   Flaggable,
   type EvaluationContext,
   type EvaluationResponse,
+  type FlaggableFlags,
   type FlaggableOptions,
+  type FlagValue,
+  type KnownFlagName,
 } from "../core/index";
 
 const FlaggableContext = createContext<Flaggable | null>(null);
@@ -45,16 +48,18 @@ export function useFlagClient(): Flaggable {
   return client;
 }
 
-export type UseFlagOptions<T> = {
-  flagName: string;
-  fallbackValue: T;
+export type UseFlagOptions<K extends KnownFlagName = string, T = unknown> = {
+  flagName: K;
+  fallbackValue: FlagValue<K, T>;
   context?: EvaluationContext;
 };
 
-export function useFlag<T>(options: UseFlagOptions<T>): T {
+export function useFlag<K extends KnownFlagName = string, T = unknown>(
+  options: UseFlagOptions<K, T>,
+): FlagValue<K, T> {
   const { flagName, fallbackValue, context } = options;
   const client = useFlagClient();
-  const [value, setValue] = useState<T>(fallbackValue);
+  const [value, setValue] = useState<FlagValue<K, T>>(fallbackValue);
   useEffect(() => {
     let active = true;
     void client
@@ -63,10 +68,12 @@ export function useFlag<T>(options: UseFlagOptions<T>): T {
         if (active) setValue(next);
       })
       .catch(() => undefined);
-    const unsubscribe = client.subscribe({
+    const unsubscribe = client.on({
+      event: "change",
       listener: ({ response }) => {
         const evaluation = response.evaluations.find((item) => item.name === flagName);
-        if (active && evaluation && evaluation.value !== null) setValue(evaluation.value as T);
+        if (active && evaluation && evaluation.value !== null)
+          setValue(evaluation.value as FlagValue<K, T>);
       },
     });
     return () => {
@@ -125,6 +132,9 @@ export type {
   FlaggableEvents,
   FlaggableEventType,
   FlaggableEventListener,
+  FlaggableFlags,
+  KnownFlagName,
+  FlagValue,
   OnEventOptions,
   EvaluationChange,
   EvaluationChangePayload,
