@@ -4,14 +4,26 @@
 
 export interface AgentPromptOptions {
   baseUrl: string;
-  publicKey: string;
   flagName: string;
+  publicKey?: string;
   projectName?: string;
+}
+
+export function generateEnvSnippet({
+  baseUrl,
+  publicKey = "pk_your_project_public_key",
+  internalKey = "ik_your_internal_api_key",
+}: {
+  baseUrl: string;
+  publicKey?: string;
+  internalKey?: string;
+}): string {
+  const cleanBaseUrl = baseUrl.replace(/\/$/, "");
+  return `NEXT_PUBLIC_FLAGGABLE_BASE_URL="${cleanBaseUrl}"\nNEXT_PUBLIC_FLAGGABLE_PUBLIC_KEY="${publicKey}"\nFLAGGABLE_INTERNAL_API_KEY="${internalKey}"`;
 }
 
 export function generateAgentPrompt({
   baseUrl,
-  publicKey,
   flagName,
   projectName,
 }: AgentPromptOptions): string {
@@ -23,21 +35,18 @@ export function generateAgentPrompt({
 ### Configuration
 - Package: \`@flaggable/sdk\`
 - Flaggable Base URL: \`${cleanBaseUrl}\`
-- Public Key: \`${publicKey}\`
 - Target Feature Flag: \`${flagName}\`${projectName ? `\n- Project: \`${projectName}\`` : ""}
 - SDK Documentation: \`${docsUrl}\`
+- Environment Variables: Assumed to be configured in \`.env.local\` (\`NEXT_PUBLIC_FLAGGABLE_BASE_URL\`, \`NEXT_PUBLIC_FLAGGABLE_PUBLIC_KEY\`, and \`FLAGGABLE_INTERNAL_API_KEY\`).
 
 ### Implementation Steps
 
 1. **Install the SDK**:
    Run: \`pnpm add @flaggable/sdk\` (or \`npm install @flaggable/sdk\`)
 
-2. **Configure Environment Variables**:
-   In \`.env.local\`:
-   \`\`\`env
-   NEXT_PUBLIC_FLAGGABLE_BASE_URL="${cleanBaseUrl}"
-   NEXT_PUBLIC_FLAGGABLE_PUBLIC_KEY="${publicKey}"
-   \`\`\`
+2. **Generate TypeScript Types**:
+   Run: \`npx flaggable typegen\`
+   This generates \`flaggable.d.ts\` providing type safety and autocomplete for project feature flags.
 
 3. **Create the Flaggable Provider Component**:
    Create \`components/flaggable-provider.tsx\` (or \`app/providers.tsx\`):
@@ -51,7 +60,7 @@ export function generateAgentPrompt({
      const publicKey = process.env.NEXT_PUBLIC_FLAGGABLE_PUBLIC_KEY;
      const baseUrl = process.env.NEXT_PUBLIC_FLAGGABLE_BASE_URL;
 
-     if (!publicKey || !baseUrl) {
+     if (!publicKey) {
        return <>{children}</>;
      }
 

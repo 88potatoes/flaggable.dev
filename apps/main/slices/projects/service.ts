@@ -7,6 +7,7 @@ import {
   type ValueSchemaRepository,
 } from "@/slices/value-schemas/repo";
 import { PublicKeyService } from "@/slices/public-keys/service";
+import { InternalKeyService } from "@/slices/internal-keys/service";
 import { DrizzleProjectRepository, type ProjectRepository } from "./repo";
 
 /** Application operations for projects. Persistence is injected for unit testing. */
@@ -22,11 +23,27 @@ export interface ProjectPublicKeyService {
   }>;
 }
 
+/** Creates the initial internal CLI / devtool credential for a new project. */
+export interface ProjectInternalKeyService {
+  create({
+    projectId,
+    ownerId,
+    name,
+  }: {
+    projectId: string;
+    ownerId: string;
+    name?: string;
+  }): Promise<{
+    internalKey: string;
+  }>;
+}
+
 export class ProjectService {
   constructor(
     private readonly repository: ProjectRepository = new DrizzleProjectRepository(),
     private readonly schemas: ValueSchemaRepository = new DrizzleValueSchemaRepository(),
     private readonly publicKeys?: ProjectPublicKeyService,
+    private readonly internalKeys?: ProjectInternalKeyService,
   ) {}
 
   list = ({ ownerId }: { ownerId: string }) => this.repository.listByOwner({ ownerId });
@@ -63,7 +80,16 @@ export class ProjectService {
       projectId: project.id,
       ownerId,
     });
-    return { ...project, publicKey };
+
+    const { internalKey } = await (
+      this.internalKeys ?? new InternalKeyService(undefined, this.repository)
+    ).create({
+      projectId: project.id,
+      ownerId,
+      name: "Default Internal API Key",
+    });
+
+    return { ...project, publicKey, internalKey };
   };
 
   update = async ({

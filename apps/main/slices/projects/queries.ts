@@ -21,7 +21,7 @@ export function useQueryProject(projectId: string) {
   });
 }
 
-export type CreatedProject = Project & { publicKey?: string };
+export type CreatedProject = Project & { publicKey?: string; internalKey?: string };
 
 export function useMutateCreateProject() {
   const queryClient = useQueryClient();

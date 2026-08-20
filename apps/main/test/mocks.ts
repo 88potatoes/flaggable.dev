@@ -139,7 +139,8 @@ export const mockProjectService = (
   repository = mockProjectRepo(),
   schemas = mockSchemaRepo(),
   publicKeys: ProjectPublicKeyService = { create: vi.fn(async () => ({ publicKey: "pk_test" })) },
-) => new ProjectService(repository, schemas, publicKeys);
+  internalKeys = { create: vi.fn(async () => ({ internalKey: "ik_test" })) },
+) => new ProjectService(repository, schemas, publicKeys, internalKeys);
 
 /** Creates a value-schema service backed by mock repositories. */
 export const mockSchemaService = ({

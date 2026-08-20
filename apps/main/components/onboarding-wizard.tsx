@@ -6,8 +6,10 @@ import {
   ChevronRight,
   Copy,
   ExternalLink,
+  FileCode,
   Flag as FlagIcon,
   FolderPlus,
+  KeyRound,
   LoaderCircle,
   Sparkles,
   Terminal,
@@ -21,7 +23,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@flag
 import { Input } from "@flaggable/ui/input";
 import { Label } from "@flaggable/ui/label";
 import { Switch } from "@flaggable/ui/switch";
-import { generateAgentPrompt } from "@/lib/agent-docs";
+import { generateAgentPrompt, generateEnvSnippet } from "@/lib/agent-docs";
 import { useMutateCreateFlag } from "@/slices/flags/queries";
 import { useMutateCreateProject, type CreatedProject } from "@/slices/projects/queries";
 import { useQuerySchemas } from "@/slices/value-schemas/queries";
@@ -57,11 +59,13 @@ export function OnboardingWizard({
     projects.find((p) => p.id === activeProjectId)?.name ?? "",
   );
   const [publicKey, setPublicKey] = useState<string>("");
+  const [internalKey, setInternalKey] = useState<string>("");
   const [newProjectName, setNewProjectName] = useState("");
   const [newFlagName, setNewFlagName] = useState(SUGGESTED_FLAGS[0]);
   const [createdFlag, setCreatedFlag] = useState<Flag | null>(null);
   const [isDemoFlagActive, setIsDemoFlagActive] = useState(true);
-  const [copied, setCopied] = useState(false);
+  const [copiedEnv, setCopiedEnv] = useState(false);
+  const [copiedPrompt, setCopiedPrompt] = useState(false);
   const [error, setError] = useState("");
 
   const schemasQuery = useQuerySchemas(projectId);
@@ -84,6 +88,9 @@ export function OnboardingWizard({
           setProjectName(project.name);
           if (project.publicKey) {
             setPublicKey(project.publicKey);
+          }
+          if (project.internalKey) {
+            setInternalKey(project.internalKey);
           }
           if (onProjectSelect) {
             onProjectSelect(project.id);
@@ -131,23 +138,49 @@ export function OnboardingWizard({
   };
 
   const targetFlagName = createdFlag?.name || newFlagName || "show-promo-banner";
-  const activeSdkKey = publicKey || "pk_your_project_public_key";
+  const envPublicKey = publicKey || "pk_your_project_public_key";
+  const envInternalKey = internalKey || "ik_your_internal_api_key";
+  const cleanBaseUrl = baseUrl.replace(/\/$/, "");
+
+  const rawEnvSnippet = generateEnvSnippet({
+    baseUrl,
+    publicKey: envPublicKey,
+    internalKey: envInternalKey,
+  });
+
+  const displayMaskedInternalKey = internalKey
+    ? `${internalKey.slice(0, 5)}••••••••••••••••••••••••`
+    : "ik_••••••••••••••••••••••••";
+
+  const maskedEnvSnippet = `NEXT_PUBLIC_FLAGGABLE_BASE_URL="${cleanBaseUrl}"\nNEXT_PUBLIC_FLAGGABLE_PUBLIC_KEY="${envPublicKey}"\nFLAGGABLE_INTERNAL_API_KEY="${displayMaskedInternalKey}"`;
 
   const promptText = generateAgentPrompt({
     baseUrl,
-    publicKey: activeSdkKey,
     flagName: targetFlagName,
     projectName: projectName || "My App",
   });
 
+  const handleCopyEnv = async () => {
+    try {
+      await navigator.clipboard.writeText(rawEnvSnippet);
+      setCopiedEnv(true);
+      toast.success("Environment variables copied to clipboard!", {
+        description: "Paste these into your .env.local file.",
+      });
+      setTimeout(() => setCopiedEnv(false), 3000);
+    } catch {
+      toast.error("Failed to copy environment variables to clipboard");
+    }
+  };
+
   const handleCopyPrompt = async () => {
     try {
       await navigator.clipboard.writeText(promptText);
-      setCopied(true);
+      setCopiedPrompt(true);
       toast.success("AI Agent Prompt Copied!", {
         description: "Paste this prompt into Cursor, Claude Code, Pi, Windsurf, or ChatGPT.",
       });
-      setTimeout(() => setCopied(false), 3000);
+      setTimeout(() => setCopiedPrompt(false), 3000);
     } catch {
       toast.error("Failed to copy prompt to clipboard");
     }
@@ -341,87 +374,103 @@ export function OnboardingWizard({
             </div>
             <CardTitle className="text-2xl mt-2">Setup with your AI Agent</CardTitle>
             <CardDescription className="text-sm">
-              Copy this prompt and paste it directly into Cursor, Claude Code, Pi, Windsurf, or
-              ChatGPT to set up your app.
+              Follow these two quick steps to connect your Next.js application.
             </CardDescription>
           </CardHeader>
 
           <CardContent className="space-y-6">
-            {/* Primary Action Button */}
-            <Button
-              size="lg"
-              onClick={handleCopyPrompt}
-              className={`w-full h-14 text-base font-semibold shadow-md transition-all ${
-                copied
-                  ? "bg-emerald-600 hover:bg-emerald-700 text-white"
-                  : "bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white"
-              }`}
-            >
-              {copied ? (
-                <>
-                  <Check className="mr-2 size-5" />
-                  Prompt Copied to Clipboard!
-                </>
-              ) : (
-                <>
-                  <Copy className="mr-2 size-5" />
-                  Copy AI Agent Prompt
-                </>
-              )}
-            </Button>
+            {/* Step 3.1: Copy Environment Variables */}
+            <div className="rounded-xl border bg-zinc-50 p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="flex size-6 items-center justify-center rounded-full bg-orange-600 text-xs font-bold text-white">
+                    1
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-semibold text-zinc-900">
+                      Copy Environment Variables
+                    </h4>
+                    <p className="text-xs text-zinc-500">
+                      Paste into your project&apos;s{" "}
+                      <code className="font-mono font-semibold">.env.local</code> file (internal key
+                      is masked for display).
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleCopyEnv}
+                  className={`h-8 text-xs font-medium border shadow-xs transition-all ${
+                    copiedEnv
+                      ? "border-emerald-600 bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
+                      : "bg-white text-zinc-700 hover:bg-zinc-100"
+                  }`}
+                >
+                  {copiedEnv ? (
+                    <>
+                      <Check className="mr-1.5 size-3.5" />
+                      Copied .env!
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="mr-1.5 size-3.5" />
+                      Copy .env.local
+                    </>
+                  )}
+                </Button>
+              </div>
 
-            {/* What this prompt does */}
-            <div className="rounded-xl border border-orange-100 bg-orange-50/60 p-4">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-orange-900 mb-2">
-                What the Agent will implement:
-              </h4>
-              <ul className="space-y-1.5 text-xs text-orange-950">
-                <li className="flex items-start gap-2">
-                  <Check className="size-3.5 mt-0.5 text-orange-600 shrink-0" />
-                  <span>
-                    Installs <code>@flaggable/sdk</code> in your project.
-                  </span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <Check className="size-3.5 mt-0.5 text-orange-600 shrink-0" />
-                  <span>
-                    Configures <code>.env.local</code> with your public key & base URL.
-                  </span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <Check className="size-3.5 mt-0.5 text-orange-600 shrink-0" />
-                  <span>
-                    Sets up <code>FlagProvider</code> in your Next.js layout.
-                  </span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <Check className="size-3.5 mt-0.5 text-orange-600 shrink-0" />
-                  <span>
-                    Adds a live demo indicator component reading <code>{targetFlagName}</code>.
-                  </span>
-                </li>
-              </ul>
+              <pre className="overflow-x-auto rounded-lg border bg-zinc-950 p-3 font-mono text-xs text-zinc-100 leading-relaxed">
+                {maskedEnvSnippet}
+              </pre>
             </div>
 
-            {/* Prompt Preview */}
-            <div>
-              <div className="flex items-center justify-between pb-2">
-                <div className="flex items-center gap-1.5 text-xs font-semibold text-zinc-700">
-                  <Terminal className="size-3.5" />
-                  Prompt Preview
+            {/* Step 3.2: Copy AI Agent Setup Prompt */}
+            <div className="rounded-xl border bg-zinc-50 p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="flex size-6 items-center justify-center rounded-full bg-orange-600 text-xs font-bold text-white">
+                    2
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-semibold text-zinc-900">
+                      Copy AI Agent Setup Prompt
+                    </h4>
+                    <p className="text-xs text-zinc-500">
+                      Paste this prompt into Cursor, Claude Code, Pi, Windsurf, or ChatGPT.
+                    </p>
+                  </div>
                 </div>
-                <a
-                  href="/docs/sdk.md"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-1 text-xs text-orange-600 hover:text-orange-700 font-medium"
+                <Button
+                  size="sm"
+                  onClick={handleCopyPrompt}
+                  className={`h-8 text-xs font-medium shadow-xs transition-all ${
+                    copiedPrompt
+                      ? "bg-emerald-600 hover:bg-emerald-700 text-white"
+                      : "bg-orange-600 hover:bg-orange-700 text-white"
+                  }`}
                 >
-                  View SDK Docs <ExternalLink className="size-3" />
-                </a>
+                  {copiedPrompt ? (
+                    <>
+                      <Check className="mr-1.5 size-3.5" />
+                      Copied Prompt!
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="mr-1.5 size-3.5" />
+                      Copy Agent Prompt
+                    </>
+                  )}
+                </Button>
               </div>
-              <pre className="max-h-56 overflow-y-auto rounded-lg border bg-zinc-950 p-3.5 font-mono text-xs text-zinc-100 whitespace-pre-wrap leading-relaxed">
-                {promptText}
-              </pre>
+
+              {/* Prompt Preview */}
+              <div>
+                <pre className="max-h-56 overflow-y-auto rounded-lg border bg-zinc-950 p-3 font-mono text-xs text-zinc-100 whitespace-pre-wrap leading-relaxed">
+                  {promptText}
+                </pre>
+              </div>
             </div>
 
             {/* Interactive Live Demo Preview Box */}
