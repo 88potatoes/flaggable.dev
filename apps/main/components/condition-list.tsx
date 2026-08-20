@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Plus, Settings, Lock, Unlock, AlertTriangle } from "lucide-react";
+import { Plus, Settings, Lock, Unlock, AlertTriangle, Sparkles } from "lucide-react";
 import type { ConditionOperator, Flag } from "@flaggable/contracts";
 
 import { Button } from "@flaggable/ui/button";
@@ -23,7 +23,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@flaggable/ui/select";
-import { Switch } from "@flaggable/ui/switch";
 import {
   useMutateCreateCondition,
   useMutateUpdateCondition,
@@ -31,7 +30,13 @@ import {
 } from "@/slices/conditions/queries";
 import { useQuerySchema } from "@/slices/value-schemas/queries";
 
-export function ConditionList({ flag }: { flag: Flag }) {
+export function ConditionList({
+  flag,
+  onOpenAgentPrompt,
+}: {
+  flag: Flag;
+  onOpenAgentPrompt?: () => void;
+}) {
   const [property, setProperty] = useState("");
   const [operator, setOperator] = useState<ConditionOperator>("equals");
   const [predicateValue, setPredicateValue] = useState("");
@@ -118,8 +123,23 @@ export function ConditionList({ flag }: { flag: Flag }) {
               </div>
               <h3 className="text-sm font-medium text-gray-900">No conditions configured</h3>
               <p className="mt-1 text-sm text-gray-500">
-                Add conditions to target specific users or contexts
+                This flag will evaluate to its default value ({flag.enabled ? "Active" : "Inactive"}
+                ).
               </p>
+              {onOpenAgentPrompt && (
+                <div className="mt-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={onOpenAgentPrompt}
+                    className="gap-1.5 border-orange-200 bg-orange-50 text-orange-700 hover:bg-orange-100"
+                  >
+                    <Sparkles className="size-3.5 text-orange-600" />
+                    Set up in Next.js with AI
+                  </Button>
+                </div>
+              )}
             </div>
           ) : (
             <div className="space-y-3">

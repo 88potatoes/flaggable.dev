@@ -21,12 +21,14 @@ export function useQueryProject(projectId: string) {
   });
 }
 
+export type CreatedProject = Project & { publicKey?: string };
+
 export function useMutateCreateProject() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: ({ name }: { name: string }) =>
-      api.post("projects", { json: { name } }).json<Project>(),
+      api.post("projects", { json: { name } }).json<CreatedProject>(),
     onSuccess: (project) => {
       queryClient.setQueryData(projectQueryKeys.byId(project.id), project);
       queryClient.invalidateQueries({ queryKey: projectQueryKeys.all });

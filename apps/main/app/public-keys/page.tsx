@@ -5,6 +5,7 @@ import { KeyRound } from "lucide-react";
 
 import { Card } from "@flaggable/ui/card";
 import { Skeleton } from "@flaggable/ui/skeleton";
+import { CreateProjectDialog } from "@/components/create-project-dialog";
 import { DashboardShell } from "@/components/dashboard-sidebar";
 import { PublicKeysPanel } from "@/components/public-keys-panel";
 import { useQueryProjects } from "@/slices/projects/queries";
@@ -13,6 +14,7 @@ export default function PublicKeysPage() {
   const projectsQuery = useQueryProjects();
   const projects = projectsQuery.data ?? [];
   const [projectId, setProjectId] = useState("");
+  const [isCreateProjectOpen, setIsCreateProjectOpen] = useState(false);
 
   useEffect(() => {
     if (!projectId && projects[0]) setProjectId(projects[0].id);
@@ -25,6 +27,7 @@ export default function PublicKeysPage() {
         projectId={projectId}
         onProjectChange={setProjectId}
         onNewFlag={() => undefined}
+        onNewProject={() => setIsCreateProjectOpen(true)}
       >
         <div className="dashboard-inner">
           <Card className="grid gap-4 p-6" aria-busy="true">
@@ -43,6 +46,7 @@ export default function PublicKeysPage() {
       projectId={projectId}
       onProjectChange={setProjectId}
       onNewFlag={() => undefined}
+      onNewProject={() => setIsCreateProjectOpen(true)}
     >
       <div className="dashboard-inner">
         {projects.length === 0 ? (
@@ -65,6 +69,11 @@ export default function PublicKeysPage() {
           </div>
         )}
       </div>
+      <CreateProjectDialog
+        open={isCreateProjectOpen}
+        onOpenChange={setIsCreateProjectOpen}
+        onProjectCreated={(project) => setProjectId(project.id)}
+      />
     </DashboardShell>
   );
 }

@@ -2,7 +2,16 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Command, KeyRound, LayoutDashboard, Plus, PanelLeftClose } from "lucide-react";
+import {
+  BookOpen,
+  Command,
+  FolderPlus,
+  KeyRound,
+  LayoutDashboard,
+  Plus,
+  PanelLeftClose,
+} from "lucide-react";
+import { Button } from "@flaggable/ui/button";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@flaggable/ui/avatar";
 import {
@@ -47,12 +56,14 @@ export function DashboardSidebar({
   projectId,
   onProjectChange,
   onNewFlag,
+  onNewProject,
   onOpenCommandPalette,
 }: {
   projects: Project[];
   projectId: string;
   onProjectChange: (projectId: string) => void;
   onNewFlag?: () => void;
+  onNewProject?: () => void;
   onOpenCommandPalette?: () => void;
 }) {
   const pathname = usePathname();
@@ -68,38 +79,53 @@ export function DashboardSidebar({
     <Sidebar collapsible="icon" className="h-svh max-h-svh border-r bg-sidebar">
       <SidebarHeader className="gap-2 p-2">
         <SidebarMenu>
-          <SidebarMenuItem>
-            <Select value={projectId} onValueChange={onProjectChange}>
-              <SelectTrigger
-                aria-label="Select project"
-                className={`h-12 w-full border-0 bg-transparent shadow-none hover:bg-sidebar-accent ${
-                  isCollapsed ? "px-0 [&>svg]:hidden" : "px-2"
-                }`}
-              >
-                <div
-                  className={`flex min-w-0 flex-1 items-center text-left ${
-                    isCollapsed ? "justify-center" : "gap-2"
+          <SidebarMenuItem className="flex items-center gap-1">
+            <div className="min-w-0 flex-1">
+              <Select value={projectId} onValueChange={onProjectChange}>
+                <SelectTrigger
+                  aria-label="Select project"
+                  className={`h-12 w-full border-0 bg-transparent shadow-none hover:bg-sidebar-accent ${
+                    isCollapsed ? "px-0 [&>svg]:hidden" : "px-2"
                   }`}
                 >
-                  <span className="flex size-8 shrink-0 items-center justify-center rounded-md border bg-background text-xs font-semibold">
-                    {(project?.name?.[0] ?? "P").toUpperCase()}
-                  </span>
-                  {!isCollapsed && (
-                    <span className="grid min-w-0 text-sm leading-tight">
-                      <SelectValue placeholder="No projects yet" />
-                      <span className="truncate text-xs text-muted-foreground">Project</span>
+                  <div
+                    className={`flex min-w-0 flex-1 items-center text-left ${
+                      isCollapsed ? "justify-center" : "gap-2"
+                    }`}
+                  >
+                    <span className="flex size-8 shrink-0 items-center justify-center rounded-md border bg-background text-xs font-semibold">
+                      {(project?.name?.[0] ?? "P").toUpperCase()}
                     </span>
-                  )}
-                </div>
-              </SelectTrigger>
-              <SelectContent align="start" className="min-w-(--radix-select-trigger-width)">
-                {projects.map((item) => (
-                  <SelectItem key={item.id} value={item.id}>
-                    {item.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+                    {!isCollapsed && (
+                      <span className="grid min-w-0 text-sm leading-tight">
+                        <SelectValue placeholder="No projects yet" />
+                        <span className="truncate text-xs text-muted-foreground">Project</span>
+                      </span>
+                    )}
+                  </div>
+                </SelectTrigger>
+                <SelectContent align="start" className="min-w-(--radix-select-trigger-width)">
+                  {projects.map((item) => (
+                    <SelectItem key={item.id} value={item.id}>
+                      {item.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            {!isCollapsed && onNewProject && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                onClick={onNewProject}
+                title="Create new project"
+                aria-label="Create new project"
+                className="size-8 text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+              >
+                <FolderPlus className="size-4" />
+              </Button>
+            )}
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
@@ -171,6 +197,14 @@ export function DashboardSidebar({
                     <KeyRound />
                     {!isCollapsed && <span>Public keys</span>}
                   </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton className={navButton} tooltip="SDK Docs" asChild>
+                  <a href="/docs/sdk.md" target="_blank" rel="noreferrer" title="SDK Docs">
+                    <BookOpen />
+                    {!isCollapsed && <span>SDK Docs</span>}
+                  </a>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
@@ -249,6 +283,7 @@ export function DashboardShell({
   projectId,
   onProjectChange,
   onNewFlag,
+  onNewProject,
   onOpenCommandPalette,
   flagSidebar,
 }: {
@@ -257,6 +292,7 @@ export function DashboardShell({
   projectId: string;
   onProjectChange: (projectId: string) => void;
   onNewFlag?: () => void;
+  onNewProject?: () => void;
   onOpenCommandPalette?: () => void;
   flagSidebar?: React.ReactNode;
 }) {
@@ -267,6 +303,7 @@ export function DashboardShell({
         projectId={projectId}
         onProjectChange={onProjectChange}
         onNewFlag={onNewFlag}
+        onNewProject={onNewProject}
         onOpenCommandPalette={onOpenCommandPalette}
       />
       <FlagSidebarWrapper flagSidebar={flagSidebar} />

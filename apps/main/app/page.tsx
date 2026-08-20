@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, type ChangeEvent, useEffect, useMemo, useState } from "react";
-import { Flag, LoaderCircle, MoreHorizontal } from "lucide-react";
+import { LoaderCircle, MoreHorizontal, Sparkles } from "lucide-react";
 
 import { Alert } from "@flaggable/ui/alert";
 import { Button } from "@flaggable/ui/button";
@@ -24,10 +24,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@flaggable/ui/dropdown-menu";
+import { AgentPromptDialog } from "@/components/agent-prompt-dialog";
 import { CommandPalette } from "@/components/command-palette";
+import { CreateProjectDialog } from "@/components/create-project-dialog";
 import { DashboardShell } from "@/components/dashboard-sidebar";
 import { FlagBrowser } from "@/components/flag-browser";
 import { FlagDetail } from "@/components/flag-detail";
+import { OnboardingWizard } from "@/components/onboarding-wizard";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import {
   useMutateArchiveFlag,
@@ -35,7 +38,7 @@ import {
   useMutateUpdateFlag,
   useQueryFlags,
 } from "@/slices/flags/queries";
-import { useMutateCreateProject, useQueryProjects } from "@/slices/projects/queries";
+import { useQueryProjects } from "@/slices/projects/queries";
 import { useQuerySchemas } from "@/slices/value-schemas/queries";
 import { toast } from "sonner";
 
@@ -51,9 +54,12 @@ export default function Dashboard() {
   const [query, setQuery] = useState("");
   const [projectId, setProjectId] = useState("");
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isCreateProjectOpen, setIsCreateProjectOpen] = useState(false);
   const [isCommandOpen, setIsCommandOpen] = useState(false);
+  const [isAgentPromptOpen, setIsAgentPromptOpen] = useState(false);
+  const [agentPromptFlagName, setAgentPromptFlagName] = useState("");
+  const [showManualOnboarding, setShowManualOnboarding] = useState(false);
   const [newFlagName, setNewFlagName] = useState("");
-  const [newProjectName, setNewProjectName] = useState("");
   const [error, setError] = useState("");
   const projectsQuery = useQueryProjects();
   const projects = projectsQuery.data ?? [];
@@ -63,7 +69,7 @@ export default function Dashboard() {
   const createFlag = useMutateCreateFlag(projectId);
   const updateFlag = useMutateUpdateFlag(projectId);
   const archiveFlag = useMutateArchiveFlag(projectId);
-  const createProject = useMutateCreateProject();
+  const activeProject = projects.find((p) => p.id === projectId);
   const flags = useMemo(
     () => flagsQuery.data?.pages.flatMap((page) => page.items) ?? [],
     [flagsQuery.data],
@@ -84,7 +90,7 @@ export default function Dashboard() {
 
     window.addEventListener("keydown", handleCommandShortcut);
     return () => window.removeEventListener("keydown", handleCommandShortcut);
-  }, []);
+  }, [projectId]);
 
   function openCreateFlag() {
     setIsCommandOpen(false);
@@ -97,28 +103,6 @@ export default function Dashboard() {
     setError("");
   }
 
-  function submitCreateProject(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const name = newProjectName.trim();
-    if (!name) return;
-    setError("");
-    createProject.mutate(
-      { name },
-      {
-        onSuccess: (project) => {
-          setNewProjectName("");
-          setProjectId(project.id);
-          const message = `${project.name} is ready.`;
-          toast.success("Project created", { description: message });
-        },
-        onError: (mutationError) => {
-          setError(mutationError.message);
-          toast.error("Could not create project", { description: mutationError.message });
-        },
-      },
-    );
-  }
-
   function submitCreateFlag(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const schema = schemasQuery.data?.[0];
@@ -126,16 +110,27 @@ export default function Dashboard() {
       setError("Create a value schema first, then create a flag.");
       return;
     }
+    const createdName = newFlagName;
     createFlag.mutate(
       {
         valueSchemaId: schema.id,
-        name: newFlagName,
+        name: createdName,
       },
       {
-        onSuccess: () => {
+        onSuccess: (flag) => {
           setIsCreateOpen(false);
           setNewFlagName("");
-          toast.success("Flag created", { description: `${newFlagName} is ready to use.` });
+          setSelectedFlagId(flag.id);
+          toast.success("Flag created", {
+            description: `${flag.name} is ready to use.`,
+            action: {
+              label: "AI Setup Prompt",
+              onClick: () => {
+                setAgentPromptFlagName(flag.name);
+                setIsAgentPromptOpen(true);
+              },
+            },
+          });
         },
         onError: (mutationError) => {
           const message = getApiErrorMessage(mutationError, "Could not create flag.");
@@ -149,7 +144,7 @@ export default function Dashboard() {
   const alerts = projectsQuery.error || flagsQuery.error || error;
 
   const flagSidebar =
-    projects.length > 0 ? (
+    projects.length > 0 && flags.length > 0 ? (
       <FlagBrowser
         flags={flags}
         search={query}
@@ -171,13 +166,14 @@ export default function Dashboard() {
       projectId={projectId}
       onProjectChange={selectProject}
       onNewFlag={openCreateFlag}
+      onNewProject={() => setIsCreateProjectOpen(true)}
       onOpenCommandPalette={() => setIsCommandOpen(true)}
       flagSidebar={flagSidebar}
     >
       <div className="dashboard-inner">
-        {selectedFlag ? (
+        {selectedFlag && flags.length > 0 && !showManualOnboarding ? (
           <div className="mb-8">
-            <div className="flex items-center gap-3 mb-2">
+            <div className="flex items-center gap-3 mb-2 flex-wrap">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-orange-500 to-red-600 text-sm font-bold text-white">
                 {selectedFlag.name[0]?.toUpperCase() || "F"}
               </div>
@@ -192,6 +188,18 @@ export default function Dashboard() {
                 {selectedFlag.enabled ? "Active" : "Inactive"}
               </div>
               <div className="ml-auto flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setAgentPromptFlagName(selectedFlag.name);
+                    setIsAgentPromptOpen(true);
+                  }}
+                  className="gap-1.5 border-orange-200 bg-orange-50 text-orange-700 hover:bg-orange-100 font-medium"
+                >
+                  <Sparkles className="size-3.5 text-orange-600" />
+                  AI Setup Prompt
+                </Button>
                 <Switch
                   checked={selectedFlag.enabled}
                   onCheckedChange={(enabled: boolean) =>
@@ -213,6 +221,15 @@ export default function Dashboard() {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem
+                      onClick={() => {
+                        setAgentPromptFlagName(selectedFlag.name);
+                        setIsAgentPromptOpen(true);
+                      }}
+                    >
+                      <Sparkles className="mr-2 size-4 text-orange-600" />
+                      Get AI Agent Prompt
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
                       variant="destructive"
                       onClick={() => archiveFlag.mutate({ flagId: selectedFlag.id })}
                       disabled={archiveFlag.isPending}
@@ -224,14 +241,15 @@ export default function Dashboard() {
               </div>
             </div>
           </div>
-        ) : (
+        ) : projects.length > 0 && flags.length > 0 ? (
           <div className="mb-12">
             <h1 className="text-3xl font-bold tracking-tight text-gray-900">Feature Flags</h1>
             <p className="mt-2 text-base text-gray-600">
               Control feature rollouts and manage your application's behavior
             </p>
           </div>
-        )}
+        ) : null}
+
         {projectsQuery.isLoading ? (
           <Card className="project-empty-state" aria-busy="true">
             <Skeleton className="h-6 w-32" />
@@ -239,13 +257,28 @@ export default function Dashboard() {
             <Skeleton className="h-8 w-full" />
           </Card>
         ) : projects.length === 0 ? (
-          <ProjectEmptyState
-            newProjectName={newProjectName}
-            setNewProjectName={setNewProjectName}
-            onSubmit={submitCreateProject}
-            isPending={createProject.isPending}
-            message={error || projectsQuery.error?.message || ""}
-            isError={Boolean(error || projectsQuery.error)}
+          <OnboardingWizard
+            initialStep="project"
+            onProjectSelect={(id) => setProjectId(id)}
+            onComplete={(flagId) => {
+              if (flagId) setSelectedFlagId(flagId);
+            }}
+          />
+        ) : flagsQuery.isLoading ? (
+          <Card className="project-empty-state" aria-busy="true">
+            <Skeleton className="h-6 w-32" />
+            <Skeleton className="h-4 w-full max-w-sm" />
+            <Skeleton className="h-8 w-full" />
+          </Card>
+        ) : flags.length === 0 || showManualOnboarding ? (
+          <OnboardingWizard
+            initialStep="flag"
+            projectId={projectId}
+            projects={projects}
+            onComplete={(flagId) => {
+              setShowManualOnboarding(false);
+              if (flagId) setSelectedFlagId(flagId);
+            }}
           />
         ) : (
           <>
@@ -308,14 +341,48 @@ export default function Dashboard() {
                   </div>
                 )}
               </div>
-              <FlagDetail flag={selectedFlag} />
+              <FlagDetail
+                flag={selectedFlag}
+                onOpenAgentPrompt={() => {
+                  if (selectedFlag) {
+                    setAgentPromptFlagName(selectedFlag.name);
+                    setIsAgentPromptOpen(true);
+                  }
+                }}
+              />
             </div>
+
+            <AgentPromptDialog
+              open={isAgentPromptOpen}
+              onOpenChange={setIsAgentPromptOpen}
+              projectId={projectId}
+              projectName={activeProject?.name}
+              flagName={agentPromptFlagName || selectedFlag?.name || "my-first-flag"}
+            />
+
             <CommandPalette
               open={isCommandOpen}
               onOpenChange={setIsCommandOpen}
               onCreateFlag={openCreateFlag}
+              onCreateProject={() => setIsCreateProjectOpen(true)}
+              onOpenAgentPrompt={() => {
+                if (selectedFlag) {
+                  setAgentPromptFlagName(selectedFlag.name);
+                  setIsAgentPromptOpen(true);
+                }
+              }}
               canCreateFlag={Boolean(projectId)}
             />
+
+            <CreateProjectDialog
+              open={isCreateProjectOpen}
+              onOpenChange={setIsCreateProjectOpen}
+              onProjectCreated={(project) => {
+                setProjectId(project.id);
+                setSelectedFlagId("");
+              }}
+            />
+
             <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
               <DialogContent className="create-panel max-w-md">
                 <DialogHeader className="text-left">
@@ -388,69 +455,5 @@ export default function Dashboard() {
         )}
       </div>
     </DashboardShell>
-  );
-}
-
-function ProjectEmptyState({
-  newProjectName,
-  setNewProjectName,
-  onSubmit,
-  isPending,
-  message,
-  isError,
-}: {
-  newProjectName: string;
-  setNewProjectName: (value: string) => void;
-  onSubmit: (event: FormEvent<HTMLFormElement>) => void;
-  isPending: boolean;
-  message: string;
-  isError: boolean;
-}) {
-  return (
-    <Card className="project-empty-state">
-      <div className="project-empty-icon">
-        <Flag className="h-6 w-6" />
-      </div>
-      <h1>Create your first project</h1>
-      <p>
-        Projects organize your feature flags and help manage releases across different environments.
-      </p>
-      {message && (
-        <Alert variant={isError ? "destructive" : "success"} className="mb-6">
-          {message}
-        </Alert>
-      )}
-      <form onSubmit={onSubmit} className="space-y-4">
-        <div>
-          <Label htmlFor="project-name" className="sr-only">
-            Project name
-          </Label>
-          <Input
-            id="project-name"
-            placeholder="Enter project name"
-            value={newProjectName}
-            onChange={(event: ChangeEvent<HTMLInputElement>) =>
-              setNewProjectName(event.target.value)
-            }
-            required
-            className="h-12 rounded-lg border-gray-300 text-base"
-          />
-        </div>
-        <Button
-          type="submit"
-          disabled={isPending}
-          className="h-12 w-full bg-orange-600 text-base font-semibold hover:bg-orange-700 focus:ring-orange-500/20"
-        >
-          {isPending ? (
-            <>
-              <LoaderCircle className="mr-2 h-5 w-5 animate-spin" />
-              Creating project...
-            </>
-          ) : (
-            "Create project"
-          )}
-        </Button>
-      </form>
-    </Card>
   );
 }

@@ -15,15 +15,15 @@
     "./label": "./src/ui/label.tsx",
     "./select": "./src/ui/select.tsx",
     "./separator": "./src/ui/separator.tsx",
-    "./table": "./src/ui/table.tsx",
     "./sheet": "./src/ui/sheet.tsx",
     "./sidebar": "./src/ui/sidebar.tsx",
     "./skeleton": "./src/ui/skeleton.tsx",
     "./sonner": "./src/ui/sonner.tsx",
     "./switch": "./src/ui/switch.tsx",
+    "./table": "./src/ui/table.tsx",
     "./tooltip": "./src/ui/tooltip.tsx",
-    "./utils": "./src/utils.ts",
-    "./use-mobile": "./src/use-mobile.ts"
+    "./use-mobile": "./src/use-mobile.ts",
+    "./utils": "./src/utils.ts"
   },
   "dependencies": {
     "class-variance-authority": "0.7.1",
@@ -32,6 +32,10 @@
     "radix-ui": "1.6.7",
     "sonner": "2.0.8",
     "tailwind-merge": "3.6.0"
+  },
+  "devDependencies": {
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.4"
   },
   "peerDependencies": {
     "react": "^18.0.0 || ^19.0.0",

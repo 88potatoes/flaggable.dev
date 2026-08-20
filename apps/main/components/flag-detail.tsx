@@ -4,7 +4,13 @@ import type { Flag } from "@flaggable/contracts";
 
 import { ConditionList } from "./condition-list";
 
-export function FlagDetail({ flag }: { flag?: Flag }) {
+export function FlagDetail({
+  flag,
+  onOpenAgentPrompt,
+}: {
+  flag?: Flag;
+  onOpenAgentPrompt?: () => void;
+}) {
   if (!flag) {
     return (
       <div className="flex h-64 items-center justify-center rounded-xl border border-dashed border-gray-300 bg-gradient-to-br from-gray-50 to-gray-100/50">
@@ -32,5 +38,5 @@ export function FlagDetail({ flag }: { flag?: Flag }) {
     );
   }
 
-  return <ConditionList flag={flag} />;
+  return <ConditionList flag={flag} onOpenAgentPrompt={onOpenAgentPrompt} />;
 }
