@@ -25,9 +25,18 @@ In `.env.local` (and add example keys to `.env.example`):
 ```env
 NEXT_PUBLIC_FLAGGABLE_BASE_URL="<BASE_URL>"
 NEXT_PUBLIC_FLAGGABLE_PUBLIC_KEY="<PUBLIC_KEY>"
+FLAGGABLE_INTERNAL_API_KEY="<INTERNAL_KEY>"
 ```
 
-### Step 2.2: Create Client Provider Component
+### Step 2.2: Generate TypeScript Types
+
+Run typegen to create `flaggable.d.ts` for full type inference and autocomplete:
+
+```bash
+npx flaggable typegen
+```
+
+### Step 2.3: Create Client Provider Component
 
 Create `components/flaggable-provider.tsx` (or `app/providers.tsx`):
 
@@ -54,7 +63,7 @@ export function FlaggableClientProvider({ children }: { children: ReactNode }) {
 }
 ```
 
-### Step 2.3: Wrap the Root Layout
+### Step 2.4: Wrap the Root Layout
 
 In `app/layout.tsx`:
 
@@ -78,7 +87,7 @@ export default function RootLayout({
 }
 ```
 
-### Step 2.4: Use Flags in UI Components
+### Step 2.5: Use Flags in UI Components
 
 In any client component (`"use client"`):
 
