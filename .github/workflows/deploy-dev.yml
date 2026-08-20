@@ -22,8 +22,68 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  deploy:
-    name: Build and deploy landing + dev main
+  changes:
+    name: Detect changed projects
+    runs-on: ubuntu-latest
+    outputs:
+      landing: ${{ steps.detect.outputs.landing }}
+      main: ${{ steps.detect.outputs.main }}
+    steps:
+      - name: Check out repository history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect changed projects
+        id: detect
+        env:
+          BASE_SHA: ${{ github.event.before }}
+          HEAD_SHA: ${{ github.sha }}
+          EVENT_NAME: ${{ github.event_name }}
+        shell: bash
+        run: |
+          # A manual run is an explicit request to deploy everything.
+          if [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
+            echo "landing=true" >> "$GITHUB_OUTPUT"
+            echo "main=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if [[ -z "$BASE_SHA" || "$BASE_SHA" =~ ^0+$ ]]; then
+            echo "No usable previous commit was provided; deploying both apps."
+            echo "landing=true" >> "$GITHUB_OUTPUT"
+            echo "main=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          changed_files="$(git diff --name-only "$BASE_SHA" "$HEAD_SHA")"
+          echo "Changed files:"
+          printf '%s\n' "$changed_files"
+
+          # Keep this intentionally conservative: shared packages and workspace
+          # dependency/config changes can affect either app, so deploy both.
+          if printf '%s\n' "$changed_files" | grep -Eq '^(packages/|package\.json$|pnpm-lock\.yaml$|pnpm-workspace\.yaml$|\.github/workflows/deploy-dev\.yml$)'; then
+            echo "landing=true" >> "$GITHUB_OUTPUT"
+            echo "main=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if printf '%s\n' "$changed_files" | grep -q '^apps/landing/'; then
+            echo "landing=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "landing=false" >> "$GITHUB_OUTPUT"
+          fi
+
+          if printf '%s\n' "$changed_files" | grep -q '^apps/main/'; then
+            echo "main=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "main=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  deploy-landing:
+    name: Build and deploy landing
+    needs: changes
+    if: needs.changes.outputs.landing == 'true'
     runs-on: ubuntu-latest
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -47,14 +107,44 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build both apps
-        run: pnpm run build
-
-      - name: Apply development database migrations
-        run: pnpm run db:migrate:dev
+      - name: Build landing app
+        run: pnpm run build:landing
 
       - name: Deploy landing worker
         run: pnpm run deploy:landing
+
+  deploy-main:
+    name: Build and deploy dev main
+    needs: changes
+    if: needs.changes.outputs.main == 'true'
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.14.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build main app
+        run: pnpm run build:main
+
+      - name: Apply development database migrations
+        run: pnpm run db:migrate:dev
 
       - name: Deploy main development worker
         run: pnpm run deploy:main

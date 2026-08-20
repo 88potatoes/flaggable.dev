@@ -25,7 +25,7 @@ The landing app links to the main app using `MAIN_APP_URL`. The local default is
 
 ## Build and deploy
 
-Development deploys run automatically through GitHub Actions on every relevant push to `main`. The workflow is `.github/workflows/deploy-dev.yml`; it deploys the landing Worker and the main development environment.
+Development deploys run automatically through GitHub Actions on every relevant push to `main`. The workflow is `.github/workflows/deploy-dev.yml`. It detects changed paths and deploys only the affected Worker; changes to `packages/`, workspace manifests, the lockfile, or the workflow itself conservatively deploy both Workers. A manual workflow run deploys both Workers.
 
 Production main deploys are manual through `.github/workflows/deploy-production.yml`. In GitHub Actions, choose **Deploy Cloudflare Production → Run workflow**. The production job uses the `production` GitHub environment, so you can require approval before it deploys.
 
