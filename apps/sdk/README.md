@@ -98,7 +98,6 @@ Context provider that manages the Flaggable client lifecycle, evaluation caching
   publicKey="pk_..."
   baseUrl="https://flaggable.dev"
   pollInterval={30000} // optional, in ms (default: 30000)
-  context={{ userId: "123", plan: "pro" }} // optional initial context
 >
   {children}
 </FlagProvider>
@@ -130,7 +129,7 @@ Accesses the underlying `Flaggable` core instance to manipulate context directly
 const client = useFlagClient();
 
 function handleLogin(user: { id: string; email: string }) {
-  client.setContext({ userId: user.id, email: user.email });
+  client.setEvaluationContext({ userId: user.id, email: user.email });
 }
 ```
 

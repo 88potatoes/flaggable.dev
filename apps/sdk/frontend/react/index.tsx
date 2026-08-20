@@ -24,9 +24,7 @@ export function FlagProvider(props: FlagProviderProps) {
         ? props.client
         : new Flaggable({
             publicKey: "publicKey" in props ? props.publicKey : "",
-            baseUrl: "baseUrl" in props ? props.baseUrl : "",
-            fetch: "fetch" in props ? props.fetch : undefined,
-            context: "context" in props ? props.context : undefined,
+            baseUrl: "baseUrl" in props ? props.baseUrl : undefined,
             pollInterval: "pollInterval" in props ? props.pollInterval : undefined,
           }),
     // Configuration is expected to be stable for the provider lifetime.

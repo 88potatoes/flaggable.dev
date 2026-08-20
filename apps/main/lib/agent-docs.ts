@@ -227,10 +227,8 @@ export function CheckoutButton() {
 ### \`<FlagProvider>\`
 Props:
 - \`publicKey\` (string, required): The public SDK key from your Flaggable project.
-- \`baseUrl\` (string, required): The Flaggable host URL (e.g. \`https://flaggable.dev\`).
+- \`baseUrl\` (string, optional): The Flaggable host URL (default: \`https://flaggable.dev\`).
 - \`pollInterval\` (number, optional): Polling interval in ms (default: \`30000\`).
-- \`context\` (EvaluationContext, optional): Global targeting context (user ID, tenant, role).
-- \`fetch\` (FetchLike, optional): Custom fetch implementation.
 
 ### \`useFlag<T>(flagName: string, fallbackValue: T, context?: EvaluationContext): T\`
 Returns the reactive evaluation for the given flag name. Automatically re-evaluates when polling receives new evaluations.
@@ -239,7 +237,7 @@ Returns the reactive evaluation for the given flag name. Automatically re-evalua
 Returns \`{ data: EvaluationResponse | null, error: Error | null, isLoading: boolean, refresh: () => Promise<EvaluationResponse> }\`.
 
 ### \`useFlagClient(): Flaggable\`
-Returns the underlying \`Flaggable\` client instance. Use \`client.setContext({ ... })\` or \`client.refresh()\` directly.
+Returns the underlying \`Flaggable\` client instance. Use \`client.setEvaluationContext({ ... })\` or \`client.refresh()\` directly.
 
 ---
 
@@ -249,10 +247,9 @@ Flaggable automatically manages an anonymous device identifier in browser cookie
 
 To target specific users, roles, or attributes:
 \`\`\`tsx
-// Pass context at provider level
-<FlagProvider publicKey={key} baseUrl={url} context={{ env: "production", plan: "pro" }}>
-  {children}
-</FlagProvider>
+// Set evaluation context on client
+const client = useFlagClient();
+client.setEvaluationContext({ userId: user.id, role: user.role });
 
 // Or override per flag evaluation
 const isBetaUser = useFlag("beta-ui", false, { userId: user.id, role: user.role });

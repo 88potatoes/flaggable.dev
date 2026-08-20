@@ -55,23 +55,21 @@ export class SdkApiError extends SdkError {
   }
 }
 
+export const DEFAULT_BASE_URL = "https://flaggable.dev";
+export const DEFAULT_POLL_INTERVAL = 30_000;
+
 export type FlaggableOptions = {
   publicKey: string;
-  baseUrl: string;
-  fetch?: FetchLike;
-  context?: EvaluationContext;
+  baseUrl?: string;
   pollInterval?: number;
 };
 
 export type ContextChange = (context: EvaluationContext) => void;
 export type EvaluationChange = (response: EvaluationResponse) => void;
 
-const DEFAULT_POLL_INTERVAL = 30_000;
-
 export class Flaggable {
   readonly publicKey: string;
   readonly baseUrl: string;
-  private readonly request: FetchLike;
   private readonly pollInterval: number;
   private context: EvaluationContext;
   private cached: EvaluationResponse | null = null;
@@ -81,12 +79,10 @@ export class Flaggable {
   private refreshPromise: Promise<EvaluationResponse> | null = null;
 
   constructor(options: FlaggableOptions) {
-    if (!options.publicKey.trim()) throw new SdkConfigurationError("publicKey is required.");
-    if (!options.baseUrl.trim()) throw new SdkConfigurationError("baseUrl is required.");
+    if (!options.publicKey?.trim()) throw new SdkConfigurationError("publicKey is required.");
     this.publicKey = options.publicKey;
-    this.baseUrl = options.baseUrl.replace(/\/$/, "");
-    this.request = options.fetch ?? globalThis.fetch.bind(globalThis);
-    this.context = { ...getAnonymousContext(), ...options.context };
+    this.baseUrl = (options.baseUrl ?? DEFAULT_BASE_URL).replace(/\/$/, "");
+    this.context = getAnonymousContext();
     this.pollInterval = options.pollInterval ?? DEFAULT_POLL_INTERVAL;
   }
 
@@ -94,14 +90,17 @@ export class Flaggable {
     return { ...this.context };
   }
 
-  async evaluate(context: EvaluationContext = this.context): Promise<EvaluationResponse> {
-    const nextContext = { ...this.context, ...context };
-    if (context !== this.context) this.setContext(nextContext);
+  getEvaluationContext(): EvaluationContext {
+    return this.currentContext;
+  }
+
+  async evaluate(context?: EvaluationContext): Promise<EvaluationResponse> {
+    const effectiveContext = context ? { ...this.context, ...context } : this.context;
     if (this.refreshPromise) return this.refreshPromise;
-    this.refreshPromise = this.request(`${this.baseUrl}/api/v1/evaluate`, {
+    this.refreshPromise = fetch(`${this.baseUrl}/api/v1/evaluate`, {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ publicKey: this.publicKey, context: nextContext }),
+      body: JSON.stringify({ publicKey: this.publicKey, context: effectiveContext }),
     })
       .then(async (response) => {
         const body = await readResponse(response);
@@ -135,7 +134,7 @@ export class Flaggable {
   }
 
   async get<T>(flagName: string, fallbackValue: T, context?: EvaluationContext): Promise<T> {
-    const response = await this.evaluate(context ?? this.context);
+    const response = await this.evaluate(context);
     const evaluation = response.evaluations.find((item) => item.name === flagName);
     return evaluation?.value === null || evaluation?.value === undefined
       ? fallbackValue
@@ -143,10 +142,10 @@ export class Flaggable {
   }
 
   async refresh(): Promise<EvaluationResponse> {
-    return this.evaluate(this.context);
+    return this.evaluate();
   }
 
-  setContext(context: EvaluationContext): void {
+  setEvaluationContext(context: EvaluationContext): void {
     this.context = { ...getAnonymousContext(), ...context };
     setAnonymousContext(this.context);
     this.contextListeners.forEach((listener) => listener(this.currentContext));
@@ -231,4 +230,3 @@ function isEvaluationResponse(value: unknown): value is EvaluationResponse {
 }
 
 export const createFlaggable = (options: FlaggableOptions): Flaggable => new Flaggable(options);
-export { DEFAULT_POLL_INTERVAL };
