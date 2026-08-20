@@ -1,5 +1,6 @@
 packages:
   - "apps/*"
+  - "apps/testing/*"
   - "packages/*"
 
 # Pre-approve build scripts for the packages C3 itself installs that need
@@ -8,4 +9,5 @@ packages:
 # ERR_PNPM_IGNORED_BUILDS.
 allowBuilds:
   esbuild: true
+  sharp: true
   workerd: true
