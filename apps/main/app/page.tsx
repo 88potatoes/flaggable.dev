@@ -267,7 +267,7 @@ export default function Dashboard() {
                   </div>
                 )}
               </div>
-              <FlagDetail flag={selectedFlag} projectId={projectId} />
+              <FlagDetail flag={selectedFlag} />
             </div>
             <CommandPalette
               open={isCommandOpen}
