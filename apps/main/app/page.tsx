@@ -39,6 +39,7 @@ import {
   useQueryFlags,
 } from "@/slices/flags/queries";
 import { useQueryProjects } from "@/slices/projects/queries";
+import { useQueryOnboarding } from "@/slices/onboarding/queries";
 import { setActiveProjectId } from "@/slices/http";
 import { useQuerySchemas } from "@/slices/value-schemas/queries";
 import { toast } from "sonner";
@@ -63,7 +64,9 @@ export default function Dashboard() {
   const [newFlagName, setNewFlagName] = useState("");
   const [error, setError] = useState("");
   const projectsQuery = useQueryProjects();
+  const onboardingQuery = useQueryOnboarding();
   const projects = projectsQuery.data ?? [];
+  const hasCompletedOnboarding = onboardingQuery.data?.status === "completed";
   const schemasQuery = useQuerySchemas(projectId);
   const debouncedQuery = useDebouncedValue(query);
   const flagsQuery = useQueryFlags(projectId, debouncedQuery);
@@ -255,7 +258,7 @@ export default function Dashboard() {
           </div>
         ) : null}
 
-        {projectsQuery.isLoading ? (
+        {projectsQuery.isLoading || onboardingQuery.isLoading ? (
           <Card className="project-empty-state" aria-busy="true">
             <Skeleton className="h-6 w-32" />
             <Skeleton className="h-4 w-full max-w-sm" />
@@ -275,7 +278,7 @@ export default function Dashboard() {
             <Skeleton className="h-4 w-full max-w-sm" />
             <Skeleton className="h-8 w-full" />
           </Card>
-        ) : flags.length === 0 || showManualOnboarding ? (
+        ) : (flags.length === 0 && !hasCompletedOnboarding) || showManualOnboarding ? (
           <OnboardingWizard
             initialStep="flag"
             projectId={projectId}

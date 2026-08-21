@@ -5,14 +5,10 @@ import {
   Check,
   ChevronRight,
   Copy,
-  ExternalLink,
-  FileCode,
   Flag as FlagIcon,
   FolderPlus,
-  KeyRound,
   LoaderCircle,
   Sparkles,
-  Terminal,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -26,6 +22,7 @@ import { Switch } from "@flaggable/ui/switch";
 import { generateAgentPrompt, generateEnvSnippet } from "@/lib/agent-docs";
 import { useMutateCreateFlag } from "@/slices/flags/queries";
 import { useMutateCreateProject, type CreatedProject } from "@/slices/projects/queries";
+import { useMutateAcknowledgeSdkSetup } from "@/slices/onboarding/queries";
 import { useQuerySchemas } from "@/slices/value-schemas/queries";
 import type { Flag, Project } from "@flaggable/contracts";
 
@@ -71,6 +68,7 @@ export function OnboardingWizard({
   const schemasQuery = useQuerySchemas(projectId);
   const createProject = useMutateCreateProject();
   const createFlag = useMutateCreateFlag(projectId);
+  const acknowledgeSdkSetup = useMutateAcknowledgeSdkSetup();
 
   const baseUrl = typeof window !== "undefined" ? window.location.origin : "https://flaggable.dev";
 
@@ -140,8 +138,6 @@ export function OnboardingWizard({
   const targetFlagName = createdFlag?.name || newFlagName || "show-promo-banner";
   const envPublicKey = publicKey || "pk_your_project_public_key";
   const envInternalKey = internalKey || "ik_your_internal_api_key";
-  const cleanBaseUrl = baseUrl.replace(/\/$/, "");
-
   const rawEnvSnippet = generateEnvSnippet({
     baseUrl,
     publicKey: envPublicKey,
@@ -540,10 +536,20 @@ export function OnboardingWizard({
             <div className="pt-2">
               <Button
                 variant="outline"
-                onClick={() => onComplete?.(createdFlag?.id)}
+                onClick={() => {
+                  acknowledgeSdkSetup.mutate(undefined, {
+                    onSuccess: () => onComplete?.(createdFlag?.id),
+                    onError: () => {
+                      toast.error("Could not save onboarding progress", {
+                        description: "Please try again.",
+                      });
+                    },
+                  });
+                }}
+                disabled={acknowledgeSdkSetup.isPending}
                 className="w-full h-11 border-zinc-300 font-medium hover:bg-zinc-100"
               >
-                Go to Dashboard
+                {acknowledgeSdkSetup.isPending ? "Saving…" : "Go to Dashboard"}
                 <ChevronRight className="ml-1 size-4" />
               </Button>
             </div>

@@ -50,6 +50,13 @@
       "when": 1787302346404,
       "tag": "0006_chilly_moira_mactaggert",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1787323012852,
+      "tag": "0007_motionless_redwing",
+      "breakpoints": true
     }
   ]
 }
