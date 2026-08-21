@@ -106,15 +106,17 @@ export function FlagBrowser({
   return (
     <div
       ref={containerRef}
-      className="flex h-full w-full flex-col bg-white focus:outline focus:outline-2 focus:outline-[rgba(240,100,69,0.2)] focus:-outline-offset-2 overflow-hidden"
+      className="flex h-full w-full flex-col overflow-hidden bg-[var(--surface-1)] text-[var(--text-primary)] focus:outline focus:outline-2 focus:outline-[var(--accent)] focus:-outline-offset-2"
       onKeyDown={handleKeyDown}
       tabIndex={-1}
     >
-      <div className="border-b border-sidebar-border bg-gradient-to-r from-white/80 to-gray-50/60 p-3">
+      <div className="border-b border-[var(--line)] bg-[var(--surface-1)] p-4">
         <div className="mb-3">
-          <h2 className="text-lg font-semibold tracking-tight text-gray-900">Feature Flags</h2>
+          <h2 className="text-lg font-semibold tracking-tight text-[var(--text-primary)]">
+            Feature Flags
+          </h2>
           <div className="flex items-center justify-between">
-            <div className="text-xs text-gray-500">
+            <div className="text-xs text-[var(--text-muted)]">
               {flags.length} flag{flags.length !== 1 ? "s" : ""}
             </div>
           </div>
@@ -122,8 +124,8 @@ export function FlagBrowser({
         <Label htmlFor="flag-search" className="sr-only">
           Search flags
         </Label>
-        <div className="relative flex items-center gap-2 rounded-md border border-gray-200 px-3 py-2 transition-colors focus-within:border-gray-300 focus-within:ring-1 focus-within:ring-gray-200">
-          <Search className="h-4 w-4 text-gray-400" aria-hidden="true" />
+        <div className="relative flex items-center gap-2 rounded-md border border-[var(--line)] bg-[var(--surface-0)] px-3 py-2 transition-colors focus-within:border-[var(--accent)] focus-within:ring-1 focus-within:ring-[var(--accent-soft)]">
+          <Search className="h-4 w-4 text-[var(--text-subtle)]" aria-hidden="true" />
           <Input
             ref={searchInputRef}
             id="flag-search"
@@ -151,12 +153,12 @@ export function FlagBrowser({
         ) : flags.length === 0 ? (
           <div className="py-8 text-center">
             <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-gray-100">
-              <Search className="h-5 w-5 text-gray-400" />
+              <Search className="h-5 w-5 text-[var(--text-subtle)]" />
             </div>
-            <p className="text-sm font-medium text-gray-900">
+            <p className="text-sm font-medium text-[var(--text-primary)]">
               {search ? "No matching flags" : "No flags yet"}
             </p>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-[var(--text-muted)]">
               {search
                 ? "Try adjusting your search terms"
                 : "Create your first feature flag to get started"}
@@ -169,8 +171,8 @@ export function FlagBrowser({
               key={flag.id}
               className={`relative flex w-full items-center justify-between gap-2 rounded-lg border p-2.5 text-left transition-all duration-150 ease-out focus:outline-none ${
                 selectedFlagId === flag.id
-                  ? "border-[rgba(240,100,69,0.24)] bg-gradient-to-br from-orange-50 to-orange-50/50 shadow-sm before:absolute before:-left-2 before:top-1/2 before:h-[70%] before:w-0.5 before:-translate-y-1/2 before:rounded-r before:bg-gradient-to-b before:from-[var(--accent)] before:to-[var(--accent-deep)] before:content-['']"
-                  : "border-transparent hover:border-[rgba(240,100,69,0.12)] hover:bg-gradient-to-br hover:from-gray-50 hover:to-gray-50/50 hover:-translate-y-px"
+                  ? "border-[var(--accent)] bg-[var(--accent-soft)] before:absolute before:-left-2 before:top-1/2 before:h-[70%] before:w-0.5 before:-translate-y-1/2 before:bg-[var(--accent)] before:content-['']"
+                  : "border-transparent hover:border-[var(--line)] hover:bg-[var(--surface-2)]"
               }`}
               aria-pressed={selectedFlagId === flag.id}
               onClick={() => onSelect(flag.id)}
@@ -187,8 +189,10 @@ export function FlagBrowser({
                   {flag.name[0]?.toUpperCase() || "F"}
                 </div>
                 <span className="grid min-w-0 gap-1 text-left">
-                  <strong className="truncate font-semibold text-gray-900">{flag.name}</strong>
-                  <span className="truncate text-xs text-gray-500">
+                  <strong className="truncate font-semibold text-[var(--text-primary)]">
+                    {flag.name}
+                  </strong>
+                  <span className="truncate text-xs text-[var(--text-muted)]">
                     {flag.description ?? "No description yet."}
                   </span>
                 </span>
@@ -198,8 +202,8 @@ export function FlagBrowser({
                   variant={flag.enabled ? "default" : "secondary"}
                   className={
                     flag.enabled
-                      ? "bg-green-100 text-green-800 hover:bg-green-100"
-                      : "bg-gray-100 text-gray-600 hover:bg-gray-100"
+                      ? "bg-[var(--accent-soft)] text-[var(--accent)] hover:bg-[var(--accent-soft)]"
+                      : "bg-[var(--surface-2)] text-[var(--text-muted)] hover:bg-[var(--surface-2)]"
                   }
                 >
                   {flag.enabled ? "On" : "Off"}
@@ -212,10 +216,10 @@ export function FlagBrowser({
         {isFetchingNextPage && (
           <div className="flex items-center justify-center py-4">
             <LoaderCircle
-              className="h-5 w-5 animate-spin text-gray-400"
+              className="h-5 w-5 animate-spin text-[var(--accent)]"
               aria-label="Loading more flags"
             />
-            <span className="ml-2 text-sm text-gray-500">Loading more flags...</span>
+            <span className="ml-2 text-sm text-[var(--text-muted)]">Loading more flags...</span>
           </div>
         )}
       </div>

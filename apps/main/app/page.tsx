@@ -182,15 +182,17 @@ export default function Dashboard() {
         {selectedFlag && flags.length > 0 && !showManualOnboarding ? (
           <div className="mb-8">
             <div className="flex items-center gap-3 mb-2 flex-wrap">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-orange-500 to-red-600 text-sm font-bold text-white">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--accent)] text-sm font-bold text-white">
                 {selectedFlag.name[0]?.toUpperCase() || "F"}
               </div>
-              <h1 className="text-2xl font-bold tracking-tight text-gray-900">
+              <h1 className="text-2xl font-semibold tracking-tight text-[var(--text-primary)]">
                 {selectedFlag.name}
               </h1>
               <div
                 className={`px-2 py-1 rounded text-xs font-semibold ${
-                  selectedFlag.enabled ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-600"
+                  selectedFlag.enabled
+                    ? "bg-[var(--accent-soft)] text-[var(--accent)]"
+                    : "bg-[var(--surface-2)] text-[var(--text-muted)]"
                 }`}
               >
                 {selectedFlag.enabled ? "Active" : "Inactive"}
@@ -203,7 +205,7 @@ export default function Dashboard() {
                     setAgentPromptFlagName(selectedFlag.name);
                     setIsAgentPromptOpen(true);
                   }}
-                  className="gap-1.5 border-orange-200 bg-orange-50 text-orange-700 hover:bg-orange-100 font-medium"
+                  className="gap-1.5 border-[var(--line)] bg-[var(--accent-soft)] text-[var(--accent)] hover:bg-[var(--surface-2)] font-medium"
                 >
                   <Sparkles className="size-3.5 text-orange-600" />
                   AI Setup Prompt
@@ -221,7 +223,7 @@ export default function Dashboard() {
                     <Button
                       variant="ghost"
                       size="icon-sm"
-                      className="text-gray-500 hover:text-gray-900"
+                      className="text-[var(--text-muted)] hover:text-[var(--text-primary)]"
                       aria-label={`More actions for ${selectedFlag.name}`}
                     >
                       <MoreHorizontal className="size-4" />
@@ -251,8 +253,10 @@ export default function Dashboard() {
           </div>
         ) : projects.length > 0 && flags.length > 0 ? (
           <div className="mb-12">
-            <h1 className="text-3xl font-bold tracking-tight text-gray-900">Feature Flags</h1>
-            <p className="mt-2 text-base text-gray-600">
+            <h1 className="text-3xl font-semibold tracking-tight text-[var(--text-primary)]">
+              Feature Flags
+            </h1>
+            <p className="mt-2 text-base text-[var(--text-muted)]">
               Control feature rollouts and manage your application's behavior
             </p>
           </div>
@@ -295,7 +299,7 @@ export default function Dashboard() {
                 variant={
                   error || projectsQuery.error || flagsQuery.error ? "destructive" : "success"
                 }
-                className="mb-8 flex items-center justify-between rounded-lg border shadow-sm"
+                className="mb-8 flex items-center justify-between rounded-lg border border-[var(--line)] bg-[var(--surface-1)]"
               >
                 <span className="font-medium">
                   {error || projectsQuery.error?.message || flagsQuery.error?.message}
@@ -319,7 +323,7 @@ export default function Dashboard() {
               {/* Mobile flag browser - only show on small screens when we have flags */}
               <div className="mb-8 block md:hidden">
                 {flags.length > 0 && (
-                  <div className="rounded-xl border bg-white p-4 shadow-sm">
+                  <div className="rounded-xl border border-[var(--line)] bg-[var(--surface-1)] p-4">
                     <h3 className="mb-4 text-lg font-semibold">Select Flag</h3>
                     <div className="max-h-48 space-y-2 overflow-y-auto">
                       {flags.slice(0, 5).map((flag) => (
@@ -328,7 +332,7 @@ export default function Dashboard() {
                           onClick={() => setSelectedFlagId(flag.id)}
                           className={`flex w-full items-center gap-3 rounded-lg p-3 text-left transition-colors ${
                             selectedFlag?.id === flag.id
-                              ? "bg-orange-50 ring-1 ring-orange-200"
+                              ? "bg-[var(--accent-soft)] ring-1 ring-[var(--accent)]"
                               : "hover:bg-gray-50"
                           }`}
                         >
@@ -343,7 +347,9 @@ export default function Dashboard() {
                         </button>
                       ))}
                       {flags.length > 5 && (
-                        <p className="text-xs text-gray-500">+ {flags.length - 5} more flags</p>
+                        <p className="text-xs text-[var(--text-subtle)]">
+                          + {flags.length - 5} more flags
+                        </p>
                       )}
                     </div>
                   </div>
@@ -395,7 +401,7 @@ export default function Dashboard() {
               <DialogContent className="create-panel max-w-md">
                 <DialogHeader className="text-left">
                   <DialogTitle className="text-xl font-semibold">Create a new flag</DialogTitle>
-                  <DialogDescription className="text-gray-600">
+                  <DialogDescription className="text-[var(--text-muted)]">
                     Feature flags need a value schema to ensure consistent results across
                     environments.
                   </DialogDescription>
@@ -420,7 +426,7 @@ export default function Dashboard() {
                       <div>
                         <Label
                           htmlFor="dashboard-new-flag-name"
-                          className="text-sm font-medium text-gray-900"
+                          className="text-sm font-medium text-[var(--text-primary)]"
                         >
                           Flag name
                         </Label>
@@ -434,7 +440,7 @@ export default function Dashboard() {
                           placeholder="e.g., checkout-redesign"
                           className="mt-2 block w-full rounded-md"
                         />
-                        <p className="mt-1 text-xs text-gray-500">
+                        <p className="mt-1 text-xs text-[var(--text-muted)]">
                           Choose a descriptive name that identifies the feature
                         </p>
                       </div>
@@ -443,7 +449,7 @@ export default function Dashboard() {
                       <Button
                         type="submit"
                         disabled={createFlag.isPending}
-                        className="w-full bg-orange-600 hover:bg-orange-700 focus:ring-orange-500/20"
+                        className="w-full bg-[var(--accent)] hover:bg-[var(--accent-hover)] focus:ring-[var(--accent-soft)]"
                       >
                         {createFlag.isPending ? (
                           <>

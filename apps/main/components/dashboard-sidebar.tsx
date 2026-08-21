@@ -84,7 +84,7 @@ export function DashboardSidebar({
               <Select value={projectId} onValueChange={onProjectChange}>
                 <SelectTrigger
                   aria-label="Select project"
-                  className={`h-12 w-full border-0 bg-transparent shadow-none hover:bg-sidebar-accent ${
+                  className={`h-12 w-full border-0 bg-transparent shadow-none hover:bg-[var(--surface-2)] ${
                     isCollapsed ? "px-0 [&>svg]:hidden" : "px-2"
                   }`}
                 >
@@ -93,7 +93,7 @@ export function DashboardSidebar({
                       isCollapsed ? "justify-center" : "gap-2"
                     }`}
                   >
-                    <span className="flex size-8 shrink-0 items-center justify-center rounded-md border bg-background text-xs font-semibold">
+                    <span className="flex size-8 shrink-0 items-center justify-center rounded-md border border-[var(--line)] bg-[var(--surface-2)] text-xs font-semibold text-[var(--text-primary)]">
                       {(project?.name?.[0] ?? "P").toUpperCase()}
                     </span>
                     {!isCollapsed && (
@@ -137,7 +137,7 @@ export function DashboardSidebar({
               <SidebarMenu>
                 <SidebarMenuItem>
                   <SidebarMenuButton
-                    className="h-9 bg-[var(--accent)] text-white shadow-sm hover:bg-[var(--accent-deep)] hover:text-white"
+                    className="h-9 bg-[var(--accent)] text-white hover:bg-[var(--accent-hover)] hover:text-white"
                     tooltip="New flag"
                     onClick={onNewFlag}
                   >
@@ -155,7 +155,7 @@ export function DashboardSidebar({
               <SidebarMenu>
                 <SidebarMenuItem>
                   <SidebarMenuButton
-                    className="h-8 text-xs text-sidebar-foreground/70"
+                    className="h-8 text-xs text-[var(--text-muted)] hover:bg-[var(--surface-2)] hover:text-[var(--text-primary)]"
                     tooltip="Command menu (⌘K)"
                     onClick={onOpenCommandPalette}
                   >

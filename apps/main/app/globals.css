@@ -1236,10 +1236,7 @@ input:focus-visible {
   font-weight: 650;
   letter-spacing: -0.06em;
   line-height: 1.1;
-  background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--text-primary);
 }
 .project-empty-state p {
   margin: 14px 0 32px;
@@ -1604,5 +1601,190 @@ input:focus-visible {
   }
   html {
     @apply font-sans;
+  }
+}
+
+/* Product UI tokens: one accent, one dark canvas, and an 8px rhythm. */
+:root {
+  --surface-0: #0f141a;
+  --surface-1: #151c24;
+  --surface-2: #1c2631;
+  --text-primary: #f1f4f6;
+  --text-muted: #a7b2be;
+  --text-subtle: #738294;
+  --line: #293542;
+  --accent: #f06445;
+  --accent-hover: #ff7a59;
+  --accent-soft: rgba(240, 100, 69, 0.14);
+  --background: var(--surface-0);
+  --foreground: var(--text-primary);
+  --card: var(--surface-1);
+  --card-foreground: var(--text-primary);
+  --popover: var(--surface-2);
+  --popover-foreground: var(--text-primary);
+  --primary: var(--accent);
+  --primary-foreground: #fff8f5;
+  --secondary: var(--surface-2);
+  --secondary-foreground: var(--text-primary);
+  --muted: var(--surface-2);
+  --muted-foreground: var(--text-muted);
+  --accent-foreground: #fff8f5;
+  --border: var(--line);
+  --input: var(--line);
+  --ring: var(--accent);
+  --sidebar: var(--surface-1);
+  --sidebar-foreground: var(--text-primary);
+  --sidebar-primary: var(--accent);
+  --sidebar-primary-foreground: #fff8f5;
+  --sidebar-accent: var(--surface-2);
+  --sidebar-accent-foreground: var(--text-primary);
+  --sidebar-border: var(--line);
+  --sidebar-ring: var(--accent);
+  --shadow: 0 8px 24px rgba(3, 7, 12, 0.18);
+  --shadow-small: 0 4px 12px rgba(3, 7, 12, 0.14);
+}
+
+/* Dark operate surface: quiet hierarchy, soft dividers, no decorative depth. */
+body {
+  background: var(--surface-0);
+  color: var(--text-primary);
+}
+::selection {
+  background: var(--accent);
+  color: #fff8f5;
+}
+
+[data-slot="sidebar-wrapper"],
+[data-slot="sidebar-inset"],
+[data-slot="sidebar-gap"],
+[data-slot="sidebar-container"],
+.app-shell {
+  background: var(--surface-0) !important;
+  color: var(--text-primary);
+}
+[data-slot="sidebar"] [data-slot="sidebar-inner"],
+[data-slot="sidebar-content"],
+[data-slot="sidebar-header"],
+[data-slot="sidebar-footer"] {
+  background: var(--surface-1) !important;
+  color: var(--text-primary);
+}
+[data-slot="sidebar"] {
+  border-color: var(--line) !important;
+}
+[data-slot="sidebar-menu-button"] {
+  color: var(--text-muted);
+  transition:
+    background-color 160ms ease,
+    color 160ms ease;
+}
+[data-slot="sidebar-menu-button"]:hover,
+[data-slot="sidebar-menu-button"][data-active="true"] {
+  background: var(--surface-2) !important;
+  color: var(--text-primary) !important;
+}
+[data-slot="sidebar-menu-button"][data-active="true"] svg,
+[data-slot="sidebar-menu-button"]:hover svg {
+  color: var(--accent);
+}
+[data-slot="sidebar-menu-button"] kbd {
+  border-color: var(--line) !important;
+  background: var(--surface-2) !important;
+  color: var(--text-subtle) !important;
+}
+[data-slot="sidebar-rail"] {
+  border-color: var(--line);
+}
+
+/* Normalize legacy utility colors inside the authenticated product surface. */
+[data-slot="sidebar-inset"] .text-gray-900,
+[data-slot="sidebar-inset"] .text-zinc-900,
+[data-slot="sidebar-inset"] .text-gray-800,
+[data-slot="sidebar-inset"] .text-zinc-800,
+[data-slot="sidebar-inset"] .text-gray-700,
+[data-slot="sidebar-inset"] .text-zinc-700 {
+  color: var(--text-primary) !important;
+}
+[data-slot="sidebar-inset"] .text-gray-600,
+[data-slot="sidebar-inset"] .text-zinc-600,
+[data-slot="sidebar-inset"] .text-gray-500,
+[data-slot="sidebar-inset"] .text-zinc-500,
+[data-slot="sidebar-inset"] .text-gray-400,
+[data-slot="sidebar-inset"] .text-zinc-400,
+[data-slot="sidebar-inset"] .text-muted-foreground {
+  color: var(--text-muted) !important;
+}
+[data-slot="sidebar-inset"] .bg-white,
+[data-slot="sidebar-inset"] .bg-zinc-50,
+[data-slot="sidebar-inset"] .bg-gray-50,
+[data-slot="sidebar-inset"] .bg-gray-100,
+[data-slot="sidebar-inset"] .bg-muted {
+  background: var(--surface-1) !important;
+}
+[data-slot="sidebar-inset"] .border-gray-200,
+[data-slot="sidebar-inset"] .border-gray-300,
+[data-slot="sidebar-inset"] .border-zinc-200,
+[data-slot="sidebar-inset"] .border-zinc-300 {
+  border-color: var(--line) !important;
+}
+[data-slot="sidebar-inset"] .bg-orange-50,
+[data-slot="sidebar-inset"] .bg-orange-100,
+[data-slot="sidebar-inset"] .bg-green-50,
+[data-slot="sidebar-inset"] .bg-green-100,
+[data-slot="sidebar-inset"] .bg-blue-100 {
+  background: var(--accent-soft) !important;
+}
+[data-slot="sidebar-inset"] .text-orange-600,
+[data-slot="sidebar-inset"] .text-orange-700,
+[data-slot="sidebar-inset"] .text-orange-800,
+[data-slot="sidebar-inset"] .text-orange-900,
+[data-slot="sidebar-inset"] .text-green-600,
+[data-slot="sidebar-inset"] .text-green-700,
+[data-slot="sidebar-inset"] .text-green-800,
+[data-slot="sidebar-inset"] .text-blue-900 {
+  color: var(--accent) !important;
+}
+[data-slot="sidebar-inset"] .bg-orange-600,
+[data-slot="sidebar-inset"] .bg-green-600,
+[data-slot="sidebar-inset"] .bg-red-600 {
+  background: var(--accent) !important;
+}
+[data-slot="sidebar-inset"] button:hover {
+  border-color: var(--line);
+}
+[data-slot="sidebar-inset"] .shadow,
+[data-slot="sidebar-inset"] .shadow-sm,
+[data-slot="sidebar-inset"] .shadow-md,
+[data-slot="sidebar-inset"] .shadow-lg {
+  box-shadow: none !important;
+}
+
+/* Reusable elevation and state language for the flag workspace. */
+.flag-detail-container,
+.project-empty-state,
+.flags-panel,
+.activity-panel {
+  color: var(--text-primary);
+}
+.project-empty-state,
+.flags-panel,
+.activity-panel,
+.flag-detail-container > * {
+  border-color: var(--line) !important;
+  background: var(--surface-1) !important;
+  box-shadow: var(--shadow-small) !important;
+}
+.search-field:focus-within,
+[data-slot="sidebar-inset"] input:focus-visible,
+[data-slot="sidebar-inset"] button:focus-visible,
+[data-slot="sidebar-inset"] a:focus-visible {
+  outline-color: var(--accent) !important;
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 3px var(--accent-soft) !important;
+}
+
+@media (max-width: 720px) {
+  .dashboard-inner {
+    padding-top: 32px;
   }
 }
