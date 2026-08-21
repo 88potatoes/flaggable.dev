@@ -192,10 +192,15 @@ export function DashboardSidebar({
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton className={navButton} tooltip="Public keys" asChild>
-                  <Link href="/public-keys" title="Public keys">
+                <SidebarMenuButton
+                  className={navButton}
+                  tooltip="API Keys"
+                  asChild
+                  isActive={pathname === "/api-keys" || pathname === "/public-keys"}
+                >
+                  <Link href="/api-keys" title="API Keys">
                     <KeyRound />
-                    {!isCollapsed && <span>Public keys</span>}
+                    {!isCollapsed && <span>API Keys</span>}
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
