@@ -9,6 +9,7 @@ import { ApiKeysPanel } from "@/components/api-keys-panel";
 import { CreateProjectDialog } from "@/components/create-project-dialog";
 import { DashboardShell } from "@/components/dashboard-sidebar";
 import { useQueryProjects } from "@/slices/projects/queries";
+import { setActiveProjectId } from "@/slices/http";
 
 export default function ApiKeysPage() {
   const projectsQuery = useQueryProjects();
@@ -19,6 +20,10 @@ export default function ApiKeysPage() {
   useEffect(() => {
     if (!projectId && projects[0]) setProjectId(projects[0].id);
   }, [projectId, projects]);
+
+  useEffect(() => {
+    setActiveProjectId(projectId || null);
+  }, [projectId]);
 
   if (projectsQuery.isLoading) {
     return (

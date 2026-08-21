@@ -104,6 +104,7 @@ export const conditionTable = sqliteTable(
   "condition",
   {
     id: text("id").primaryKey(),
+    projectId: text("project_id").notNull(),
     flagId: text("flag_id").notNull(),
     position: integer("position").notNull(),
     enabled: integer("enabled", { mode: "boolean" }).notNull(),
@@ -117,6 +118,12 @@ export const conditionTable = sqliteTable(
   (table) => [
     unique("condition_flag_position_unique").on(table.flagId, table.position),
     index("condition_flag_id_idx").on(table.flagId),
+    index("condition_project_id_idx").on(table.projectId),
+    foreignKey({
+      columns: [table.projectId],
+      foreignColumns: [projectTable.id],
+      name: "condition_project_id_fk",
+    }),
     foreignKey({
       columns: [table.flagId],
       foreignColumns: [flagTable.id],

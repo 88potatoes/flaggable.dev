@@ -71,6 +71,7 @@ export class ConditionService {
     const timestamp = new Date();
     const record: NewConditionRecord = {
       id: uuidv7(),
+      projectId: flag.projectId,
       flagId,
       position: values.position,
       enabled: values.enabled ?? true,

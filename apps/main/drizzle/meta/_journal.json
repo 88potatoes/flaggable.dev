@@ -43,6 +43,13 @@
       "when": 1787237412150,
       "tag": "0005_fantastic_red_shift",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1787302346404,
+      "tag": "0006_chilly_moira_mactaggert",
+      "breakpoints": true
     }
   ]
 }

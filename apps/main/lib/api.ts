@@ -1,5 +1,6 @@
 import { auth0 } from "./auth0";
 import { z } from "zod";
+import { DrizzleProjectRepository, type ProjectRepository } from "@/slices/projects/repo";
 
 export class ApiError extends Error {
   constructor(
@@ -20,6 +21,36 @@ export async function requireUserId(): Promise<string> {
   }
 
   return session.user.sub;
+}
+
+export async function requireProjectScope(
+  request: Request,
+  pathProjectId?: string,
+  projects: ProjectRepository = new DrizzleProjectRepository(),
+) {
+  const ownerId = await requireUserId();
+  const headerProjectId = request.headers.get("x-flaggable-project-id")?.trim();
+  const url = new URL(request.url);
+  const queryProjectId = url.searchParams.get("projectId")?.trim();
+
+  const projectId = pathProjectId || headerProjectId || queryProjectId;
+
+  if (!projectId) {
+    throw new ApiError(
+      400,
+      "Project context required via 'X-Flaggable-Project-Id' header or route parameter.",
+    );
+  }
+
+  const project = await projects.findById({ projectId });
+  if (!project || project.ownerUserId !== ownerId) {
+    throw new ApiError(404, "Project not found.");
+  }
+  if (project.archivedAt) {
+    throw new ApiError(409, "Project is archived.");
+  }
+
+  return { projectId, ownerId, project };
 }
 
 export async function readJsonBody(request: Request): Promise<unknown> {

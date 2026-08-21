@@ -39,6 +39,7 @@ import {
   useQueryFlags,
 } from "@/slices/flags/queries";
 import { useQueryProjects } from "@/slices/projects/queries";
+import { setActiveProjectId } from "@/slices/http";
 import { useQuerySchemas } from "@/slices/value-schemas/queries";
 import { toast } from "sonner";
 
@@ -79,6 +80,10 @@ export default function Dashboard() {
   useEffect(() => {
     if (!projectId && projects[0]) setProjectId(projects[0].id);
   }, [projectId, projects]);
+
+  useEffect(() => {
+    setActiveProjectId(projectId || null);
+  }, [projectId]);
 
   useEffect(() => {
     function handleCommandShortcut(event: KeyboardEvent) {

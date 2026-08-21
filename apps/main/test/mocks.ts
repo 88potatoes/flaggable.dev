@@ -46,6 +46,7 @@ export const mockFlag: FlagRecord = {
 
 export const mockCondition: ConditionRecord = {
   id: "condition-1",
+  projectId: mockFlag.projectId,
   flagId: mockFlag.id,
   position: 1,
   enabled: true,
