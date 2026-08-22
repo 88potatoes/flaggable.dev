@@ -41,12 +41,18 @@ export function OnboardingWizard({
   projects = [],
   onComplete,
   onProjectSelect,
+  onCredentials,
 }: {
   initialStep?: OnboardingStep;
   projectId?: string;
   projects?: Project[];
   onComplete?: (flagId?: string) => void;
   onProjectSelect?: (projectId: string) => void;
+  onCredentials?: (credentials: {
+    projectId: string;
+    publicKey: string;
+    internalKey: string;
+  }) => void;
 }) {
   const [step, setStep] = useState<OnboardingStep>(
     activeProjectId && initialStep === "project" ? "flag" : initialStep,
@@ -92,6 +98,13 @@ export function OnboardingWizard({
           }
           if (project.internalKey) {
             setInternalKey(project.internalKey);
+          }
+          if (project.publicKey && project.internalKey) {
+            onCredentials?.({
+              projectId: project.id,
+              publicKey: project.publicKey,
+              internalKey: project.internalKey,
+            });
           }
           if (onProjectSelect) {
             onProjectSelect(project.id);

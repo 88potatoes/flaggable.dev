@@ -14,6 +14,8 @@ import {
   DialogTitle,
 } from "@flaggable/ui/dialog";
 import { generateAgentPrompt, generateEnvSnippet } from "@/lib/agent-docs";
+import { useMutateCreateInternalKey } from "@/slices/internal-keys/queries";
+import { useMutateCreatePublicKey } from "@/slices/public-keys/queries";
 
 export function AgentPromptDialog({
   open,
@@ -34,17 +36,26 @@ export function AgentPromptDialog({
 }) {
   const [copiedEnv, setCopiedEnv] = useState(false);
   const [copiedPrompt, setCopiedPrompt] = useState(false);
+  const [generatedCredentials, setGeneratedCredentials] = useState<{
+    publicKey: string;
+    internalKey: string;
+  } | null>(null);
+  const createPublicKey = useMutateCreatePublicKey(projectId);
+  const createInternalKey = useMutateCreateInternalKey(projectId);
 
   const baseUrl = typeof window !== "undefined" ? window.location.origin : "https://flaggable.dev";
   const cleanBaseUrl = baseUrl.replace(/\/$/, "");
-  const activePublicKey = knownPublicKey || "pk_your_public_key";
-  const activeInternalKey = knownInternalKey || "ik_your_internal_api_key";
+  const activePublicKey = knownPublicKey || generatedCredentials?.publicKey || "";
+  const activeInternalKey = knownInternalKey || generatedCredentials?.internalKey || "";
 
   const rawEnvSnippet = generateEnvSnippet({
     baseUrl,
     publicKey: activePublicKey,
     internalKey: activeInternalKey,
   });
+
+  const hasRealCredentials = Boolean(activePublicKey && activeInternalKey);
+  const isCreatingCredentials = createPublicKey.isPending || createInternalKey.isPending;
 
   const displayMaskedInternalKey = knownInternalKey
     ? `${knownInternalKey.slice(0, 5)}••••••••••••••••••••••••`
@@ -64,14 +75,30 @@ export function AgentPromptDialog({
 
   const handleCopyEnv = async () => {
     try {
-      await navigator.clipboard.writeText(rawEnvSnippet);
+      let publicKey = activePublicKey;
+      let internalKey = activeInternalKey;
+
+      if (!publicKey) {
+        const created = await createPublicKey.mutateAsync();
+        publicKey = created.publicKey;
+      }
+      if (!internalKey) {
+        const created = await createInternalKey.mutateAsync({ name: "AI Agent Setup" });
+        internalKey = created.internalKey;
+      }
+
+      setGeneratedCredentials({ publicKey, internalKey });
+      const envSnippet = generateEnvSnippet({ baseUrl, publicKey, internalKey });
+      await navigator.clipboard.writeText(envSnippet);
       setCopiedEnv(true);
       toast.success("Environment variables copied to clipboard", {
         description: "Paste these into your .env.local file.",
       });
       setTimeout(() => setCopiedEnv(false), 2500);
-    } catch {
-      toast.error("Failed to copy environment variables to clipboard");
+    } catch (error) {
+      toast.error("Could not prepare environment variables", {
+        description: error instanceof Error ? error.message : "Please try again.",
+      });
     }
   };
 
@@ -132,13 +159,21 @@ export function AgentPromptDialog({
                   Copy Environment Variables (<code className="font-mono">.env.local</code>)
                 </span>
               </div>
-              <Button size="sm" variant="outline" onClick={handleCopyEnv} className="h-7 text-xs">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handleCopyEnv}
+                className="h-7 text-xs"
+                disabled={isCreatingCredentials}
+              >
                 {copiedEnv ? <Check className="mr-1 size-3" /> : <Copy className="mr-1 size-3" />}
                 {copiedEnv ? "Copied .env!" : "Copy .env.local"}
               </Button>
             </div>
             <pre className="overflow-x-auto rounded-md border bg-zinc-950 p-3 font-mono text-xs text-zinc-100 leading-relaxed">
-              {maskedEnvSnippet}
+              {hasRealCredentials
+                ? maskedEnvSnippet
+                : "Click Copy .env.local to generate and copy your project keys."}
             </pre>
           </div>
 

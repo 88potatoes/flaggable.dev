@@ -30,7 +30,6 @@ import { CreateProjectDialog } from "@/components/create-project-dialog";
 import { DashboardShell } from "@/components/dashboard-sidebar";
 import { FlagBrowser } from "@/components/flag-browser";
 import { FlagDetail } from "@/components/flag-detail";
-import { OnboardingWizard } from "@/components/onboarding-wizard";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import {
   useMutateArchiveFlag,
@@ -57,10 +56,11 @@ export default function Dashboard() {
   const [projectId, setProjectId] = useState("");
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isCreateProjectOpen, setIsCreateProjectOpen] = useState(false);
+  const [knownPublicKey, setKnownPublicKey] = useState("");
+  const [knownInternalKey, setKnownInternalKey] = useState("");
   const [isCommandOpen, setIsCommandOpen] = useState(false);
   const [isAgentPromptOpen, setIsAgentPromptOpen] = useState(false);
   const [agentPromptFlagName, setAgentPromptFlagName] = useState("");
-  const [showManualOnboarding, setShowManualOnboarding] = useState(false);
   const [newFlagName, setNewFlagName] = useState("");
   const [fieldError, setFieldError] = useState("");
   const [error, setError] = useState("");
@@ -75,6 +75,38 @@ export default function Dashboard() {
   const updateFlag = useMutateUpdateFlag(projectId);
   const archiveFlag = useMutateArchiveFlag(projectId);
   const activeProject = projects.find((p) => p.id === projectId);
+  const rememberCredentials = (credentials: {
+    projectId: string;
+    publicKey?: string;
+    internalKey?: string;
+  }) => {
+    if (credentials.publicKey) setKnownPublicKey(credentials.publicKey);
+    if (credentials.internalKey) setKnownInternalKey(credentials.internalKey);
+    if (typeof window !== "undefined" && (credentials.publicKey || credentials.internalKey)) {
+      const saved = JSON.parse(sessionStorage.getItem("flaggable-project-credentials") || "{}");
+      const previous = saved[credentials.projectId] || {};
+      sessionStorage.setItem(
+        "flaggable-project-credentials",
+        JSON.stringify({
+          ...saved,
+          [credentials.projectId]: {
+            publicKey: credentials.publicKey || previous.publicKey || "",
+            internalKey: credentials.internalKey || previous.internalKey || "",
+          },
+        }),
+      );
+    }
+  };
+  useEffect(() => {
+    if (!projectId || typeof window === "undefined") return;
+    try {
+      const saved = JSON.parse(sessionStorage.getItem("flaggable-project-credentials") || "{}");
+      const credentials = saved[projectId];
+      if (credentials) rememberCredentials({ ...credentials, projectId });
+    } catch {
+      // Ignore malformed session storage and let the API keys page generate fresh keys.
+    }
+  }, [projectId]);
   const flags = useMemo(
     () => flagsQuery.data?.pages.flatMap((page) => page.items) ?? [],
     [flagsQuery.data],
@@ -185,7 +217,7 @@ export default function Dashboard() {
       flagSidebar={flagSidebar}
     >
       <div className="dashboard-inner">
-        {selectedFlag && flags.length > 0 && !showManualOnboarding ? (
+        {selectedFlag && flags.length > 0 ? (
           <div className="mb-8">
             <div className="flex items-center gap-3 mb-2 flex-wrap">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--accent)] text-sm font-bold text-white">
@@ -275,29 +307,15 @@ export default function Dashboard() {
             <Skeleton className="h-8 w-full" />
           </Card>
         ) : projects.length === 0 ? (
-          <OnboardingWizard
-            initialStep="project"
-            onProjectSelect={(id) => setProjectId(id)}
-            onComplete={(flagId) => {
-              if (flagId) setSelectedFlagId(flagId);
-            }}
-          />
+          <Card className="project-empty-state">
+            <p className="text-sm text-[var(--text-muted)]">No project found.</p>
+          </Card>
         ) : flagsQuery.isLoading ? (
           <Card className="project-empty-state" aria-busy="true">
             <Skeleton className="h-6 w-32" />
             <Skeleton className="h-4 w-full max-w-sm" />
             <Skeleton className="h-8 w-full" />
           </Card>
-        ) : (flags.length === 0 && !hasCompletedOnboarding) || showManualOnboarding ? (
-          <OnboardingWizard
-            initialStep="flag"
-            projectId={projectId}
-            projects={projects}
-            onComplete={(flagId) => {
-              setShowManualOnboarding(false);
-              if (flagId) setSelectedFlagId(flagId);
-            }}
-          />
         ) : (
           <>
             {alerts && (
@@ -378,6 +396,8 @@ export default function Dashboard() {
               projectId={projectId}
               projectName={activeProject?.name}
               flagName={agentPromptFlagName || selectedFlag?.name || "my-first-flag"}
+              knownPublicKey={knownPublicKey}
+              knownInternalKey={knownInternalKey}
             />
 
             <CommandPalette
@@ -400,6 +420,11 @@ export default function Dashboard() {
               onProjectCreated={(project) => {
                 setProjectId(project.id);
                 setSelectedFlagId("");
+                rememberCredentials({
+                  projectId: project.id,
+                  publicKey: project.publicKey,
+                  internalKey: project.internalKey,
+                });
               }}
             />
 

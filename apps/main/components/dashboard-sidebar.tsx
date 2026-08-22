@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   BookOpen,
   FolderPlus,
+  Rocket,
   KeyRound,
   LayoutDashboard,
   Plus,
@@ -22,6 +23,7 @@ import {
   DropdownMenuTrigger,
 } from "@flaggable/ui/dropdown-menu";
 import { useUser } from "@auth0/nextjs-auth0/client";
+import { useQueryOnboarding } from "@/slices/onboarding/queries";
 import {
   Select,
   SelectContent,
@@ -66,6 +68,7 @@ export function DashboardSidebar({
   const pathname = usePathname();
   const { user } = useUser();
   const { state } = useSidebar();
+  const onboardingQuery = useQueryOnboarding();
   const project = projects.find((item) => item.id === projectId);
   const userName = user?.name ?? user?.nickname ?? user?.email ?? "Account";
   const userEmail = user?.email ?? "";
@@ -162,6 +165,21 @@ export function DashboardSidebar({
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
+              {onboardingQuery.data?.status !== "completed" && (
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    className={navButton}
+                    tooltip="Onboarding"
+                    asChild
+                    isActive={pathname === "/onboard"}
+                  >
+                    <Link href="/onboard" title="Onboarding">
+                      <Rocket />
+                      {!isCollapsed && <span>Onboarding</span>}
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )}
               <SidebarMenuItem>
                 <SidebarMenuButton
                   className={navButton}

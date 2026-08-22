@@ -3,7 +3,6 @@
 import { useEffect, useRef, useCallback, KeyboardEvent } from "react";
 import { LoaderCircle, Search } from "lucide-react";
 
-import { Card } from "@flaggable/ui/card";
 import { Input } from "@flaggable/ui/input";
 import { Label } from "@flaggable/ui/label";
 import { Skeleton } from "@flaggable/ui/skeleton";
@@ -70,14 +69,6 @@ export function FlagBrowser({
             onSelect(flags[currentIndex].id);
           }
           return;
-        case "Escape":
-          event.preventDefault();
-          searchInputRef.current?.focus();
-          return;
-        case "/":
-          event.preventDefault();
-          searchInputRef.current?.focus();
-          return;
         default:
           return;
       }
@@ -97,9 +88,7 @@ export function FlagBrowser({
   }, [flags, selectedFlagId, onSelect]);
 
   useEffect(() => {
-    if (containerRef.current && !searchInputRef.current?.matches(":focus")) {
-      containerRef.current.focus();
-    }
+    containerRef.current?.focus();
   }, [selectedFlagId]);
 
   return (
@@ -109,31 +98,27 @@ export function FlagBrowser({
       onKeyDown={handleKeyDown}
       tabIndex={-1}
     >
-      <div className="border-b border-[var(--line)] bg-[var(--surface-1)] p-4">
-        <div className="mb-3">
-          <h2 className="text-lg font-semibold tracking-tight text-[var(--text-primary)]">
-            Feature Flags
-          </h2>
-          <div className="flex items-center justify-between">
-            <div className="text-xs text-[var(--text-muted)]">
-              {flags.length} flag{flags.length !== 1 ? "s" : ""}
-            </div>
-          </div>
+      <div className="grid gap-1.5 border-b border-[var(--line)] px-3 py-2">
+        <div className="flex items-center justify-between">
+          <span className="text-[0.6875rem] font-medium text-[var(--text-subtle)]">
+            {flags.length} flag{flags.length !== 1 ? "s" : ""}
+          </span>
+          <span className="text-[0.625rem] text-[var(--text-subtle)]">/ to search</span>
         </div>
         <Label htmlFor="flag-search" className="sr-only">
           Search flags
         </Label>
-        <div className="relative flex items-center gap-2 rounded-md border border-[var(--line)] bg-[var(--surface-0)] px-3 py-2 transition-colors focus-within:border-[var(--accent)] focus-within:ring-1 focus-within:ring-[var(--accent-soft)]">
-          <Search className="h-4 w-4 text-[var(--text-subtle)]" aria-hidden="true" />
+        <div className="flex h-7 items-center gap-1.5 rounded border border-[var(--line)] bg-[var(--surface-0)] px-2 transition-colors focus-within:border-[var(--accent)] focus-within:ring-1 focus-within:ring-[var(--accent-soft)]">
+          <Search className="size-3.5 shrink-0 text-[var(--text-subtle)]" aria-hidden="true" />
           <Input
             ref={searchInputRef}
             id="flag-search"
-            placeholder="Search flags (press / to focus)..."
+            placeholder="Search flags"
             value={search}
             onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
               onSearchChange(event.target.value)
             }
-            className="border-0 bg-transparent p-0 shadow-none focus-visible:ring-0 focus-visible:outline-none"
+            className="h-6 border-0 bg-transparent p-0 text-xs shadow-none focus-visible:ring-0 focus-visible:outline-none"
             onKeyDown={(event: React.KeyboardEvent<HTMLInputElement>) => {
               if (event.key === "ArrowDown" && flags.length > 0) {
                 event.preventDefault();
@@ -151,9 +136,6 @@ export function FlagBrowser({
           ))
         ) : flags.length === 0 ? (
           <div className="py-8 text-center">
-            <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-gray-100">
-              <Search className="h-5 w-5 text-[var(--text-subtle)]" />
-            </div>
             <p className="text-sm font-medium text-[var(--text-primary)]">
               {search ? "No matching flags" : "No flags yet"}
             </p>
