@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { Flaggable, SdkApiError } from "./index";
+import { Flaggable } from "./index";
 
 describe("Flaggable", () => {
   beforeEach(() => {
@@ -62,13 +62,21 @@ describe("Flaggable", () => {
     unsubscribe();
 
     vi.spyOn(globalThis, "fetch").mockImplementation(async () =>
-      Response.json({ error: "Invalid key" }, { status: 401 }),
+      Response.json(
+        { error: { code: "invalid_public_key", message: "Invalid key", requestId: "req-1" } },
+        { status: 401 },
+      ),
     );
     const failing = new Flaggable({
       publicKey: "pk_test",
       baseUrl: "https://flags.example",
     });
-    await expect(failing.refresh()).rejects.toBeInstanceOf(SdkApiError);
+    await expect(failing.refresh()).rejects.toMatchObject({
+      name: "SdkApiError",
+      status: 401,
+      apiCode: "invalid_public_key",
+      requestId: "req-1",
+    });
   });
 
   it("updates targeting attributes via setEvaluationContext", async () => {

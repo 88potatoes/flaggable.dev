@@ -1,14 +1,18 @@
 import { auth0 } from "./auth0";
+import { FlagError } from "@/slices/flags/errors";
 import { z } from "zod";
 import { DrizzleProjectRepository, type ProjectRepository } from "@/slices/projects/repo";
 
+/** A transport-level error that can be rendered as the public API error envelope. */
 export class ApiError extends Error {
   constructor(
     readonly status: number,
     message: string,
     readonly details?: unknown,
+    readonly code = "api_error",
+    options?: { cause?: unknown },
   ) {
-    super(message);
+    super(message, options);
     this.name = "ApiError";
   }
 }
@@ -71,16 +75,53 @@ export async function parseJsonBody<T>(request: Request, schema: z.ZodType<T>): 
   return result.data;
 }
 
+/** Converts expected application errors into the stable public API envelope. */
 export function handleApiError(error: unknown): Response {
-  if (error instanceof ApiError) {
-    return Response.json(
-      { error: error.message, ...(error.details ? { details: error.details } : {}) },
-      { status: error.status },
-    );
+  const requestId = makeRequestId();
+  const apiError = toApiError(error);
+  if (apiError.status >= 500) {
+    console.error("API request failed", { requestId, error });
   }
 
-  console.error("API request failed", error);
-  return Response.json({ error: "Internal server error." }, { status: 500 });
+  return Response.json(
+    {
+      error: {
+        code: apiError.code,
+        message: apiError.message,
+        ...(apiError.details ? { details: apiError.details } : {}),
+        requestId,
+      },
+    },
+    { status: apiError.status, headers: { "x-request-id": requestId } },
+  );
+}
+
+function toApiError(error: unknown): ApiError {
+  if (error instanceof ApiError) return error;
+  if (error instanceof FlagError) {
+    const statusByCode = {
+      flag_not_found: 404,
+      flag_archived: 409,
+      project_not_found: 404,
+      project_archived: 409,
+      flag_name_conflict: 409,
+      value_schema_not_found: 422,
+      value_schema_project_mismatch: 422,
+      invalid_pagination_cursor: 400,
+    } satisfies Record<FlagError["code"], number>;
+    return new ApiError(statusByCode[error.code], error.message, error.details, error.code, {
+      cause: error,
+    });
+  }
+  return new ApiError(500, "Internal server error.", undefined, "internal_error", {
+    cause: error,
+  });
+}
+
+function makeRequestId() {
+  return (
+    globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`
+  );
 }
 
 export function requiredString(body: Record<string, unknown>, field: string): string {

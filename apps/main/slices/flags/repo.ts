@@ -2,6 +2,7 @@ import { and, asc, eq, gt, like, or } from "drizzle-orm";
 
 import { getDb, type Database } from "@/lib/db";
 import { flagTable, type FlagRecord, type NewFlagRecord } from "@/lib/db/schema";
+import { FlagNameConflictError } from "./errors";
 
 /** Persistence boundary for feature flags. */
 export interface FlagRepository {
@@ -76,11 +77,37 @@ export class DrizzleFlagRepository implements FlagRepository {
       .get();
   }
 
-  create({ record }: { record: NewFlagRecord }) {
-    return this.db.insert(flagTable).values(record).returning().get();
+  async create({ record }: { record: NewFlagRecord }) {
+    try {
+      return await this.db.insert(flagTable).values(record).returning().get();
+    } catch (error) {
+      if (isFlagNameConflict(error)) throw new FlagNameConflictError(record.name, { cause: error });
+      throw error;
+    }
   }
 
-  update({ flagId, values }: { flagId: string; values: Partial<NewFlagRecord> }) {
-    return this.db.update(flagTable).set(values).where(eq(flagTable.id, flagId)).returning().get();
+  async update({ flagId, values }: { flagId: string; values: Partial<NewFlagRecord> }) {
+    try {
+      return await this.db
+        .update(flagTable)
+        .set(values)
+        .where(eq(flagTable.id, flagId))
+        .returning()
+        .get();
+    } catch (error) {
+      if (isFlagNameConflict(error)) {
+        throw new FlagNameConflictError(values.name, { cause: error });
+      }
+      throw error;
+    }
   }
+}
+
+function isFlagNameConflict(error: unknown) {
+  if (!(error instanceof Error)) return false;
+  const message = error.message.toLowerCase();
+  return (
+    message.includes("flag_project_name_unique") ||
+    message.includes("unique constraint failed: flag.project_id, flag.name")
+  );
 }

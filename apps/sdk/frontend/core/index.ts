@@ -60,6 +60,8 @@ export class SdkApiError extends SdkError {
     message: string,
     status: number,
     readonly details?: unknown,
+    readonly apiCode?: string,
+    readonly requestId?: string,
   ) {
     super(message, "api_error", status);
     this.name = "SdkApiError";
@@ -161,12 +163,13 @@ export class Flaggable {
       .then(async (response) => {
         const body = await readResponse(response);
         if (!response.ok) {
+          const apiError = readApiErrorBody(body);
           throw new SdkApiError(
-            typeof body === "object" && body && "error" in body && typeof body.error === "string"
-              ? body.error
-              : "Evaluation request failed.",
+            apiError.message,
             response.status,
-            body,
+            apiError.details ?? body,
+            apiError.code,
+            apiError.requestId,
           );
         }
         if (!isEvaluationResponse(body))
@@ -305,6 +308,32 @@ export function setAnonymousContext(options: {
 function makeAnonymousId(): string {
   if (globalThis.crypto?.randomUUID) return globalThis.crypto.randomUUID();
   return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
+
+function readApiErrorBody(body: unknown): {
+  message: string;
+  code?: string;
+  details?: unknown;
+  requestId?: string;
+} {
+  if (typeof body !== "object" || body === null || !("error" in body)) {
+    return { message: "Evaluation request failed." };
+  }
+  const error = body.error;
+  if (typeof error === "string") return { message: error };
+  if (typeof error !== "object" || error === null) {
+    return { message: "Evaluation request failed." };
+  }
+  return {
+    message:
+      "message" in error && typeof error.message === "string"
+        ? error.message
+        : "Evaluation request failed.",
+    code: "code" in error && typeof error.code === "string" ? error.code : undefined,
+    details: "details" in error ? error.details : undefined,
+    requestId:
+      "requestId" in error && typeof error.requestId === "string" ? error.requestId : undefined,
+  };
 }
 
 async function readResponse(response: Response): Promise<unknown> {

@@ -39,16 +39,9 @@ import {
 } from "@/slices/flags/queries";
 import { useQueryProjects } from "@/slices/projects/queries";
 import { useQueryOnboarding } from "@/slices/onboarding/queries";
-import { setActiveProjectId } from "@/slices/http";
+import { ApiClientError, getApiErrorMessage, setActiveProjectId } from "@/slices/http";
 import { useQuerySchemas } from "@/slices/value-schemas/queries";
 import { toast } from "sonner";
-
-function getApiErrorMessage(error: Error, fallback: string) {
-  if ("response" in error && error.response instanceof Response) {
-    return fallback;
-  }
-  return error.message || fallback;
-}
 
 export default function Dashboard() {
   const [selectedFlagId, setSelectedFlagId] = useState("");
@@ -63,6 +56,7 @@ export default function Dashboard() {
   const [isAgentPromptOpen, setIsAgentPromptOpen] = useState(false);
   const [agentPromptFlagName, setAgentPromptFlagName] = useState("");
   const [newFlagName, setNewFlagName] = useState("");
+  const [flagNameError, setFlagNameError] = useState<string | null>(null);
 
   const projectsQuery = useQueryProjects();
   const onboardingQuery = useQueryOnboarding();
@@ -145,9 +139,16 @@ export default function Dashboard() {
     setSelectedFlagId("");
   }
 
+  function showFlagMutationError(error: unknown, action: string) {
+    toast.error(`Could not ${action} flag`, {
+      description: getApiErrorMessage(error, "Please try again."),
+    });
+  }
+
   function submitCreateFlag(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const trimmedName = newFlagName.trim();
+    setFlagNameError(null);
     if (!trimmedName) {
       toast.error("Flag name required", { description: "Enter a flag name to continue." });
       return;
@@ -182,6 +183,13 @@ export default function Dashboard() {
         },
         onError: (mutationError) => {
           const message = getApiErrorMessage(mutationError, "Could not create flag.");
+          if (
+            mutationError instanceof ApiClientError &&
+            mutationError.code === "flag_name_conflict"
+          ) {
+            setFlagNameError(message);
+            return;
+          }
           toast.error("Could not create flag", { description: message });
         },
       },
@@ -234,6 +242,16 @@ export default function Dashboard() {
             <Skeleton className="h-4 w-full max-w-sm" />
             <Skeleton className="h-8 w-full" />
           </Card>
+        ) : flagsQuery.isError ? (
+          <div role="alert" className="alert alert-error alert-soft">
+            <div>
+              <p className="font-medium">Could not load flags</p>
+              <p className="text-sm">{getApiErrorMessage(flagsQuery.error, "Please try again.")}</p>
+            </div>
+            <Button variant="outline" size="sm" onClick={() => flagsQuery.refetch()}>
+              Try again
+            </Button>
+          </div>
         ) : (
           <>
             <Tabs value={selectedFlag?.id} onValueChange={setSelectedFlagId} className="w-full">
@@ -312,7 +330,10 @@ export default function Dashboard() {
                         <Switch
                           checked={flag.enabled}
                           onCheckedChange={(enabled: boolean) =>
-                            updateFlag.mutate({ flagId: flag.id, values: { enabled } })
+                            updateFlag.mutate(
+                              { flagId: flag.id, values: { enabled } },
+                              { onError: (error) => showFlagMutationError(error, "update") },
+                            )
                           }
                           disabled={updateFlag.isPending}
                           aria-label={`${flag.enabled ? "Disable" : "Enable"} ${flag.name}`}
@@ -340,7 +361,12 @@ export default function Dashboard() {
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               variant="destructive"
-                              onClick={() => archiveFlag.mutate({ flagId: flag.id })}
+                              onClick={() =>
+                                archiveFlag.mutate(
+                                  { flagId: flag.id },
+                                  { onError: (error) => showFlagMutationError(error, "archive") },
+                                )
+                              }
                               disabled={archiveFlag.isPending}
                             >
                               Archive flag
@@ -438,11 +464,26 @@ export default function Dashboard() {
                           value={newFlagName}
                           onChange={(event: ChangeEvent<HTMLInputElement>) => {
                             setNewFlagName(event.target.value);
+                            setFlagNameError(null);
                           }}
+                          aria-invalid={Boolean(flagNameError)}
+                          aria-describedby={
+                            flagNameError ? "dashboard-new-flag-name-error" : undefined
+                          }
                           placeholder="e.g., checkout-redesign"
                           className="form-control-medium mt-1.5"
                         />
-                        <p className="form-help">Use lowercase words separated by hyphens.</p>
+                        {flagNameError ? (
+                          <p
+                            id="dashboard-new-flag-name-error"
+                            role="alert"
+                            className="alert alert-error alert-soft mt-2 py-2 text-sm"
+                          >
+                            {flagNameError}
+                          </p>
+                        ) : (
+                          <p className="form-help">Use lowercase words separated by hyphens.</p>
+                        )}
                       </div>
                     </div>
                     <DialogFooter className="form-actions pt-4">

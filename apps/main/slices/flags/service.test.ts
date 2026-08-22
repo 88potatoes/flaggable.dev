@@ -1,6 +1,7 @@
 import { describe, expect, test, vi } from "vitest";
 
 import { mockFlag, mockFlagRepo, mockFlagService, mockProject, mockSchema } from "../../test/mocks";
+import { FlagError, FlagNameConflictError } from "./errors";
 
 describe("FlagService", () => {
   test("lists and gets flags", async () => {
@@ -39,10 +40,39 @@ describe("FlagService", () => {
         values: { valueSchemaId: mockSchema.id, name: mockFlag.name },
       }),
     ).rejects.toMatchObject({
-      status: 409,
+      code: "flag_name_conflict",
       message: `A flag named "${mockFlag.name}" already exists in this project.`,
+      details: { field: "name", value: mockFlag.name },
     });
     expect(repo.create).not.toHaveBeenCalled();
+  });
+
+  test("translates a repository name conflict into a stable service error", async () => {
+    const repo = mockFlagRepo({
+      findByProjectAndName: vi.fn(async () => undefined),
+      create: vi.fn(async () => {
+        throw new FlagNameConflictError("New");
+      }),
+    });
+
+    await expect(
+      mockFlagService({ repository: repo }).create({
+        projectId: mockProject.id,
+        ownerId: "owner-1",
+        values: { valueSchemaId: mockSchema.id, name: "New" },
+      }),
+    ).rejects.toMatchObject({ code: "flag_name_conflict" });
+  });
+
+  test("returns stable errors for missing flags and invalid cursors", async () => {
+    const repo = mockFlagRepo({ findById: vi.fn(async () => undefined) });
+    await expect(
+      mockFlagService({ repository: repo }).get({ flagId: "missing", ownerId: "owner-1" }),
+    ).rejects.toMatchObject({ code: "flag_not_found" });
+
+    await expect(
+      mockFlagService().list({ projectId: mockProject.id, ownerId: "owner-1", cursor: "bad" }),
+    ).rejects.toBeInstanceOf(FlagError);
   });
 
   test("updates and archives a flag", async () => {

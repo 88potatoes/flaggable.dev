@@ -1,6 +1,5 @@
 import { uuidv7 } from "uuidv7";
 
-import { ApiError } from "@/lib/api";
 import type { FlagRecord, NewFlagRecord } from "@/lib/db/schema";
 
 import { DrizzleProjectRepository, type ProjectRepository } from "@/slices/projects/repo";
@@ -8,21 +7,13 @@ import {
   DrizzleValueSchemaRepository,
   type ValueSchemaRepository,
 } from "@/slices/value-schemas/repo";
+import { FlagError, FlagNameConflictError, flagNameConflict } from "./errors";
 import { DrizzleFlagRepository, type FlagRepository } from "./repo";
 
 function encodeCursor(record: Pick<FlagRecord, "createdAt" | "id">) {
   return Buffer.from(
     JSON.stringify({ createdAt: record.createdAt.toISOString(), id: record.id }),
   ).toString("base64url");
-}
-
-function isFlagNameConflict(error: unknown) {
-  if (!(error instanceof Error)) return false;
-  const message = error.message.toLowerCase();
-  return (
-    message.includes("flag_project_name_unique") ||
-    message.includes("unique constraint failed: flag.project_id, flag.name")
-  );
 }
 
 function decodeCursor(cursor: string) {
@@ -35,7 +26,7 @@ function decodeCursor(cursor: string) {
     if (!createdAt || Number.isNaN(createdAt.valueOf()) || !value.id) throw new Error();
     return { createdAt, id: value.id };
   } catch {
-    throw new ApiError(400, "Invalid flag pagination cursor.");
+    throw new FlagError("invalid_pagination_cursor", "Invalid flag pagination cursor.");
   }
 }
 
@@ -88,16 +79,24 @@ export class FlagService {
   }) => {
     await this.requireProject({ projectId, ownerId });
     const schema = await this.schemas.findById({ schemaId: values.valueSchemaId });
-    if (!schema || schema.projectId !== projectId) {
-      throw new ApiError(400, "Value schema does not belong to this project.");
+    if (!schema) {
+      throw new FlagError("value_schema_not_found", "Value schema not found.", {
+        field: "valueSchemaId",
+      });
+    }
+    if (schema.projectId !== projectId) {
+      throw new FlagError(
+        "value_schema_project_mismatch",
+        "Value schema does not belong to this project.",
+        { field: "valueSchemaId" },
+      );
     }
     const existingFlag = await this.repository.findByProjectAndName({
       projectId,
       name: values.name,
     });
-    if (existingFlag) {
-      throw new ApiError(409, `A flag named "${values.name}" already exists in this project.`);
-    }
+    if (existingFlag) throw flagNameConflict(values.name);
+
     const timestamp = new Date();
     const record: NewFlagRecord = {
       id: uuidv7(),
@@ -112,9 +111,7 @@ export class FlagService {
     try {
       return await this.repository.create({ record });
     } catch (error) {
-      if (isFlagNameConflict(error)) {
-        throw new ApiError(409, `A flag named "${values.name}" already exists in this project.`);
-      }
+      if (error instanceof FlagNameConflictError) throw flagNameConflict(values.name, error);
       throw error;
     }
   };
@@ -134,13 +131,11 @@ export class FlagService {
         projectId: flag.projectId,
         name: values.name,
       });
-      if (existingFlag && existingFlag.id !== flag.id) {
-        throw new ApiError(409, `A flag named "${values.name}" already exists in this project.`);
-      }
+      if (existingFlag && existingFlag.id !== flag.id) throw flagNameConflict(values.name);
     }
 
     try {
-      return await this.repository.update({
+      const updated = await this.repository.update({
         flagId: flag.id,
         values: {
           ...(values.name === undefined ? {} : { name: values.name }),
@@ -149,9 +144,11 @@ export class FlagService {
           updatedAt: new Date(),
         },
       });
+      if (!updated) throw new FlagError("flag_not_found", "Flag not found.");
+      return updated;
     } catch (error) {
-      if (isFlagNameConflict(error)) {
-        throw new ApiError(409, `A flag named "${values.name}" already exists in this project.`);
+      if (error instanceof FlagNameConflictError) {
+        throw flagNameConflict(values.name ?? flag.name, error);
       }
       throw error;
     }
@@ -160,24 +157,28 @@ export class FlagService {
   archive = async ({ flagId, ownerId }: { flagId: string; ownerId: string }) => {
     await this.requireFlag({ flagId, ownerId });
     const timestamp = new Date();
-    return this.repository.update({
+    const archived = await this.repository.update({
       flagId,
       values: { archivedAt: timestamp, updatedAt: timestamp },
     });
+    if (!archived) throw new FlagError("flag_not_found", "Flag not found.");
+    return archived;
   };
 
   private async requireProject({ projectId, ownerId }: { projectId: string; ownerId: string }) {
     const project = await this.projects.findById({ projectId });
-    if (!project || project.ownerUserId !== ownerId) throw new ApiError(404, "Project not found.");
-    if (project.archivedAt) throw new ApiError(409, "Project is archived.");
+    if (!project || project.ownerUserId !== ownerId) {
+      throw new FlagError("project_not_found", "Project not found.");
+    }
+    if (project.archivedAt) throw new FlagError("project_archived", "Project is archived.");
     return project;
   }
 
   private async requireFlag({ flagId, ownerId }: { flagId: string; ownerId: string }) {
     const flag = await this.repository.findById({ flagId });
-    if (!flag) throw new ApiError(404, "Flag not found.");
+    if (!flag) throw new FlagError("flag_not_found", "Flag not found.");
     await this.requireProject({ projectId: flag.projectId, ownerId });
-    if (flag.archivedAt) throw new ApiError(409, "Flag is archived.");
+    if (flag.archivedAt) throw new FlagError("flag_archived", "Flag is archived.");
     return flag;
   }
 }

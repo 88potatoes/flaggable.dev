@@ -114,9 +114,15 @@ Options:
     });
 
     if (!res.ok) {
-      const body = (await res.json().catch(() => ({}))) as { error?: string };
+      const body = (await res.json().catch(() => ({}))) as {
+        error?: string | { message?: string; code?: string; requestId?: string };
+      };
+      const error =
+        typeof body.error === "string" ? body.error : body.error?.message || res.statusText;
+      const code = typeof body.error === "object" ? body.error.code : undefined;
+      const requestId = typeof body.error === "object" ? body.error.requestId : undefined;
       console.error(
-        `\x1b[31m${command === "typegen" ? "Typegen" : "Create flag"} failed (${res.status}): ${body.error || res.statusText}\x1b[0m`,
+        `\x1b[31m${command === "typegen" ? "Typegen" : "Create flag"} failed (${res.status})${code ? ` [${code}]` : ""}: ${error}${requestId ? ` (request: ${requestId})` : ""}\x1b[0m`,
       );
       process.exit(1);
     }

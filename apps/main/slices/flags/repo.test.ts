@@ -1,6 +1,7 @@
 import { describe, expect, test, vi } from "vitest";
 
 import type { Database } from "@/lib/db";
+import { FlagNameConflictError } from "./errors";
 import { DrizzleFlagRepository } from "./repo";
 
 function createDatabase() {
@@ -35,6 +36,17 @@ describe("DrizzleFlagRepository", () => {
     await new DrizzleFlagRepository(db).findById({ flagId: "flag-1" });
     expect(query.where).toHaveBeenCalled();
     expect(query.get).toHaveBeenCalled();
+  });
+
+  test("translates unique name violations", async () => {
+    const { db, query } = createDatabase();
+    query.get.mockRejectedValue(new Error("UNIQUE constraint failed: flag.project_id, flag.name"));
+
+    await expect(
+      new DrizzleFlagRepository(db).create({
+        record: { id: "f", projectId: "p", name: "Flag" } as never,
+      }),
+    ).rejects.toBeInstanceOf(FlagNameConflictError);
   });
 
   test("creates and updates records", async () => {
