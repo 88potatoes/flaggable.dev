@@ -236,11 +236,7 @@ export default function Dashboard() {
           </Card>
         ) : (
           <>
-            <Tabs
-              value={selectedFlag?.id}
-              onValueChange={setSelectedFlagId}
-              className="flag-tabs w-full"
-            >
+            <Tabs value={selectedFlag?.id} onValueChange={setSelectedFlagId} className="w-full">
               {/* Mobile flag browser - only show on small screens when we have flags */}
               <div className="mb-8 block md:hidden">
                 {flags.length > 0 && (
@@ -290,7 +286,7 @@ export default function Dashboard() {
               </TabsList>
               {openFlags.map((flag) => (
                 <TabsContent key={flag.id} value={flag.id}>
-                  <div className="dashboard-inner flag-tab-panel">
+                  <div className="dashboard-inner">
                     <div className="mb-6 flex flex-wrap items-center gap-3 border-b border-[var(--line)] pb-5">
                       <div>
                         <h1 className="text-2xl font-semibold tracking-tight text-[var(--text-primary)]">

@@ -23,9 +23,9 @@ export function FlagTable({
   emptyMessage,
 }: FlagTableProps) {
   return (
-    <Table className="flags-table">
+    <Table>
       <TableHeader>
-        <TableRow className="table-heading">
+        <TableRow>
           <TableHead>Flag</TableHead>
           <TableHead>Status</TableHead>
           <TableHead>Updated</TableHead>
@@ -46,7 +46,7 @@ export function FlagTable({
             const isSelected = selectedFlagId === flag.id;
             return (
               <TableRow
-                className={`flag-row ${isSelected ? "selected" : ""}`}
+                className={isSelected ? "bg-accent/10" : ""}
                 key={flag.id}
                 data-state={isSelected ? "selected" : undefined}
                 onClick={() => onSelect(flag.id)}
@@ -58,7 +58,7 @@ export function FlagTable({
                   }
                 }}
               >
-                <TableCell className="flag-name">
+                <TableCell className="flex items-center gap-2.5">
                   <i className={`status-dot ${flag.enabled ? "green" : "purple"}`} />
                   <span>
                     <b>{flag.name}</b>
@@ -74,8 +74,10 @@ export function FlagTable({
                     {flag.enabled ? "Enabled" : "Off"}
                   </Badge>
                 </TableCell>
-                <TableCell className="updated">{formatUpdated(flag.updatedAt)}</TableCell>
-                <TableCell className="row-arrow">
+                <TableCell className="text-xs text-muted-foreground">
+                  {formatUpdated(flag.updatedAt)}
+                </TableCell>
+                <TableCell className="text-right text-muted-foreground">
                   <ArrowUpRight />
                 </TableCell>
               </TableRow>

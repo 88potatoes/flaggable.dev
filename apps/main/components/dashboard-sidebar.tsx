@@ -137,7 +137,8 @@ export function DashboardSidebar({
               <SidebarMenu>
                 <SidebarMenuItem>
                   <SidebarMenuButton
-                    className="new-flag-action btn btn-neutral h-9 hover:bg-neutral hover:text-neutral-content"
+                    variant="action"
+                    className="h-9"
                     tooltip="New flag"
                     onClick={onNewFlag}
                   >

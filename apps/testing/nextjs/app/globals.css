@@ -1,4 +1,8 @@
 @import "tailwindcss";
+@plugin "daisyui" {
+  themes: false;
+}
+@custom-variant dark (&:is(.dark *));
 
 @layer base {
   body {

@@ -1,5 +1,20 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
   "plugins": ["import", "typescript", "unicorn", "react", "vitest", "jsx-a11y", "nextjs"],
+  "jsPlugins": ["oxlint-tailwindcss"],
+  "settings": {
+    "tailwindcss": {
+      "entryPoint": [
+        { "files": "apps/main/**", "use": "apps/main/app/globals.css" },
+        { "files": "apps/landing/**", "use": "apps/landing/app/globals.css" },
+        { "files": "packages/ui/**", "use": "apps/main/app/globals.css" },
+        { "files": "apps/testing/nextjs/**", "use": "apps/testing/nextjs/app/globals.css" }
+      ]
+    }
+  },
+  "rules": {
+    "tailwindcss/no-unknown-classes": "error",
+    "tailwindcss/no-conflicting-classes": "error"
+  },
   "ignorePatterns": [".next/", ".vinext/", ".wrangler/", "dist/", "node_modules/"]
 }
