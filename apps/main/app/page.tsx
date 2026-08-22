@@ -62,6 +62,7 @@ export default function Dashboard() {
   const [agentPromptFlagName, setAgentPromptFlagName] = useState("");
   const [showManualOnboarding, setShowManualOnboarding] = useState(false);
   const [newFlagName, setNewFlagName] = useState("");
+  const [fieldError, setFieldError] = useState("");
   const [error, setError] = useState("");
   const projectsQuery = useQueryProjects();
   const onboardingQuery = useQueryOnboarding();
@@ -113,21 +114,27 @@ export default function Dashboard() {
 
   function submitCreateFlag(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const trimmedName = newFlagName.trim();
+    if (!trimmedName) {
+      setFieldError("Enter a flag name.");
+      return;
+    }
+    setFieldError("");
     const schema = schemasQuery.data?.[0];
     if (!schema) {
       setError("Create a value schema first, then create a flag.");
       return;
     }
-    const createdName = newFlagName;
     createFlag.mutate(
       {
         valueSchemaId: schema.id,
-        name: createdName,
+        name: trimmedName,
       },
       {
         onSuccess: (flag) => {
           setIsCreateOpen(false);
           setNewFlagName("");
+          setFieldError("");
           setSelectedFlagId(flag.id);
           toast.success("Flag created", {
             description: `${flag.name} is ready to use.`,
@@ -175,7 +182,6 @@ export default function Dashboard() {
       onProjectChange={selectProject}
       onNewFlag={openCreateFlag}
       onNewProject={() => setIsCreateProjectOpen(true)}
-      onOpenCommandPalette={() => setIsCommandOpen(true)}
       flagSidebar={flagSidebar}
     >
       <div className="dashboard-inner">
@@ -434,18 +440,23 @@ export default function Dashboard() {
                           id="dashboard-new-flag-name"
                           required
                           value={newFlagName}
-                          onChange={(event: ChangeEvent<HTMLInputElement>) =>
-                            setNewFlagName(event.target.value)
-                          }
+                          onChange={(event: ChangeEvent<HTMLInputElement>) => {
+                            setNewFlagName(event.target.value);
+                            if (fieldError) setFieldError("");
+                          }}
                           placeholder="e.g., checkout-redesign"
-                          className="mt-2 block w-full rounded-md"
+                          aria-invalid={Boolean(fieldError)}
+                          className="form-control-medium mt-1.5"
                         />
-                        <p className="mt-1 text-xs text-[var(--text-muted)]">
-                          Choose a descriptive name that identifies the feature
+                        <p
+                          className={fieldError ? "form-error" : "form-help"}
+                          role={fieldError ? "alert" : undefined}
+                        >
+                          {fieldError || "Use lowercase words separated by hyphens."}
                         </p>
                       </div>
                     </div>
-                    <DialogFooter className="pt-4">
+                    <DialogFooter className="form-actions pt-4">
                       <Button
                         type="submit"
                         disabled={createFlag.isPending}

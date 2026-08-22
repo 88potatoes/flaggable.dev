@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   BookOpen,
-  Command,
   FolderPlus,
   KeyRound,
   LayoutDashboard,
@@ -57,14 +56,12 @@ export function DashboardSidebar({
   onProjectChange,
   onNewFlag,
   onNewProject,
-  onOpenCommandPalette,
 }: {
   projects: Project[];
   projectId: string;
   onProjectChange: (projectId: string) => void;
   onNewFlag?: () => void;
   onNewProject?: () => void;
-  onOpenCommandPalette?: () => void;
 }) {
   const pathname = usePathname();
   const { user } = useUser();
@@ -149,32 +146,6 @@ export function DashboardSidebar({
             </SidebarGroupContent>
           </SidebarGroup>
         )}
-        {onOpenCommandPalette && (
-          <SidebarGroup className="pt-1 pb-1">
-            <SidebarGroupContent>
-              <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    className="h-8 text-xs text-[var(--text-muted)] hover:bg-[var(--surface-2)] hover:text-[var(--text-primary)]"
-                    tooltip="Command menu (⌘K)"
-                    onClick={onOpenCommandPalette}
-                  >
-                    <Command className="size-4" />
-                    {!isCollapsed && (
-                      <>
-                        <span>Command menu</span>
-                        <kbd className="ml-auto rounded border border-sidebar-border bg-sidebar-accent px-1.5 py-0.5 text-[10px] font-medium text-sidebar-foreground/60">
-                          ⌘K
-                        </kbd>
-                      </>
-                    )}
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
-
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
@@ -289,7 +260,6 @@ export function DashboardShell({
   onProjectChange,
   onNewFlag,
   onNewProject,
-  onOpenCommandPalette,
   flagSidebar,
 }: {
   children: React.ReactNode;
@@ -298,7 +268,6 @@ export function DashboardShell({
   onProjectChange: (projectId: string) => void;
   onNewFlag?: () => void;
   onNewProject?: () => void;
-  onOpenCommandPalette?: () => void;
   flagSidebar?: React.ReactNode;
 }) {
   return (
@@ -309,7 +278,6 @@ export function DashboardShell({
         onProjectChange={onProjectChange}
         onNewFlag={onNewFlag}
         onNewProject={onNewProject}
-        onOpenCommandPalette={onOpenCommandPalette}
       />
       <FlagSidebarWrapper flagSidebar={flagSidebar} />
       <SidebarInset className={`min-w-0 bg-background flex-1 ${flagSidebar ? "ml-80" : ""}`}>

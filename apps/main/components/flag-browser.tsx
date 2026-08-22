@@ -3,7 +3,6 @@
 import { useEffect, useRef, useCallback, KeyboardEvent } from "react";
 import { LoaderCircle, Search } from "lucide-react";
 
-import { Badge } from "@flaggable/ui/badge";
 import { Card } from "@flaggable/ui/card";
 import { Input } from "@flaggable/ui/input";
 import { Label } from "@flaggable/ui/label";
@@ -106,7 +105,7 @@ export function FlagBrowser({
   return (
     <div
       ref={containerRef}
-      className="flex h-full w-full flex-col overflow-hidden bg-[var(--surface-1)] text-[var(--text-primary)] focus:outline focus:outline-2 focus:outline-[var(--accent)] focus:-outline-offset-2"
+      className="flag-browser-root flex h-full w-full flex-col overflow-hidden bg-[var(--surface-1)] text-[var(--text-primary)] outline-none focus:outline-none focus-visible:outline-none"
       onKeyDown={handleKeyDown}
       tabIndex={-1}
     >
@@ -169,45 +168,28 @@ export function FlagBrowser({
             <button
               type="button"
               key={flag.id}
-              className={`relative flex w-full items-center justify-between gap-2 rounded-lg border p-2.5 text-left transition-all duration-150 ease-out focus:outline-none ${
+              className={`relative flex w-full items-center gap-2 rounded-md border px-2 py-1.5 text-left transition-colors duration-150 ease-out focus:outline-none ${
                 selectedFlagId === flag.id
                   ? "border-[var(--accent)] bg-[var(--accent-soft)] before:absolute before:-left-2 before:top-1/2 before:h-[70%] before:w-0.5 before:-translate-y-1/2 before:bg-[var(--accent)] before:content-['']"
-                  : "border-transparent hover:border-[var(--line)] hover:bg-[var(--surface-2)]"
+                  : flag.enabled
+                    ? "border-transparent hover:border-[var(--line)] hover:bg-[var(--surface-2)]"
+                    : "border-transparent opacity-60 hover:border-[var(--line)] hover:bg-[var(--surface-2)] hover:opacity-100"
               }`}
               aria-pressed={selectedFlagId === flag.id}
               onClick={() => onSelect(flag.id)}
               onFocus={() => onSelect(flag.id)}
             >
-              <div className="flex min-w-0 flex-1 items-center gap-2.5">
-                <div
-                  className={`flex h-7 w-7 items-center justify-center rounded-md text-xs font-bold text-white ${
-                    flag.enabled
-                      ? "bg-gradient-to-br from-green-500 to-emerald-600"
-                      : "bg-gradient-to-br from-gray-400 to-gray-500"
-                  }`}
-                >
-                  {flag.name[0]?.toUpperCase() || "F"}
-                </div>
-                <span className="grid min-w-0 gap-1 text-left">
-                  <strong className="truncate font-semibold text-[var(--text-primary)]">
+              <div className="flex min-w-0 flex-1 items-center gap-2">
+                <span className="grid min-w-0 gap-0.5 text-left">
+                  <strong className="truncate text-sm font-medium text-[var(--text-primary)]">
                     {flag.name}
                   </strong>
-                  <span className="truncate text-xs text-[var(--text-muted)]">
-                    {flag.description ?? "No description yet."}
-                  </span>
+                  {flag.description && (
+                    <span className="truncate text-[0.6875rem] text-[var(--text-muted)]">
+                      {flag.description}
+                    </span>
+                  )}
                 </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Badge
-                  variant={flag.enabled ? "default" : "secondary"}
-                  className={
-                    flag.enabled
-                      ? "bg-[var(--accent-soft)] text-[var(--accent)] hover:bg-[var(--accent-soft)]"
-                      : "bg-[var(--surface-2)] text-[var(--text-muted)] hover:bg-[var(--surface-2)]"
-                  }
-                >
-                  {flag.enabled ? "On" : "Off"}
-                </Badge>
               </div>
             </button>
           ))

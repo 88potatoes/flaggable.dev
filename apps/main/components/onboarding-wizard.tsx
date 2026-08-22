@@ -75,7 +75,10 @@ export function OnboardingWizard({
   const handleCreateProject = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const name = newProjectName.trim();
-    if (!name) return;
+    if (!name) {
+      setError("Enter a project name.");
+      return;
+    }
     setError("");
 
     createProject.mutate(
@@ -106,7 +109,10 @@ export function OnboardingWizard({
   const handleCreateFlag = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const name = newFlagName.trim();
-    if (!name) return;
+    if (!name) {
+      setError("Enter a flag name.");
+      return;
+    }
     setError("");
 
     const schema = schemasQuery.data?.[0];
@@ -256,21 +262,25 @@ export function OnboardingWizard({
                 </Label>
                 <Input
                   id="onboarding-project-name"
-                  placeholder="e.g., Web App, Marketing Site, Storefront"
+                  placeholder="e.g., Web App"
                   value={newProjectName}
                   onChange={(e: ChangeEvent<HTMLInputElement>) => setNewProjectName(e.target.value)}
                   required
-                  className="mt-1.5 h-11"
+                  aria-invalid={Boolean(error)}
+                  className="form-control-medium mt-1.5"
                 />
-                <p className="mt-1.5 text-xs text-zinc-500">
-                  You can rename or create more projects later.
+                <p
+                  className={error ? "form-error" : "form-help"}
+                  role={error ? "alert" : undefined}
+                >
+                  {error || "You can rename or create more projects later."}
                 </p>
               </div>
 
               <Button
                 type="submit"
                 disabled={createProject.isPending || !newProjectName.trim()}
-                className="w-full h-11 bg-orange-600 hover:bg-orange-700 text-white font-medium"
+                className="bg-[var(--accent)] text-white hover:bg-[var(--accent-hover)]"
               >
                 {createProject.isPending ? (
                   <>
@@ -313,7 +323,8 @@ export function OnboardingWizard({
                   value={newFlagName}
                   onChange={(e: ChangeEvent<HTMLInputElement>) => setNewFlagName(e.target.value)}
                   required
-                  className="mt-1.5 h-11 font-mono text-sm"
+                  aria-invalid={Boolean(error)}
+                  className="form-control-medium mt-1.5 font-mono text-sm"
                 />
               </div>
 
@@ -341,7 +352,7 @@ export function OnboardingWizard({
               <Button
                 type="submit"
                 disabled={createFlag.isPending || !newFlagName.trim()}
-                className="w-full h-11 bg-orange-600 hover:bg-orange-700 text-white font-medium"
+                className="bg-[var(--accent)] text-white hover:bg-[var(--accent-hover)]"
               >
                 {createFlag.isPending ? (
                   <>

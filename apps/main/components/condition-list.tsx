@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Plus, Settings, Lock, Unlock, AlertTriangle, Sparkles } from "lucide-react";
+import { Plus, Settings, Lock, Unlock, AlertTriangle } from "lucide-react";
 import type { ConditionOperator, Flag } from "@flaggable/contracts";
 
 import { Button } from "@flaggable/ui/button";
@@ -47,6 +47,7 @@ export function ConditionList({
     conditionProperty: string;
   } | null>(null);
   const [isAdding, setIsAdding] = useState(false);
+  const [formError, setFormError] = useState("");
   const schemaQuery = useQuerySchema(flag.valueSchemaId);
   const isBooleanSchema = schemaQuery.data?.name === "Boolean";
   const conditionsQuery = useQueryConditions(flag.id);
@@ -60,10 +61,24 @@ export function ConditionList({
 
   function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const trimmedProperty = property.trim();
+    if (!trimmedProperty) {
+      setFormError("Enter a property name.");
+      return;
+    }
+    if (!predicateValue.trim()) {
+      setFormError("Enter a value to match.");
+      return;
+    }
+    if (!isBooleanSchema && !resultValue.trim()) {
+      setFormError("Enter the value this condition should return.");
+      return;
+    }
+    setFormError("");
     createCondition.mutate(
       {
         position: nextPosition,
-        property: property.trim(),
+        property: trimmedProperty,
         operator,
         predicateValue: parseValue(predicateValue),
         resultValue: isBooleanSchema ? true : parseValue(resultValue),
@@ -73,8 +88,10 @@ export function ConditionList({
           setProperty("");
           setPredicateValue("");
           setResultValue("");
+          setFormError("");
           setIsAdding(false);
         },
+        onError: (error) => setFormError(error.message || "Could not create this condition."),
       },
     );
   }
@@ -105,7 +122,7 @@ export function ConditionList({
 
   return (
     <div className="space-y-4">
-      <Card className="gap-0">
+      <Card className="gap-0 form-surface">
         <CardHeader className="pb-4">
           <div className="flex items-center gap-2">
             <Settings className="h-5 w-5 text-gray-600" />
@@ -126,20 +143,6 @@ export function ConditionList({
                 This flag will evaluate to its default value ({flag.enabled ? "Active" : "Inactive"}
                 ).
               </p>
-              {onOpenAgentPrompt && (
-                <div className="mt-4">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={onOpenAgentPrompt}
-                    className="gap-1.5 border-orange-200 bg-orange-50 text-orange-700 hover:bg-orange-100"
-                  >
-                    <Sparkles className="size-3.5 text-orange-600" />
-                    Set up in Next.js with AI
-                  </Button>
-                </div>
-              )}
             </div>
           ) : (
             <div className="space-y-3">
@@ -220,7 +223,7 @@ export function ConditionList({
             </div>
           )}
         </CardContent>
-        <div className="border-t px-6 pb-6 pt-4">
+        <div className="border-t border-[var(--line)] px-6 pb-6 pt-4">
           {!isAdding ? (
             <Button
               type="button"
@@ -234,7 +237,7 @@ export function ConditionList({
           ) : (
             <Card className="border-dashed">
               <CardContent className="p-4">
-                <form className="space-y-4" onSubmit={submit}>
+                <form className="form-stack" onSubmit={submit}>
                   <div className="flex items-center gap-2 mb-3">
                     <Plus className="h-4 w-4 text-gray-500" />
                     <Label htmlFor="condition-property" className="text-sm font-semibold">
@@ -242,10 +245,12 @@ export function ConditionList({
                     </Label>
                   </div>
 
-                  <div className="grid gap-3">
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <Label className="text-xs font-medium text-gray-600">Property</Label>
+                  <div className="form-section">
+                    <div className="grid gap-4 sm:grid-cols-[minmax(0,1.1fr)_minmax(10rem,0.9fr)]">
+                      <div className="form-field">
+                        <Label htmlFor="condition-property" className="form-label">
+                          Property
+                        </Label>
                         <Input
                           id="condition-property"
                           placeholder="e.g. country, userId"
@@ -254,16 +259,19 @@ export function ConditionList({
                             setProperty(event.target.value)
                           }
                           required
-                          className="mt-1"
+                          className="form-control-medium"
                         />
                       </div>
-                      <div>
-                        <Label className="text-xs font-medium text-gray-600">Operator</Label>
+                      <div className="form-field">
+                        <Label className="form-label">Operator</Label>
                         <Select
                           value={operator}
                           onValueChange={(value: string) => setOperator(value as ConditionOperator)}
                         >
-                          <SelectTrigger aria-label="Operator" className="mt-1">
+                          <SelectTrigger
+                            aria-label="Operator"
+                            className="w-full form-control-medium"
+                          >
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -276,42 +284,54 @@ export function ConditionList({
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <Label className="text-xs font-medium text-gray-600">Match value</Label>
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <div className="form-field">
+                        <Label htmlFor="condition-match-value" className="form-label">
+                          Match value
+                        </Label>
                         <Input
+                          id="condition-match-value"
                           placeholder="Value to match"
                           value={predicateValue}
                           onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
                             setPredicateValue(event.target.value)
                           }
                           required
-                          className="mt-1"
+                          className="form-control-medium"
                         />
                       </div>
                       {!isBooleanSchema && (
-                        <div>
-                          <Label className="text-xs font-medium text-gray-600">Return value</Label>
+                        <div className="form-field">
+                          <Label htmlFor="condition-return-value" className="form-label">
+                            Return value
+                          </Label>
                           <Input
+                            id="condition-return-value"
                             placeholder="Value to return"
                             value={resultValue}
                             onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
                               setResultValue(event.target.value)
                             }
                             required
-                            className="mt-1"
+                            className="form-control-medium"
                           />
                         </div>
                       )}
                     </div>
                   </div>
 
-                  <div className="flex gap-2 pt-2">
+                  {formError && (
+                    <p className="form-error" role="alert">
+                      {formError}
+                    </p>
+                  )}
+
+                  <div className="form-actions pt-2">
                     <Button
                       type="submit"
                       size="sm"
                       disabled={createCondition.isPending}
-                      className="flex-1"
+                      className="bg-[var(--accent)] text-white hover:bg-[var(--accent-hover)]"
                     >
                       {createCondition.isPending ? "Creating..." : "Create condition"}
                     </Button>
@@ -319,7 +339,10 @@ export function ConditionList({
                       type="button"
                       variant="ghost"
                       size="sm"
-                      onClick={() => setIsAdding(false)}
+                      onClick={() => {
+                        setFormError("");
+                        setIsAdding(false);
+                      }}
                     >
                       Cancel
                     </Button>

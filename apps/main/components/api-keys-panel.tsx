@@ -68,10 +68,10 @@ export function ApiKeysPanel({ projectId }: { projectId: string }) {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="api-keys-panel space-y-6">
       {/* Internal API Keys */}
       <Card>
-        <CardHeader className="flex-row items-start justify-between">
+        <CardHeader className="api-key-header flex-col items-start justify-between gap-4 sm:flex-row">
           <div className="space-y-1">
             <CardTitle className="flex items-center gap-2">
               <Lock className="size-4 text-orange-600" /> Internal API Keys
@@ -104,41 +104,43 @@ export function ApiKeysPanel({ projectId }: { projectId: string }) {
               No internal API keys generated yet.
             </p>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Key Prefix</TableHead>
-                  <TableHead>Created</TableHead>
-                  <TableHead>Status</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {internalKeysQuery.data?.map((key) => (
-                  <TableRow key={key.id}>
-                    <TableCell className="font-medium text-sm">{key.name}</TableCell>
-                    <TableCell className="font-mono text-xs text-muted-foreground">
-                      ik_••••••••••••••••
-                    </TableCell>
-                    <TableCell className="text-xs text-muted-foreground">
-                      {new Date(key.createdAt).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={key.revokedAt ? "destructive" : "secondary"}>
-                        {key.revokedAt ? "Revoked" : "Active"}
-                      </Badge>
-                    </TableCell>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Key Prefix</TableHead>
+                    <TableHead>Created</TableHead>
+                    <TableHead>Status</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {internalKeysQuery.data?.map((key) => (
+                    <TableRow key={key.id}>
+                      <TableCell className="font-medium text-sm">{key.name}</TableCell>
+                      <TableCell className="font-mono text-xs text-muted-foreground">
+                        ik_••••••••••••••••
+                      </TableCell>
+                      <TableCell className="text-xs text-muted-foreground">
+                        {new Date(key.createdAt).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={key.revokedAt ? "destructive" : "secondary"}>
+                          {key.revokedAt ? "Revoked" : "Active"}
+                        </Badge>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           )}
         </CardContent>
       </Card>
 
       {/* Public SDK Keys */}
       <Card>
-        <CardHeader className="flex-row items-start justify-between">
+        <CardHeader className="api-key-header flex-col items-start justify-between gap-4 sm:flex-row">
           <div className="space-y-1">
             <CardTitle className="flex items-center gap-2">
               <ShieldCheck className="size-4 text-emerald-600" /> Public SDK Keys
@@ -168,32 +170,34 @@ export function ApiKeysPanel({ projectId }: { projectId: string }) {
           {!publicKeysQuery.isLoading && !publicKeysQuery.data?.length ? (
             <p className="py-6 text-sm text-muted-foreground">No public keys yet.</p>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Key Prefix</TableHead>
-                  <TableHead>Created</TableHead>
-                  <TableHead>Status</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {publicKeysQuery.data?.map((key) => (
-                  <TableRow key={key.id}>
-                    <TableCell className="font-mono text-xs text-muted-foreground">
-                      pk_••••••••••••••••
-                    </TableCell>
-                    <TableCell className="text-xs text-muted-foreground">
-                      {new Date(key.createdAt).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={key.revokedAt ? "destructive" : "secondary"}>
-                        {key.revokedAt ? "Revoked" : "Active"}
-                      </Badge>
-                    </TableCell>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Key Prefix</TableHead>
+                    <TableHead>Created</TableHead>
+                    <TableHead>Status</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {publicKeysQuery.data?.map((key) => (
+                    <TableRow key={key.id}>
+                      <TableCell className="font-mono text-xs text-muted-foreground">
+                        pk_••••••••••••••••
+                      </TableCell>
+                      <TableCell className="text-xs text-muted-foreground">
+                        {new Date(key.createdAt).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={key.revokedAt ? "destructive" : "secondary"}>
+                          {key.revokedAt ? "Revoked" : "Active"}
+                        </Badge>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           )}
         </CardContent>
       </Card>

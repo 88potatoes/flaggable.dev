@@ -27,23 +27,30 @@ export function CreateProjectDialog({
   onProjectCreated?: (project: CreatedProject) => void;
 }) {
   const [name, setName] = useState("");
+  const [fieldError, setFieldError] = useState("");
   const createProject = useMutateCreateProject();
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const trimmed = name.trim();
-    if (!trimmed) return;
+    if (!trimmed) {
+      setFieldError("Enter a project name.");
+      return;
+    }
+    setFieldError("");
 
     createProject.mutate(
       { name: trimmed },
       {
         onSuccess: (project) => {
           setName("");
+          setFieldError("");
           onOpenChange(false);
           toast.success("Project created", { description: `${project.name} is ready.` });
           onProjectCreated?.(project);
         },
         onError: (error) => {
+          setFieldError(error.message || "Could not create this project.");
           toast.error("Could not create project", { description: error.message });
         },
       },
@@ -67,22 +74,32 @@ export function CreateProjectDialog({
           </div>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4 pt-2">
-          <div>
-            <Label htmlFor="dialog-project-name" className="text-sm font-medium text-zinc-900">
+        <form onSubmit={handleSubmit} className="form-stack pt-2">
+          <div className="form-field">
+            <Label htmlFor="dialog-project-name" className="form-label">
               Project name
             </Label>
             <Input
               id="dialog-project-name"
-              placeholder="e.g., Marketing Website, Mobile App, Storefront"
+              placeholder="e.g., Marketing Website"
               value={name}
-              onChange={(e: ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                setName(e.target.value);
+                if (fieldError) setFieldError("");
+              }}
               required
-              className="mt-1.5"
+              aria-invalid={Boolean(fieldError)}
+              className="form-control-medium"
             />
+            <p
+              className={fieldError ? "form-error" : "form-help"}
+              role={fieldError ? "alert" : undefined}
+            >
+              {fieldError || "Use a name your team will recognize."}
+            </p>
           </div>
 
-          <DialogFooter className="pt-2">
+          <DialogFooter className="form-actions pt-2">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
