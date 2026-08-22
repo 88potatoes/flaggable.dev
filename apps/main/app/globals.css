@@ -1725,6 +1725,11 @@ body {
   background: var(--surface-2) !important;
   color: var(--text-primary) !important;
 }
+[data-slot="sidebar-menu-button"].new-flag-action,
+[data-slot="sidebar-menu-button"].new-flag-action:hover {
+  background: var(--color-neutral) !important;
+  color: var(--color-neutral-content) !important;
+}
 [data-slot="sidebar-menu-button"][data-active="true"] svg,
 [data-slot="sidebar-menu-button"]:hover svg {
   color: var(--accent);

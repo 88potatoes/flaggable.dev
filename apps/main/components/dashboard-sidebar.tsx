@@ -137,7 +137,7 @@ export function DashboardSidebar({
               <SidebarMenu>
                 <SidebarMenuItem>
                   <SidebarMenuButton
-                    className="h-9 bg-[var(--accent)] text-[var(--accent-foreground)] hover:bg-[var(--accent-hover)] hover:text-[var(--accent-foreground)]"
+                    className="new-flag-action btn btn-neutral h-9 hover:bg-neutral hover:text-neutral-content"
                     tooltip="New flag"
                     onClick={onNewFlag}
                   >
