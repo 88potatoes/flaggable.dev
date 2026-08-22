@@ -34,6 +34,11 @@ export const createFlagRequest = z.object({
   description: z.string().trim().max(500).optional(),
 });
 
+/** Internal-key clients may omit the schema to use the project's default Boolean schema. */
+export const createDevtoolFlagRequest = createFlagRequest
+  .omit({ valueSchemaId: true })
+  .extend({ valueSchemaId: z.string().min(1).optional() });
+
 export const updateFlagRequest = createFlagRequest
   .omit({ valueSchemaId: true })
   .partial()

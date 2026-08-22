@@ -34,29 +34,35 @@ Flaggable CLI
 
 Usage:
   flaggable typegen [options]
+  flaggable create-flag <name> [options]
 
 Options:
   --out <path>       Output path for generated types (default: ./flaggable.d.ts)
   --key <key>        Internal API key (or set FLAGGABLE_INTERNAL_API_KEY env)
   --base-url <url>   Flaggable server base URL (default: https://flaggable.dev)
+  --schema <id>      Value schema ID for create-flag (defaults to the project's first schema)
+  --description <text> Description for create-flag
   --help, -h         Show help
 `);
     return;
   }
 
-  if (command !== "typegen") {
+  if (command !== "typegen" && command !== "create-flag") {
     console.error(`Unknown command: ${command}`);
     process.exit(1);
   }
 
   let outPath = "./flaggable.d.ts";
+  let flagName = command === "create-flag" ? args[1]?.trim() : undefined;
+  let schemaId: string | undefined;
+  let description: string | undefined;
   let internalKey = process.env.FLAGGABLE_INTERNAL_API_KEY;
   let baseUrl =
     process.env.FLAGGABLE_BASE_URL ||
     process.env.NEXT_PUBLIC_FLAGGABLE_BASE_URL ||
     "https://flaggable.dev";
 
-  for (let i = 1; i < args.length; i++) {
+  for (let i = command === "create-flag" ? 2 : 1; i < args.length; i++) {
     const arg = args[i];
     if (arg === "--out" && args[i + 1]) {
       outPath = args[++i];
@@ -64,7 +70,16 @@ Options:
       internalKey = args[++i];
     } else if (arg === "--base-url" && args[i + 1]) {
       baseUrl = args[++i];
+    } else if (arg === "--schema" && args[i + 1]) {
+      schemaId = args[++i];
+    } else if (arg === "--description" && args[i + 1]) {
+      description = args[++i];
     }
+  }
+
+  if (command === "create-flag" && !flagName) {
+    console.error("Error: create-flag requires a flag name.");
+    process.exit(1);
   }
 
   if (!internalKey?.trim()) {
@@ -75,33 +90,51 @@ Options:
     process.exit(1);
   }
 
-  const endpoint = `${baseUrl.replace(/\/$/, "")}/api/v1/devtool/typegen`;
-  console.log(`Fetching flag schemas from ${endpoint}...`);
+  const endpoint = `${baseUrl.replace(/\/$/, "")}/api/v1/devtool/${command === "typegen" ? "typegen" : "flag"}`;
+  console.log(
+    `${command === "typegen" ? "Fetching flag schemas from" : "Creating flag at"} ${endpoint}...`,
+  );
 
   try {
     const res = await fetch(endpoint, {
-      method: "GET",
+      method: command === "typegen" ? "GET" : "POST",
       headers: {
         "x-flaggable-internal-api-key": internalKey.trim(),
         "content-type": "application/json",
       },
+      ...(command === "create-flag"
+        ? {
+            body: JSON.stringify({
+              name: flagName,
+              ...(schemaId ? { valueSchemaId: schemaId } : {}),
+              ...(description ? { description } : {}),
+            }),
+          }
+        : {}),
     });
 
     if (!res.ok) {
       const body = (await res.json().catch(() => ({}))) as { error?: string };
       console.error(
-        `\x1b[31mTypegen failed (${res.status}): ${body.error || res.statusText}\x1b[0m`,
+        `\x1b[31m${command === "typegen" ? "Typegen" : "Create flag"} failed (${res.status}): ${body.error || res.statusText}\x1b[0m`,
       );
       process.exit(1);
     }
 
-    const data = (await res.json()) as TypegenResponse;
-    const output = generateTypeDeclarations(data);
+    const data = await res.json();
+    if (command === "create-flag") {
+      console.log(
+        `\x1b[32m✔ Created flag "${(data as { name: string }).name}" (${(data as { id: string }).id})\x1b[0m`,
+      );
+      return;
+    }
+    const typedData = data as TypegenResponse;
+    const output = generateTypeDeclarations(typedData);
     const resolvedPath = resolve(process.cwd(), outPath);
     writeFileSync(resolvedPath, output, "utf8");
 
     console.log(
-      `\x1b[32m✔ Successfully generated types for ${data.flags.length} flag(s) in ${outPath}\x1b[0m`,
+      `\x1b[32m✔ Successfully generated types for ${typedData.flags.length} flag(s) in ${outPath}\x1b[0m`,
     );
   } catch (err) {
     console.error(

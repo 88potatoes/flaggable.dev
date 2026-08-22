@@ -37,6 +37,41 @@ describe("Flaggable CLI", () => {
     );
   });
 
+  it("creates a flag with the internal API key", async () => {
+    process.env.FLAGGABLE_INTERNAL_API_KEY = "ik_test_12345678901234567890";
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(async (_input, init) => {
+      expect(init?.method).toBe("POST");
+      expect(JSON.parse(String(init?.body))).toEqual({
+        name: "checkout-banner",
+        description: "Show the checkout banner",
+        valueSchemaId: "schema-1",
+      });
+      return Response.json({ id: "flag-1", name: "checkout-banner" }, { status: 201 });
+    });
+    const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+
+    await runCli([
+      "create-flag",
+      "checkout-banner",
+      "--schema",
+      "schema-1",
+      "--description",
+      "Show the checkout banner",
+    ]);
+
+    expect(fetchSpy).toHaveBeenCalledWith(
+      "https://flaggable.dev/api/v1/devtool/flag",
+      expect.objectContaining({
+        headers: expect.objectContaining({
+          "x-flaggable-internal-api-key": "ik_test_12345678901234567890",
+        }),
+      }),
+    );
+    expect(consoleLogSpy).toHaveBeenCalledWith(
+      expect.stringContaining('Created flag "checkout-banner"'),
+    );
+  });
+
   it("fetches schemas and writes generated types", async () => {
     process.env.FLAGGABLE_INTERNAL_API_KEY = "ik_test_12345678901234567890";
     const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(async () =>

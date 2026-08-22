@@ -1,31 +1,11 @@
-import { handleApiError, ApiError } from "@/lib/api";
+import { handleApiError } from "@/lib/api";
+import { requireInternalKeyProject } from "@/lib/devtool-auth";
 import { DrizzleFlagRepository } from "@/slices/flags/repo";
-import { InternalKeyService } from "@/slices/internal-keys/service";
-import { DrizzleProjectRepository } from "@/slices/projects/repo";
 import { DrizzleValueSchemaRepository } from "@/slices/value-schemas/repo";
 
 export async function GET(request: Request) {
   try {
-    const internalKeyHeader =
-      request.headers.get("x-flaggable-internal-api-key") ||
-      request.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
-
-    if (!internalKeyHeader?.trim()) {
-      throw new ApiError(
-        401,
-        "Missing internal API key. Provide header 'X-Flaggable-Internal-API-Key' or 'Authorization: Bearer <key>'.",
-      );
-    }
-
-    const key = await new InternalKeyService().resolve({ internalKey: internalKeyHeader.trim() });
-    if (!key) {
-      throw new ApiError(401, "Invalid or revoked internal API key.");
-    }
-
-    const project = await new DrizzleProjectRepository().findById({ projectId: key.projectId });
-    if (!project || project.archivedAt) {
-      throw new ApiError(401, "Project is archived or not found.");
-    }
+    const { project } = await requireInternalKeyProject(request);
 
     const flagsRepo = new DrizzleFlagRepository();
     const schemaRepo = new DrizzleValueSchemaRepository();
