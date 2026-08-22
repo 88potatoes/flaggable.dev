@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useCallback, KeyboardEvent } from "react";
+import { useEffect, useRef, useCallback, useState, KeyboardEvent } from "react";
 import { LoaderCircle, Search } from "lucide-react";
 
 import { Input } from "@flaggable/ui/input";
@@ -32,6 +32,7 @@ export function FlagBrowser({
   const sentinelRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const [highlightedFlagId, setHighlightedFlagId] = useState<string | null>(null);
 
   useEffect(() => {
     const sentinel = sentinelRef.current;
@@ -48,9 +49,11 @@ export function FlagBrowser({
     (event: KeyboardEvent<HTMLDivElement>) => {
       if (flags.length === 0) return;
 
-      const currentIndex = selectedFlagId
-        ? flags.findIndex((flag) => flag.id === selectedFlagId)
-        : -1;
+      const currentIndex = highlightedFlagId
+        ? flags.findIndex((flag) => flag.id === highlightedFlagId)
+        : selectedFlagId
+          ? flags.findIndex((flag) => flag.id === selectedFlagId)
+          : -1;
       let nextIndex = currentIndex;
 
       switch (event.key) {
@@ -65,30 +68,26 @@ export function FlagBrowser({
         case "Enter":
         case " ":
           event.preventDefault();
-          if (currentIndex >= 0) {
-            onSelect(flags[currentIndex].id);
-          }
+          if (highlightedFlagId) onSelect(highlightedFlagId);
           return;
         default:
           return;
       }
 
       if (nextIndex >= 0 && nextIndex < flags.length) {
-        onSelect(flags[nextIndex].id);
+        setHighlightedFlagId(flags[nextIndex].id);
       }
     },
-    [flags, selectedFlagId, onSelect],
+    [flags, highlightedFlagId, selectedFlagId, onSelect],
   );
 
-  // Focus management and auto-select first flag
+  // Keep the keyboard highlight aligned after a selection from the tab strip or mouse.
   useEffect(() => {
-    if (flags.length > 0 && !selectedFlagId) {
-      onSelect(flags[0].id);
-    }
-  }, [flags, selectedFlagId, onSelect]);
+    if (selectedFlagId) setHighlightedFlagId(selectedFlagId);
+  }, [selectedFlagId]);
 
   useEffect(() => {
-    containerRef.current?.focus();
+    if (selectedFlagId) containerRef.current?.focus();
   }, [selectedFlagId]);
 
   return (
@@ -153,13 +152,16 @@ export function FlagBrowser({
               className={`relative flex w-full items-center gap-2 rounded-md border px-2 py-1.5 text-left transition-colors duration-150 ease-out focus:outline-none ${
                 selectedFlagId === flag.id
                   ? "border-[var(--accent)] bg-[var(--accent-soft)] before:absolute before:-left-2 before:top-1/2 before:h-[70%] before:w-0.5 before:-translate-y-1/2 before:bg-[var(--accent)] before:content-['']"
-                  : flag.enabled
-                    ? "border-transparent hover:border-[var(--line)] hover:bg-[var(--surface-2)]"
-                    : "border-transparent opacity-60 hover:border-[var(--line)] hover:bg-[var(--surface-2)] hover:opacity-100"
+                  : highlightedFlagId === flag.id
+                    ? "border-[var(--line)] bg-[var(--surface-2)]"
+                    : flag.enabled
+                      ? "border-transparent hover:border-[var(--line)] hover:bg-[var(--surface-2)]"
+                      : "border-transparent opacity-60 hover:border-[var(--line)] hover:bg-[var(--surface-2)] hover:opacity-100"
               }`}
               aria-pressed={selectedFlagId === flag.id}
+              data-highlighted={highlightedFlagId === flag.id}
               onClick={() => onSelect(flag.id)}
-              onFocus={() => onSelect(flag.id)}
+              onMouseEnter={() => setHighlightedFlagId(flag.id)}
             >
               <div className="flex min-w-0 flex-1 items-center gap-2">
                 <span className="grid min-w-0 gap-0.5 text-left">

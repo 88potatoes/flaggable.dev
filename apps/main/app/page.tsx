@@ -225,89 +225,6 @@ export default function Dashboard() {
       flagSidebar={flagSidebar}
     >
       <div className="dashboard-inner">
-        {selectedFlag && flags.length > 0 ? (
-          <div className="mb-8">
-            <div className="flex items-center gap-3 mb-2 flex-wrap">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--accent)] text-sm font-bold text-white">
-                {selectedFlag.name[0]?.toUpperCase() || "F"}
-              </div>
-              <h1 className="text-2xl font-semibold tracking-tight text-[var(--text-primary)]">
-                {selectedFlag.name}
-              </h1>
-              <div
-                className={`px-2 py-1 rounded text-xs font-semibold ${
-                  selectedFlag.enabled
-                    ? "bg-[var(--accent-soft)] text-[var(--accent)]"
-                    : "bg-[var(--surface-2)] text-[var(--text-muted)]"
-                }`}
-              >
-                {selectedFlag.enabled ? "Active" : "Inactive"}
-              </div>
-              <div className="ml-auto flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    setAgentPromptFlagName(selectedFlag.name);
-                    setIsAgentPromptOpen(true);
-                  }}
-                  className="gap-1.5 border-[var(--line)] bg-[var(--accent-soft)] text-[var(--accent)] hover:bg-[var(--surface-2)] font-medium"
-                >
-                  <Sparkles className="size-3.5 text-orange-600" />
-                  AI Setup Prompt
-                </Button>
-                <Switch
-                  checked={selectedFlag.enabled}
-                  onCheckedChange={(enabled: boolean) =>
-                    updateFlag.mutate({ flagId: selectedFlag.id, values: { enabled } })
-                  }
-                  disabled={updateFlag.isPending}
-                  aria-label={`${selectedFlag.enabled ? "Disable" : "Enable"} ${selectedFlag.name}`}
-                />
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      className="text-[var(--text-muted)] hover:text-[var(--text-primary)]"
-                      aria-label={`More actions for ${selectedFlag.name}`}
-                    >
-                      <MoreHorizontal className="size-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem
-                      onClick={() => {
-                        setAgentPromptFlagName(selectedFlag.name);
-                        setIsAgentPromptOpen(true);
-                      }}
-                    >
-                      <Sparkles className="mr-2 size-4 text-orange-600" />
-                      Get AI Agent Prompt
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      variant="destructive"
-                      onClick={() => archiveFlag.mutate({ flagId: selectedFlag.id })}
-                      disabled={archiveFlag.isPending}
-                    >
-                      Archive flag
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            </div>
-          </div>
-        ) : projects.length > 0 && flags.length > 0 ? (
-          <div className="mb-12">
-            <h1 className="text-3xl font-semibold tracking-tight text-[var(--text-primary)]">
-              Feature Flags
-            </h1>
-            <p className="mt-2 text-base text-[var(--text-muted)]">
-              Control feature rollouts and manage your application's behavior
-            </p>
-          </div>
-        ) : null}
-
         {projectsQuery.isLoading || onboardingQuery.isLoading ? (
           <Card className="project-empty-state" aria-busy="true">
             <Skeleton className="h-6 w-32" />
@@ -326,32 +243,36 @@ export default function Dashboard() {
           </Card>
         ) : (
           <>
-            {alerts && (
-              <Alert
-                variant={
-                  error || projectsQuery.error || flagsQuery.error ? "destructive" : "success"
-                }
-                className="mb-8 flex items-center justify-between rounded-lg border border-[var(--line)] bg-[var(--surface-1)]"
-              >
-                <span className="font-medium">
-                  {error || projectsQuery.error?.message || flagsQuery.error?.message}
-                </span>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    setError("");
-                  }}
-                  aria-label="Dismiss message"
-                  className="h-6 w-6 rounded-md p-0 hover:bg-gray-100"
+            <Tabs
+              value={selectedFlag?.id}
+              onValueChange={setSelectedFlagId}
+              className="flag-tabs w-full"
+            >
+              {alerts && (
+                <Alert
+                  variant={
+                    error || projectsQuery.error || flagsQuery.error ? "destructive" : "success"
+                  }
+                  className="mb-8 flex items-center justify-between rounded-lg border border-[var(--line)] bg-[var(--surface-1)]"
                 >
-                  ×
-                </Button>
-              </Alert>
-            )}
+                  <span className="font-medium">
+                    {error || projectsQuery.error?.message || flagsQuery.error?.message}
+                  </span>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setError("");
+                    }}
+                    aria-label="Dismiss message"
+                    className="h-6 w-6 rounded-md p-0 hover:bg-gray-100"
+                  >
+                    ×
+                  </Button>
+                </Alert>
+              )}
 
-            <div className="flag-detail-container">
               {/* Mobile flag browser - only show on small screens when we have flags */}
               <div className="mb-8 block md:hidden">
                 {flags.length > 0 && (
@@ -392,20 +313,78 @@ export default function Dashboard() {
                   </div>
                 )}
               </div>
-              <Tabs
-                value={selectedFlag?.id}
-                onValueChange={setSelectedFlagId}
-                className="flag-tabs"
-              >
-                <TabsList className="mb-6 max-w-full overflow-x-auto bg-[var(--surface-2)]">
-                  {openFlags.map((flag) => (
-                    <TabsTrigger key={flag.id} value={flag.id}>
-                      {flag.name}
-                    </TabsTrigger>
-                  ))}
-                </TabsList>
+              <TabsList className="mb-6 max-w-full overflow-x-auto bg-[var(--surface-2)]">
                 {openFlags.map((flag) => (
-                  <TabsContent key={flag.id} value={flag.id}>
+                  <TabsTrigger key={flag.id} value={flag.id}>
+                    {flag.name}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+              {openFlags.map((flag) => (
+                <TabsContent key={flag.id} value={flag.id}>
+                  <div className="flag-tab-panel">
+                    <div className="mb-6 flex flex-wrap items-center gap-3 border-b border-[var(--line)] pb-5">
+                      <div>
+                        <h1 className="text-2xl font-semibold tracking-tight text-[var(--text-primary)]">
+                          {flag.name}
+                        </h1>
+                        <span className="text-xs text-[var(--text-muted)]">
+                          {flag.enabled ? "Active" : "Inactive"}
+                        </span>
+                      </div>
+                      <div className="ml-auto flex items-center gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setAgentPromptFlagName(flag.name);
+                            setIsAgentPromptOpen(true);
+                          }}
+                          className="gap-1.5 border-[var(--line)] bg-[var(--accent-soft)] font-medium text-[var(--accent)] hover:bg-[var(--surface-2)]"
+                        >
+                          <Sparkles className="size-3.5" />
+                          AI Setup Prompt
+                        </Button>
+                        <Switch
+                          checked={flag.enabled}
+                          onCheckedChange={(enabled: boolean) =>
+                            updateFlag.mutate({ flagId: flag.id, values: { enabled } })
+                          }
+                          disabled={updateFlag.isPending}
+                          aria-label={`${flag.enabled ? "Disable" : "Enable"} ${flag.name}`}
+                        />
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon-sm"
+                              className="text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+                              aria-label={`More actions for ${flag.name}`}
+                            >
+                              <MoreHorizontal className="size-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              onClick={() => {
+                                setAgentPromptFlagName(flag.name);
+                                setIsAgentPromptOpen(true);
+                              }}
+                            >
+                              <Sparkles className="mr-2 size-4 text-orange-600" />
+                              Get AI Agent Prompt
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              variant="destructive"
+                              onClick={() => archiveFlag.mutate({ flagId: flag.id })}
+                              disabled={archiveFlag.isPending}
+                            >
+                              Archive flag
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </div>
                     <FlagDetail
                       flag={flag}
                       onOpenAgentPrompt={() => {
@@ -413,10 +392,10 @@ export default function Dashboard() {
                         setIsAgentPromptOpen(true);
                       }}
                     />
-                  </TabsContent>
-                ))}
-              </Tabs>
-            </div>
+                  </div>
+                </TabsContent>
+              ))}
+            </Tabs>
 
             <AgentPromptDialog
               open={isAgentPromptOpen}
