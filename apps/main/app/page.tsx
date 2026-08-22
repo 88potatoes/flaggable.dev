@@ -39,7 +39,7 @@ import {
 } from "@/slices/flags/queries";
 import { useQueryProjects } from "@/slices/projects/queries";
 import { useQueryOnboarding } from "@/slices/onboarding/queries";
-import { ApiClientError, getApiErrorMessage, setActiveProjectId } from "@/slices/http";
+import { ApiClientError, setActiveProjectId } from "@/slices/http";
 import { useQuerySchemas } from "@/slices/value-schemas/queries";
 import { toast } from "sonner";
 
@@ -139,12 +139,6 @@ export default function Dashboard() {
     setSelectedFlagId("");
   }
 
-  function showFlagMutationError(error: unknown, action: string) {
-    toast.error(`Could not ${action} flag`, {
-      description: getApiErrorMessage(error, "Please try again."),
-    });
-  }
-
   function submitCreateFlag(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const trimmedName = newFlagName.trim();
@@ -182,15 +176,12 @@ export default function Dashboard() {
           });
         },
         onError: (mutationError) => {
-          const message = getApiErrorMessage(mutationError, "Could not create flag.");
           if (
             mutationError instanceof ApiClientError &&
             mutationError.code === "flag_name_conflict"
           ) {
-            setFlagNameError(message);
-            return;
+            setFlagNameError(mutationError.message);
           }
-          toast.error("Could not create flag", { description: message });
         },
       },
     );
@@ -242,16 +233,6 @@ export default function Dashboard() {
             <Skeleton className="h-4 w-full max-w-sm" />
             <Skeleton className="h-8 w-full" />
           </Card>
-        ) : flagsQuery.isError ? (
-          <div role="alert" className="alert alert-error alert-soft">
-            <div>
-              <p className="font-medium">Could not load flags</p>
-              <p className="text-sm">{getApiErrorMessage(flagsQuery.error, "Please try again.")}</p>
-            </div>
-            <Button variant="outline" size="sm" onClick={() => flagsQuery.refetch()}>
-              Try again
-            </Button>
-          </div>
         ) : (
           <>
             <Tabs value={selectedFlag?.id} onValueChange={setSelectedFlagId} className="w-full">
@@ -330,10 +311,7 @@ export default function Dashboard() {
                         <Switch
                           checked={flag.enabled}
                           onCheckedChange={(enabled: boolean) =>
-                            updateFlag.mutate(
-                              { flagId: flag.id, values: { enabled } },
-                              { onError: (error) => showFlagMutationError(error, "update") },
-                            )
+                            updateFlag.mutate({ flagId: flag.id, values: { enabled } })
                           }
                           disabled={updateFlag.isPending}
                           aria-label={`${flag.enabled ? "Disable" : "Enable"} ${flag.name}`}
@@ -361,12 +339,7 @@ export default function Dashboard() {
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               variant="destructive"
-                              onClick={() =>
-                                archiveFlag.mutate(
-                                  { flagId: flag.id },
-                                  { onError: (error) => showFlagMutationError(error, "archive") },
-                                )
-                              }
+                              onClick={() => archiveFlag.mutate({ flagId: flag.id })}
                               disabled={archiveFlag.isPending}
                             >
                               Archive flag

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { Check, Copy, KeyRound, Lock, Plus, ShieldCheck } from "lucide-react";
 import { Badge } from "@flaggable/ui/badge";
@@ -26,18 +26,6 @@ export function ApiKeysPanel({ projectId }: { projectId: string }) {
 
   const internalKeysQuery = useQueryInternalKeys(projectId);
   const createInternalKey = useMutateCreateInternalKey(projectId);
-
-  useEffect(() => {
-    if (publicKeysQuery.error) {
-      toast.error("Could not load public keys", { description: publicKeysQuery.error.message });
-    }
-  }, [publicKeysQuery.error]);
-
-  useEffect(() => {
-    if (internalKeysQuery.error) {
-      toast.error("Could not load internal keys", { description: internalKeysQuery.error.message });
-    }
-  }, [internalKeysQuery.error]);
 
   const [rawSecretKey, setRawSecretKey] = useState<{
     key: string;

@@ -108,11 +108,6 @@ export function OnboardingWizard({
           toast.success("Project created", { description: `${project.name} is ready.` });
           setStep("flag");
         },
-        onError: (err) => {
-          toast.error("Could not create project", {
-            description: err.message || "Please try again.",
-          });
-        },
       },
     );
   };
@@ -144,11 +139,6 @@ export function OnboardingWizard({
           setIsDemoFlagActive(flag.enabled);
           toast.success("Flag created", { description: `Flag "${name}" created successfully!` });
           setStep("sdk");
-        },
-        onError: (err) => {
-          toast.error("Could not create feature flag", {
-            description: err.message || "Please try again.",
-          });
         },
       },
     );
@@ -563,11 +553,6 @@ export function OnboardingWizard({
                 onClick={() => {
                   acknowledgeSdkSetup.mutate(undefined, {
                     onSuccess: () => onComplete?.(createdFlag?.id),
-                    onError: () => {
-                      toast.error("Could not save onboarding progress", {
-                        description: "Please try again.",
-                      });
-                    },
                   });
                 }}
                 disabled={acknowledgeSdkSetup.isPending}

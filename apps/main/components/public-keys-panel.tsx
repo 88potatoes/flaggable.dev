@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { Check, Copy, KeyRound, Plus } from "lucide-react";
 import { Badge } from "@flaggable/ui/badge";
@@ -20,11 +20,6 @@ import { useMutateCreatePublicKey, useQueryPublicKeys } from "@/slices/public-ke
 export function PublicKeysPanel({ projectId }: { projectId: string }) {
   const query = useQueryPublicKeys(projectId);
 
-  useEffect(() => {
-    if (query.error) {
-      toast.error("Could not load public keys", { description: query.error.message });
-    }
-  }, [query.error]);
   const create = useMutateCreatePublicKey(projectId);
   const [rawKey, setRawKey] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);

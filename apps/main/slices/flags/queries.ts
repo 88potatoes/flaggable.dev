@@ -36,6 +36,7 @@ function invalidateProjectFlags(queryClient: ReturnType<typeof useQueryClient>, 
 export function useMutateCreateFlag(projectId: string) {
   const queryClient = useQueryClient();
   return useMutation({
+    meta: { skipErrorToast: true },
     mutationFn: async (values: { valueSchemaId: string; name: string; description?: string }) =>
       api.post(`projects/${projectId}/flags`, { json: values }).json<Flag>(),
     onSuccess: async (flag) => {

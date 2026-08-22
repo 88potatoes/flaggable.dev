@@ -91,10 +91,6 @@ export function ConditionList({
           setResultValue("");
           setIsAdding(false);
         },
-        onError: (error) =>
-          toast.error("Could not create condition", {
-            description: error.message || "Please try again.",
-          }),
       },
     );
   }
