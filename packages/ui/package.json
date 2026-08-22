@@ -21,6 +21,7 @@
     "./sonner": "./src/ui/sonner.tsx",
     "./switch": "./src/ui/switch.tsx",
     "./table": "./src/ui/table.tsx",
+    "./tabs": "./src/ui/tabs.tsx",
     "./tooltip": "./src/ui/tooltip.tsx",
     "./use-mobile": "./src/use-mobile.ts",
     "./utils": "./src/utils.ts"

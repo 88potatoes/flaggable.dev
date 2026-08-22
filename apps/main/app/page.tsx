@@ -31,6 +31,7 @@ import { DashboardShell } from "@/components/dashboard-sidebar";
 import { FlagBrowser } from "@/components/flag-browser";
 import { FlagDetail } from "@/components/flag-detail";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@flaggable/ui/tabs";
 import {
   useMutateArchiveFlag,
   useMutateCreateFlag,
@@ -52,6 +53,7 @@ function getApiErrorMessage(error: Error, fallback: string) {
 
 export default function Dashboard() {
   const [selectedFlagId, setSelectedFlagId] = useState("");
+  const [openFlagIds, setOpenFlagIds] = useState<string[]>([]);
   const [query, setQuery] = useState("");
   const [projectId, setProjectId] = useState("");
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -112,6 +114,9 @@ export default function Dashboard() {
     [flagsQuery.data],
   );
   const selectedFlag = flags.find((flag) => flag.id === selectedFlagId) ?? flags[0];
+  const openFlags = openFlagIds
+    .map((id) => flags.find((flag) => flag.id === id))
+    .filter((flag): flag is (typeof flags)[number] => Boolean(flag));
 
   useEffect(() => {
     if (!projectId && projects[0]) setProjectId(projects[0].id);
@@ -197,7 +202,10 @@ export default function Dashboard() {
         search={query}
         onSearchChange={setQuery}
         selectedFlagId={selectedFlag?.id}
-        onSelect={setSelectedFlagId}
+        onSelect={(flagId) => {
+          setSelectedFlagId(flagId);
+          setOpenFlagIds((current) => (current.includes(flagId) ? current : [...current, flagId]));
+        }}
         isLoading={flagsQuery.isLoading}
         isFetchingNextPage={flagsQuery.isFetchingNextPage}
         hasNextPage={Boolean(flagsQuery.hasNextPage)}
@@ -353,7 +361,12 @@ export default function Dashboard() {
                       {flags.slice(0, 5).map((flag) => (
                         <button
                           key={flag.id}
-                          onClick={() => setSelectedFlagId(flag.id)}
+                          onClick={() => {
+                            setSelectedFlagId(flag.id);
+                            setOpenFlagIds((current) =>
+                              current.includes(flag.id) ? current : [...current, flag.id],
+                            );
+                          }}
                           className={`flex w-full items-center gap-3 rounded-lg p-3 text-left transition-colors ${
                             selectedFlag?.id === flag.id
                               ? "bg-[var(--accent-soft)] ring-1 ring-[var(--accent)]"
@@ -379,15 +392,30 @@ export default function Dashboard() {
                   </div>
                 )}
               </div>
-              <FlagDetail
-                flag={selectedFlag}
-                onOpenAgentPrompt={() => {
-                  if (selectedFlag) {
-                    setAgentPromptFlagName(selectedFlag.name);
-                    setIsAgentPromptOpen(true);
-                  }
-                }}
-              />
+              <Tabs
+                value={selectedFlag?.id}
+                onValueChange={setSelectedFlagId}
+                className="flag-tabs"
+              >
+                <TabsList className="mb-6 max-w-full overflow-x-auto bg-[var(--surface-2)]">
+                  {openFlags.map((flag) => (
+                    <TabsTrigger key={flag.id} value={flag.id}>
+                      {flag.name}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+                {openFlags.map((flag) => (
+                  <TabsContent key={flag.id} value={flag.id}>
+                    <FlagDetail
+                      flag={flag}
+                      onOpenAgentPrompt={() => {
+                        setAgentPromptFlagName(flag.name);
+                        setIsAgentPromptOpen(true);
+                      }}
+                    />
+                  </TabsContent>
+                ))}
+              </Tabs>
             </div>
 
             <AgentPromptDialog
