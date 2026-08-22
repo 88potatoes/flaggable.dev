@@ -1,6 +1,8 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
-import { ApiClientError, getApiErrorMessage } from "./http";
+import { FlagError } from "@/slices/flags/errors";
+import { handleApiError } from "@/lib/api";
+import { ApiClientError, api } from "./http";
 
 describe("ApiClientError", () => {
   test("retains stable API error metadata", () => {
@@ -21,7 +23,27 @@ describe("ApiClientError", () => {
     });
   });
 
-  test("uses a fallback for unknown errors", () => {
-    expect(getApiErrorMessage({}, "Try again.")).toBe("Try again.");
+  test("parses the API envelope from ky HTTP errors", async () => {
+    const fetchSpy = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValue(
+        handleApiError(
+          new FlagError("flag_name_conflict", "A flag already exists.", { field: "name" }),
+        ),
+      );
+
+    const testApi = api.extend({ prefix: "http://localhost/api/v1" });
+    await expect(testApi.post("projects/project-1/flags")).rejects.toMatchObject({
+      name: "ApiClientError",
+      status: 409,
+      code: "flag_name_conflict",
+      message: "A flag already exists.",
+    });
+    expect(fetchSpy).toHaveBeenCalled();
+    fetchSpy.mockRestore();
+  });
+
+  test("does not throw for unknown errors when formatting", () => {
+    expect(new ApiClientError("", 500).message).toBe("");
   });
 });

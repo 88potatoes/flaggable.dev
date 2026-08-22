@@ -24,30 +24,10 @@ export function getApiErrorMessage(error: unknown, fallback: string) {
 async function parseApiError({ error }: { error: Error }): Promise<Error> {
   if (!(error instanceof HTTPError)) return error;
 
-  const body = await error.response
-    .json<{
-      error?:
-        | string
-        | {
-            code?: string;
-            message?: string;
-            details?: unknown;
-            requestId?: string;
-          };
-    }>()
-    .catch(
-      (): {
-        error?:
-          | string
-          | {
-              code?: string;
-              message?: string;
-              details?: unknown;
-              requestId?: string;
-            };
-      } => ({}),
-    );
-  const payload = body.error;
+  // ky parses the response before running beforeError and consumes the body.
+  // Read error.data rather than calling response.json(), which would be empty.
+  const body = isApiErrorBody(error.data) ? error.data : undefined;
+  const payload = body?.error;
   if (typeof payload === "string") {
     return new ApiClientError(payload, error.response.status);
   }
@@ -59,6 +39,19 @@ async function parseApiError({ error }: { error: Error }): Promise<Error> {
     payload?.details,
     payload?.requestId ?? error.response.headers.get("x-request-id") ?? undefined,
   );
+}
+
+function isApiErrorBody(value: unknown): value is {
+  error?:
+    | string
+    | {
+        code?: string;
+        message?: string;
+        details?: unknown;
+        requestId?: string;
+      };
+} {
+  return typeof value === "object" && value !== null && "error" in value;
 }
 
 let activeProjectId: string | null = null;
