@@ -137,7 +137,7 @@ export function DashboardSidebar({
               <SidebarMenu>
                 <SidebarMenuItem>
                   <SidebarMenuButton
-                    className="h-9 bg-[var(--accent)] text-white hover:bg-[var(--accent-hover)] hover:text-white"
+                    className="h-9 bg-[var(--accent)] text-[var(--accent-foreground)] hover:bg-[var(--accent-hover)] hover:text-[var(--accent-foreground)]"
                     tooltip="New flag"
                     onClick={onNewFlag}
                   >
@@ -228,7 +228,7 @@ export function DashboardSidebar({
                     {user?.picture && (
                       <AvatarImage src={user.picture} alt="" className="rounded-lg" />
                     )}
-                    <AvatarFallback className="rounded-lg bg-[#f7d1c7] text-xs font-semibold text-[#ad503c]">
+                    <AvatarFallback className="rounded-lg bg-[var(--accent-soft)] text-xs font-semibold text-[var(--accent-deep)]">
                       {userInitials}
                     </AvatarFallback>
                   </Avatar>

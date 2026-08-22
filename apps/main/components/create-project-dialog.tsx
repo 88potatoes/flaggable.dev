@@ -62,7 +62,7 @@ export function CreateProjectDialog({
       <DialogContent className="max-w-md">
         <DialogHeader>
           <div className="flex items-center gap-2">
-            <div className="flex size-8 items-center justify-center rounded-lg bg-orange-100 text-orange-600">
+            <div className="flex size-8 items-center justify-center rounded-lg bg-[var(--accent-soft)] text-[var(--accent)]">
               <FolderPlus className="size-4" />
             </div>
             <div>
@@ -106,7 +106,7 @@ export function CreateProjectDialog({
             <Button
               type="submit"
               disabled={createProject.isPending || !name.trim()}
-              className="bg-orange-600 hover:bg-orange-700 text-white font-medium"
+              className="bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-[var(--accent-foreground)] font-medium"
             >
               {createProject.isPending ? (
                 <>

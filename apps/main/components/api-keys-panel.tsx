@@ -82,7 +82,7 @@ export function ApiKeysPanel({ projectId }: { projectId: string }) {
         <CardHeader className="api-key-header flex-col items-start justify-between gap-4 sm:flex-row">
           <div className="space-y-1">
             <CardTitle className="flex items-center gap-2">
-              <Lock className="size-4 text-orange-600" /> Internal API Keys
+              <Lock className="size-4 text-[var(--accent)]" /> Internal API Keys
             </CardTitle>
             <CardDescription>
               Scoped project credentials for the CLI (
@@ -95,7 +95,7 @@ export function ApiKeysPanel({ projectId }: { projectId: string }) {
             size="sm"
             onClick={() => setIsInternalNameDialogOpen(true)}
             disabled={createInternalKey.isPending}
-            className="bg-orange-600 hover:bg-orange-700 text-white"
+            className="bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-[var(--accent-foreground)]"
           >
             <Plus className="mr-1 size-3.5" />
             {createInternalKey.isPending ? "Creating…" : "Create internal key"}
@@ -171,7 +171,7 @@ export function ApiKeysPanel({ projectId }: { projectId: string }) {
         <CardHeader className="api-key-header flex-col items-start justify-between gap-4 sm:flex-row">
           <div className="space-y-1">
             <CardTitle className="flex items-center gap-2">
-              <ShieldCheck className="size-4 text-emerald-600" /> Public SDK Keys
+              <ShieldCheck className="size-4 text-[var(--success)]" /> Public SDK Keys
             </CardTitle>
             <CardDescription>
               Public credentials safely embedded in client applications (
@@ -256,7 +256,7 @@ export function ApiKeysPanel({ projectId }: { projectId: string }) {
               variant="accent"
               onClick={handleCreateInternalKey}
               disabled={createInternalKey.isPending}
-              className="bg-orange-600 hover:bg-orange-700 text-white"
+              className="bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-[var(--accent-foreground)]"
             >
               {createInternalKey.isPending ? "Creating..." : "Generate Key"}
             </Button>
@@ -273,7 +273,7 @@ export function ApiKeysPanel({ projectId }: { projectId: string }) {
       >
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <div className="flex size-10 items-center justify-center rounded-xl bg-orange-100 text-orange-600 mb-2">
+            <div className="flex size-10 items-center justify-center rounded-xl bg-[var(--accent-soft)] text-[var(--accent)] mb-2">
               <KeyRound className="size-5" />
             </div>
             <DialogTitle>
@@ -286,7 +286,7 @@ export function ApiKeysPanel({ projectId }: { projectId: string }) {
             </DialogDescription>
           </DialogHeader>
 
-          <code className="block break-all rounded-md border bg-zinc-950 p-3 font-mono text-xs text-zinc-100">
+          <code className="block break-all rounded-md border bg-[var(--surface-0)] p-3 font-mono text-xs text-[var(--text-primary)]">
             {rawSecretKey?.key}
           </code>
 
@@ -294,7 +294,7 @@ export function ApiKeysPanel({ projectId }: { projectId: string }) {
             <Button
               variant="accent"
               onClick={handleCopySecretKey}
-              className="w-full bg-orange-600 hover:bg-orange-700 text-white"
+              className="w-full bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-[var(--accent-foreground)]"
             >
               {copied ? <Check className="mr-1.5 size-4" /> : <Copy className="mr-1.5 size-4" />}
               {copied ? "Copied to Clipboard!" : "Copy Key"}

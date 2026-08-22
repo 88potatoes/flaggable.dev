@@ -125,7 +125,7 @@ export function ConditionList({
       <Card className="gap-0 form-surface">
         <CardHeader className="pb-4">
           <div className="flex items-center gap-2">
-            <Settings className="h-5 w-5 text-gray-600" />
+            <Settings className="h-5 w-5 text-[var(--text-muted)]" />
             <CardTitle className="text-lg">Targeting Conditions</CardTitle>
           </div>
           <CardDescription>
@@ -134,12 +134,14 @@ export function ConditionList({
         </CardHeader>
         <CardContent className="space-y-4 pb-4">
           {conditions.length === 0 ? (
-            <div className="rounded-lg border-2 border-dashed border-gray-200 p-8 text-center">
-              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-gray-100">
-                <Settings className="h-6 w-6 text-gray-400" />
+            <div className="rounded-lg border-2 border-dashed border-[var(--line)] p-8 text-center">
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--surface-2)]">
+                <Settings className="h-6 w-6 text-[var(--text-muted)]" />
               </div>
-              <h3 className="text-sm font-medium text-gray-900">No conditions configured</h3>
-              <p className="mt-1 text-sm text-gray-500">
+              <h3 className="text-sm font-medium text-[var(--text-primary)]">
+                No conditions configured
+              </h3>
+              <p className="mt-1 text-sm text-[var(--text-muted)]">
                 This flag will evaluate to its default value ({flag.enabled ? "Active" : "Inactive"}
                 ).
               </p>
@@ -151,26 +153,26 @@ export function ConditionList({
                   key={condition.id}
                   className={`rounded-lg border p-4 transition-all ${
                     condition.enabled
-                      ? "border-green-200 bg-green-50/50"
-                      : "border-gray-200 bg-gray-50/50"
+                      ? "border-[var(--line)] bg-[var(--accent-soft)]/50"
+                      : "border-[var(--line)] bg-[var(--surface-1)]/50"
                   }`}
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
-                        <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-600">
-                          <span className="flex h-5 w-5 items-center justify-center rounded bg-gray-200 text-xs font-bold">
+                        <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--text-muted)]">
+                          <span className="flex h-5 w-5 items-center justify-center rounded bg-[var(--surface-2)] text-xs font-bold">
                             {index + 1}
                           </span>
                           CONDITION
                         </span>
                         {condition.enabled ? (
-                          <div className="flex items-center gap-1 text-xs font-medium text-green-700">
+                          <div className="flex items-center gap-1 text-xs font-medium text-[var(--success)]">
                             <Unlock className="h-3 w-3" />
                             Active
                           </div>
                         ) : (
-                          <div className="flex items-center gap-1 text-xs font-medium text-gray-500">
+                          <div className="flex items-center gap-1 text-xs font-medium text-[var(--text-muted)]">
                             <Lock className="h-3 w-3" />
                             Disabled
                           </div>
@@ -178,18 +180,18 @@ export function ConditionList({
                       </div>
                       <div className="space-y-2">
                         <div className="text-sm">
-                          <span className="text-gray-600">When </span>
-                          <code className="rounded bg-gray-100 px-1.5 py-0.5 text-xs font-semibold text-gray-900">
+                          <span className="text-[var(--text-muted)]">When </span>
+                          <code className="rounded bg-[var(--surface-2)] px-1.5 py-0.5 text-xs font-semibold text-[var(--text-primary)]">
                             {condition.property}
                           </code>
-                          <span className="text-gray-600"> {condition.operator} </span>
-                          <code className="rounded bg-blue-100 px-1.5 py-0.5 text-xs font-semibold text-blue-900">
+                          <span className="text-[var(--text-muted)]"> {condition.operator} </span>
+                          <code className="rounded bg-[var(--surface-2)] px-1.5 py-0.5 text-xs font-semibold text-[var(--blue)]">
                             {JSON.stringify(condition.predicateValue)}
                           </code>
                         </div>
                         <div className="text-sm">
-                          <span className="text-gray-600">Return </span>
-                          <code className="rounded bg-orange-100 px-1.5 py-0.5 text-xs font-semibold text-orange-900">
+                          <span className="text-[var(--text-muted)]">Return </span>
+                          <code className="rounded bg-[var(--accent-soft)] px-1.5 py-0.5 text-xs font-semibold text-[var(--accent)]">
                             {JSON.stringify(condition.resultValue)}
                           </code>
                         </div>
@@ -202,7 +204,9 @@ export function ConditionList({
                         onClick={() =>
                           handleConditionToggle(condition.id, condition.property, condition.enabled)
                         }
-                        className={condition.enabled ? "" : "bg-green-600 hover:bg-green-700"}
+                        className={
+                          condition.enabled ? "" : "bg-[var(--success)] hover:bg-[var(--success)]"
+                        }
                       >
                         {condition.enabled ? (
                           <>
@@ -239,7 +243,7 @@ export function ConditionList({
               <CardContent className="p-4">
                 <form className="form-stack" onSubmit={submit}>
                   <div className="flex items-center gap-2 mb-3">
-                    <Plus className="h-4 w-4 text-gray-500" />
+                    <Plus className="h-4 w-4 text-[var(--text-muted)]" />
                     <Label htmlFor="condition-property" className="text-sm font-semibold">
                       New targeting condition
                     </Label>
@@ -331,7 +335,7 @@ export function ConditionList({
                       type="submit"
                       size="sm"
                       disabled={createCondition.isPending}
-                      className="bg-[var(--accent)] text-white hover:bg-[var(--accent-hover)]"
+                      className="bg-[var(--accent)] text-[var(--accent-foreground)] hover:bg-[var(--accent-hover)]"
                     >
                       {createCondition.isPending ? "Creating..." : "Create condition"}
                     </Button>
@@ -359,8 +363,8 @@ export function ConditionList({
         <DialogContent className="max-w-md">
           <DialogHeader>
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-orange-100">
-                <AlertTriangle className="h-5 w-5 text-orange-600" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--accent-soft)]">
+                <AlertTriangle className="h-5 w-5 text-[var(--accent)]" />
               </div>
               <div>
                 <DialogTitle className="text-left">
@@ -382,8 +386,8 @@ export function ConditionList({
               onClick={executeConditionChange}
               className={
                 confirmationModal?.type === "enable"
-                  ? "bg-green-600 hover:bg-green-700"
-                  : "bg-red-600 hover:bg-red-700"
+                  ? "bg-[var(--success)] hover:bg-[var(--success)]"
+                  : "bg-[var(--danger)] hover:bg-[var(--danger)]"
               }
             >
               {confirmationModal?.type === "enable" ? "Enable condition" : "Disable condition"}

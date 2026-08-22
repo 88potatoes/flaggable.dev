@@ -105,7 +105,7 @@ export function CommandPalette({
               onClick={onCreateFlag}
               disabled={!canCreateFlag}
             >
-              <span className="flex size-8 items-center justify-center rounded-md bg-orange-100 text-orange-700">
+              <span className="flex size-8 items-center justify-center rounded-md bg-[var(--accent-soft)] text-[var(--accent)]">
                 <Plus className="size-4" />
               </span>
               <span className="min-w-0 flex-1">
@@ -129,7 +129,7 @@ export function CommandPalette({
                 onCreateProject();
               }}
             >
-              <span className="flex size-8 items-center justify-center rounded-md bg-zinc-100 text-zinc-700">
+              <span className="flex size-8 items-center justify-center rounded-md bg-[var(--surface-2)] text-[var(--text-primary)]">
                 <FolderPlus className="size-4" />
               </span>
               <span className="min-w-0 flex-1">
@@ -150,7 +150,7 @@ export function CommandPalette({
                 onOpenAgentPrompt();
               }}
             >
-              <span className="flex size-8 items-center justify-center rounded-md bg-amber-100 text-amber-700">
+              <span className="flex size-8 items-center justify-center rounded-md bg-[var(--accent-soft)] text-[var(--warning)]">
                 <Sparkles className="size-4" />
               </span>
               <span className="min-w-0 flex-1">
@@ -169,7 +169,7 @@ export function CommandPalette({
               rel="noreferrer"
               className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors hover:bg-muted focus-visible:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
-              <span className="flex size-8 items-center justify-center rounded-md bg-zinc-100 text-zinc-700">
+              <span className="flex size-8 items-center justify-center rounded-md bg-[var(--surface-2)] text-[var(--text-primary)]">
                 <FileText className="size-4" />
               </span>
               <span className="min-w-0 flex-1">

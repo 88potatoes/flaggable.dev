@@ -125,7 +125,7 @@ export function AgentPromptDialog({
       <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col gap-0 p-0 overflow-hidden">
         <DialogHeader className="border-b px-6 py-4">
           <div className="flex items-center gap-2">
-            <div className="flex size-8 items-center justify-center rounded-lg bg-orange-100 text-orange-600">
+            <div className="flex size-8 items-center justify-center rounded-lg bg-[var(--accent-soft)] text-[var(--accent)]">
               <Sparkles className="size-4" />
             </div>
             <div>
@@ -138,29 +138,31 @@ export function AgentPromptDialog({
         </DialogHeader>
 
         <div className="flex-1 overflow-y-auto p-6 space-y-4">
-          <div className="flex items-center justify-between rounded-lg border bg-zinc-50 p-3 text-xs">
-            <span className="font-semibold text-zinc-900">
+          <div className="flex items-center justify-between rounded-lg border bg-[var(--surface-1)] p-3 text-xs">
+            <span className="font-semibold text-[var(--text-primary)]">
               Target Flag:{" "}
-              <code className="font-mono bg-zinc-200 px-1 py-0.5 rounded">{flagName}</code>
+              <code className="font-mono bg-[var(--surface-2)] px-1 py-0.5 rounded">
+                {flagName}
+              </code>
             </span>
             <a
               href="/docs/sdk.md"
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-1 text-orange-600 hover:text-orange-700 font-medium"
+              className="inline-flex items-center gap-1 text-[var(--accent)] hover:text-[var(--accent)] font-medium"
             >
               View SDK Docs <ExternalLink className="size-3" />
             </a>
           </div>
 
           {/* Step 1: Environment Variables */}
-          <div className="rounded-lg border bg-zinc-50 p-4 space-y-2.5">
+          <div className="rounded-lg border bg-[var(--surface-1)] p-4 space-y-2.5">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="flex size-5 items-center justify-center rounded-full bg-orange-600 text-[10px] font-bold text-white">
+                <span className="flex size-5 items-center justify-center rounded-full bg-[var(--accent)] text-[10px] font-bold text-[var(--accent-foreground)]">
                   1
                 </span>
-                <span className="text-xs font-semibold text-zinc-800">
+                <span className="text-xs font-semibold text-[var(--text-primary)]">
                   Copy Environment Variables (<code className="font-mono">.env.local</code>)
                 </span>
               </div>
@@ -175,7 +177,7 @@ export function AgentPromptDialog({
                 {copiedEnv ? "Copied .env!" : "Copy .env.local"}
               </Button>
             </div>
-            <pre className="overflow-x-auto rounded-md border bg-zinc-950 p-3 font-mono text-xs text-zinc-100 leading-relaxed">
+            <pre className="overflow-x-auto rounded-md border bg-[var(--surface-0)] p-3 font-mono text-xs text-[var(--text-primary)] leading-relaxed">
               {hasRealCredentials
                 ? maskedEnvSnippet
                 : "Click Copy .env.local to generate and copy your project keys."}
@@ -183,20 +185,20 @@ export function AgentPromptDialog({
           </div>
 
           {/* Step 2: Agent Prompt */}
-          <div className="rounded-lg border bg-zinc-50 p-4 space-y-2.5">
+          <div className="rounded-lg border bg-[var(--surface-1)] p-4 space-y-2.5">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="flex size-5 items-center justify-center rounded-full bg-orange-600 text-[10px] font-bold text-white">
+                <span className="flex size-5 items-center justify-center rounded-full bg-[var(--accent)] text-[10px] font-bold text-[var(--accent-foreground)]">
                   2
                 </span>
-                <span className="text-xs font-semibold text-zinc-800">
+                <span className="text-xs font-semibold text-[var(--text-primary)]">
                   Copy AI Agent Setup Prompt
                 </span>
               </div>
               <Button
                 size="sm"
                 onClick={handleCopyPrompt}
-                className="h-7 text-xs bg-orange-600 hover:bg-orange-700 text-white"
+                className="h-7 text-xs bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-[var(--accent-foreground)]"
               >
                 {copiedPrompt ? (
                   <Check className="mr-1 size-3" />
@@ -206,14 +208,14 @@ export function AgentPromptDialog({
                 {copiedPrompt ? "Copied Prompt!" : "Copy Prompt"}
               </Button>
             </div>
-            <pre className="max-h-60 overflow-y-auto rounded-md border bg-zinc-950 p-3 font-mono text-xs text-zinc-100 whitespace-pre-wrap leading-relaxed">
+            <pre className="max-h-60 overflow-y-auto rounded-md border bg-[var(--surface-0)] p-3 font-mono text-xs text-[var(--text-primary)] whitespace-pre-wrap leading-relaxed">
               {promptText}
             </pre>
           </div>
         </div>
 
-        <DialogFooter className="border-t bg-zinc-50/50 px-6 py-3.5 flex items-center justify-between sm:justify-between">
-          <p className="text-xs text-zinc-500">
+        <DialogFooter className="border-t bg-[var(--surface-1)]/50 px-6 py-3.5 flex items-center justify-between sm:justify-between">
+          <p className="text-xs text-[var(--text-muted)]">
             Works with Cursor, Claude Code, Pi, Windsurf, ChatGPT, and Copilot.
           </p>
           <Button variant="outline" size="sm" onClick={() => onOpenChange(false)}>

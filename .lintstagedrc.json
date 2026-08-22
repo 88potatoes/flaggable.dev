@@ -1,4 +1,4 @@
 {
   "*.{js,jsx,mjs,cjs,ts,tsx}": ["oxfmt --write", "oxlint --fix --no-error-on-unmatched-pattern"],
-  "*.{json,jsonc,md,css,scss,yaml,yml}": "oxfmt --write"
+  "*.{json,jsonc,md,css,scss,yaml,yml}": ["oxfmt --write", "pnpm run check:colors"]
 }

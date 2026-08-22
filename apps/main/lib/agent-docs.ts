@@ -122,29 +122,29 @@ export function generateAgentPrompt({
      return (
        <div className={\`my-6 rounded-xl border p-4 shadow-sm transition-all \${
          isEnabled
-           ? "border-emerald-200 bg-emerald-50/80 text-emerald-950"
-           : "border-zinc-200 bg-zinc-50 text-zinc-800"
+           ? "border-[var(--line)] bg-[var(--accent-soft)]/80 text-[var(--success)]"
+           : "border-[var(--line)] bg-[var(--surface-1)] text-[var(--text-primary)]"
        }\`}>
          <div className="flex items-center justify-between gap-4">
            <div className="space-y-1">
              <div className="flex items-center gap-2">
-               <span className={\`size-2.5 rounded-full \${isEnabled ? "bg-emerald-500 animate-pulse" : "bg-zinc-400"}\`} />
-               <span className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
+               <span className={\`size-2.5 rounded-full \${isEnabled ? "bg-[var(--success)] animate-pulse" : "bg-[var(--text-muted)]"}\`} />
+               <span className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
                  Flaggable Feature Status
                </span>
              </div>
              <p className="text-sm font-medium">
                Flag: <code className="rounded bg-black/5 px-1.5 py-0.5 font-mono text-xs">${flagName}</code>
              </p>
-             <p className="text-xs text-zinc-600">
-               State: <strong className={isEnabled ? "text-emerald-700" : "text-zinc-700"}>{isEnabled ? "ACTIVE (Flag is ON)" : "INACTIVE (Flag is OFF)"}</strong>
+             <p className="text-xs text-[var(--text-muted)]">
+               State: <strong className={isEnabled ? "text-[var(--success)]" : "text-[var(--text-primary)]"}>{isEnabled ? "ACTIVE (Flag is ON)" : "INACTIVE (Flag is OFF)"}</strong>
              </p>
            </div>
            <button
              type="button"
              onClick={handleSync}
              disabled={isRefreshing}
-             className="rounded-md border bg-white px-3 py-1.5 text-xs font-medium text-zinc-700 shadow-xs hover:bg-zinc-50 disabled:opacity-50"
+             className="rounded-md border bg-[var(--surface-1)] px-3 py-1.5 text-xs font-medium text-[var(--text-primary)] shadow-xs hover:bg-[var(--surface-1)] disabled:opacity-50"
            >
              {isRefreshing ? "Syncing..." : "Sync now"}
            </button>
@@ -228,10 +228,10 @@ export function CheckoutButton() {
   const isNewCheckout = useFlag({ flagName: "new-checkout-flow", fallbackValue: false });
 
   if (isNewCheckout) {
-    return <button className="bg-emerald-600 text-white px-4 py-2 rounded">New 1-Click Checkout</button>;
+    return <button className="bg-[var(--success)] text-[var(--accent-foreground)] px-4 py-2 rounded">New 1-Click Checkout</button>;
   }
 
-  return <button className="bg-zinc-800 text-white px-4 py-2 rounded">Standard Checkout</button>;
+  return <button className="bg-[var(--surface-2)] text-[var(--text-primary)] px-4 py-2 rounded">Standard Checkout</button>;
 }
 \`\`\`
 

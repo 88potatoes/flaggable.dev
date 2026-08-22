@@ -24,7 +24,8 @@
     "test:sdk": "pnpm --filter @flaggable/sdk test",
     "typecheck:sdk": "pnpm --filter @flaggable/sdk typecheck",
     "publish:sdk": "pnpm run build:sdk && pnpm --filter @flaggable/sdk version patch --no-git-tag-version --no-git-checks && pnpm run build:sdk && pnpm --filter @flaggable/sdk publish --access public --no-git-checks",
-    "lint": "oxlint apps packages --react-plugin --import-plugin --vitest-plugin --jsx-a11y-plugin --nextjs-plugin",
+    "check:colors": "node scripts/check-color-contrast.mjs",
+    "lint": "pnpm run check:colors && oxlint apps packages --react-plugin --import-plugin --vitest-plugin --jsx-a11y-plugin --nextjs-plugin",
     "format": "oxfmt .",
     "prepare": "husky"
   },

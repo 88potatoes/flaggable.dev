@@ -211,10 +211,10 @@ export function OnboardingWizard({
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="flex size-7 items-center justify-center rounded-full bg-orange-600 text-xs font-bold text-white">
+            <span className="flex size-7 items-center justify-center rounded-full bg-[var(--accent)] text-xs font-bold text-[var(--accent-foreground)]">
               {step === "project" ? "1" : step === "flag" ? "2" : "3"}
             </span>
-            <span className="text-sm font-semibold text-zinc-900">
+            <span className="text-sm font-semibold text-[var(--text-primary)]">
               {step === "project"
                 ? "Step 1: Create your project"
                 : step === "flag"
@@ -223,25 +223,25 @@ export function OnboardingWizard({
             </span>
           </div>
 
-          <div className="flex items-center gap-1.5 text-xs text-zinc-500">
-            <span className={`font-medium ${step === "project" ? "text-orange-600" : ""}`}>
+          <div className="flex items-center gap-1.5 text-xs text-[var(--text-muted)]">
+            <span className={`font-medium ${step === "project" ? "text-[var(--accent)]" : ""}`}>
               1. Project
             </span>
-            <ChevronRight className="size-3 text-zinc-400" />
-            <span className={`font-medium ${step === "flag" ? "text-orange-600" : ""}`}>
+            <ChevronRight className="size-3 text-[var(--text-muted)]" />
+            <span className={`font-medium ${step === "flag" ? "text-[var(--accent)]" : ""}`}>
               2. First Flag
             </span>
-            <ChevronRight className="size-3 text-zinc-400" />
-            <span className={`font-medium ${step === "sdk" ? "text-orange-600" : ""}`}>
+            <ChevronRight className="size-3 text-[var(--text-muted)]" />
+            <span className={`font-medium ${step === "sdk" ? "text-[var(--accent)]" : ""}`}>
               3. AI Setup
             </span>
           </div>
         </div>
 
         {/* Progress Bar */}
-        <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-zinc-100">
+        <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-[var(--surface-2)]">
           <div
-            className="h-full bg-orange-600 transition-all duration-300 ease-out"
+            className="h-full bg-[var(--accent)] transition-all duration-300 ease-out"
             style={{
               width: step === "project" ? "33%" : step === "flag" ? "66%" : "100%",
             }}
@@ -259,7 +259,7 @@ export function OnboardingWizard({
       {step === "project" && (
         <Card className="border shadow-sm">
           <CardHeader>
-            <div className="flex size-10 items-center justify-center rounded-xl bg-orange-100 text-orange-600 mb-2">
+            <div className="flex size-10 items-center justify-center rounded-xl bg-[var(--accent-soft)] text-[var(--accent)] mb-2">
               <FolderPlus className="size-5" />
             </div>
             <CardTitle className="text-xl">Create your first project</CardTitle>
@@ -293,7 +293,7 @@ export function OnboardingWizard({
               <Button
                 type="submit"
                 disabled={createProject.isPending || !newProjectName.trim()}
-                className="bg-[var(--accent)] text-white hover:bg-[var(--accent-hover)]"
+                className="bg-[var(--accent)] text-[var(--accent-foreground)] hover:bg-[var(--accent-hover)]"
               >
                 {createProject.isPending ? (
                   <>
@@ -316,7 +316,7 @@ export function OnboardingWizard({
       {step === "flag" && (
         <Card className="border shadow-sm">
           <CardHeader>
-            <div className="flex size-10 items-center justify-center rounded-xl bg-orange-100 text-orange-600 mb-2">
+            <div className="flex size-10 items-center justify-center rounded-xl bg-[var(--accent-soft)] text-[var(--accent)] mb-2">
               <FlagIcon className="size-5" />
             </div>
             <CardTitle className="text-xl">Create your first feature flag</CardTitle>
@@ -343,7 +343,9 @@ export function OnboardingWizard({
 
               {/* Suggestions */}
               <div>
-                <span className="text-xs font-medium text-zinc-600">Quick suggestions:</span>
+                <span className="text-xs font-medium text-[var(--text-muted)]">
+                  Quick suggestions:
+                </span>
                 <div className="mt-2 flex flex-wrap gap-1.5">
                   {SUGGESTED_FLAGS.map((suggestion) => (
                     <button
@@ -352,8 +354,8 @@ export function OnboardingWizard({
                       onClick={() => setNewFlagName(suggestion)}
                       className={`rounded-md border px-2.5 py-1 text-xs font-mono transition-colors ${
                         newFlagName === suggestion
-                          ? "border-orange-500 bg-orange-50 text-orange-700 font-semibold"
-                          : "border-zinc-200 bg-zinc-50 text-zinc-700 hover:bg-zinc-100"
+                          ? "border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--accent)] font-semibold"
+                          : "border-[var(--line)] bg-[var(--surface-1)] text-[var(--text-primary)] hover:bg-[var(--surface-2)]"
                       }`}
                     >
                       {suggestion}
@@ -365,7 +367,7 @@ export function OnboardingWizard({
               <Button
                 type="submit"
                 disabled={createFlag.isPending || !newFlagName.trim()}
-                className="bg-[var(--accent)] text-white hover:bg-[var(--accent-hover)]"
+                className="bg-[var(--accent)] text-[var(--accent-foreground)] hover:bg-[var(--accent-hover)]"
               >
                 {createFlag.isPending ? (
                   <>
@@ -389,7 +391,7 @@ export function OnboardingWizard({
         <Card className="border shadow-sm">
           <CardHeader className="pb-4">
             <div className="flex items-center justify-between">
-              <div className="flex size-10 items-center justify-center rounded-xl bg-gradient-to-br from-orange-500 to-amber-600 text-white shadow-sm">
+              <div className="flex size-10 items-center justify-center rounded-xl bg-[var(--accent)] text-[var(--accent-foreground)] shadow-sm">
                 <Sparkles className="size-5" />
               </div>
               <Badge variant="outline" className="font-mono text-xs">
@@ -404,17 +406,17 @@ export function OnboardingWizard({
 
           <CardContent className="space-y-6">
             {/* Step 3.1: Copy Environment Variables */}
-            <div className="rounded-xl border bg-zinc-50 p-4 space-y-3">
+            <div className="rounded-xl border bg-[var(--surface-1)] p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="flex size-6 items-center justify-center rounded-full bg-orange-600 text-xs font-bold text-white">
+                  <div className="flex size-6 items-center justify-center rounded-full bg-[var(--accent)] text-xs font-bold text-[var(--accent-foreground)]">
                     1
                   </div>
                   <div>
-                    <h4 className="text-sm font-semibold text-zinc-900">
+                    <h4 className="text-sm font-semibold text-[var(--text-primary)]">
                       Copy Environment Variables
                     </h4>
-                    <p className="text-xs text-zinc-500">
+                    <p className="text-xs text-[var(--text-muted)]">
                       Paste into your project&apos;s{" "}
                       <code className="font-mono font-semibold">.env.local</code> file (internal key
                       is masked for display).
@@ -427,8 +429,8 @@ export function OnboardingWizard({
                   onClick={handleCopyEnv}
                   className={`h-8 text-xs font-medium border shadow-xs transition-all ${
                     copiedEnv
-                      ? "border-emerald-600 bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
-                      : "bg-white text-zinc-700 hover:bg-zinc-100"
+                      ? "border-[var(--success)] bg-[var(--accent-soft)] text-[var(--success)] hover:bg-[var(--accent-soft)]"
+                      : "bg-[var(--surface-1)] text-[var(--text-primary)] hover:bg-[var(--surface-2)]"
                   }`}
                 >
                   {copiedEnv ? (
@@ -445,23 +447,23 @@ export function OnboardingWizard({
                 </Button>
               </div>
 
-              <pre className="overflow-x-auto rounded-lg border bg-zinc-950 p-3 font-mono text-xs text-zinc-100 leading-relaxed">
+              <pre className="overflow-x-auto rounded-lg border bg-[var(--surface-0)] p-3 font-mono text-xs text-[var(--text-primary)] leading-relaxed">
                 {maskedEnvSnippet}
               </pre>
             </div>
 
             {/* Step 3.2: Copy AI Agent Setup Prompt */}
-            <div className="rounded-xl border bg-zinc-50 p-4 space-y-3">
+            <div className="rounded-xl border bg-[var(--surface-1)] p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="flex size-6 items-center justify-center rounded-full bg-orange-600 text-xs font-bold text-white">
+                  <div className="flex size-6 items-center justify-center rounded-full bg-[var(--accent)] text-xs font-bold text-[var(--accent-foreground)]">
                     2
                   </div>
                   <div>
-                    <h4 className="text-sm font-semibold text-zinc-900">
+                    <h4 className="text-sm font-semibold text-[var(--text-primary)]">
                       Copy AI Agent Setup Prompt
                     </h4>
-                    <p className="text-xs text-zinc-500">
+                    <p className="text-xs text-[var(--text-muted)]">
                       Paste this prompt into Cursor, Claude Code, Pi, Windsurf, or ChatGPT.
                     </p>
                   </div>
@@ -471,8 +473,8 @@ export function OnboardingWizard({
                   onClick={handleCopyPrompt}
                   className={`h-8 text-xs font-medium shadow-xs transition-all ${
                     copiedPrompt
-                      ? "bg-emerald-600 hover:bg-emerald-700 text-white"
-                      : "bg-orange-600 hover:bg-orange-700 text-white"
+                      ? "bg-[var(--success)] hover:bg-[var(--success)] text-[var(--accent-foreground)]"
+                      : "bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-[var(--accent-foreground)]"
                   }`}
                 >
                   {copiedPrompt ? (
@@ -491,25 +493,25 @@ export function OnboardingWizard({
 
               {/* Prompt Preview */}
               <div>
-                <pre className="max-h-56 overflow-y-auto rounded-lg border bg-zinc-950 p-3 font-mono text-xs text-zinc-100 whitespace-pre-wrap leading-relaxed">
+                <pre className="max-h-56 overflow-y-auto rounded-lg border bg-[var(--surface-0)] p-3 font-mono text-xs text-[var(--text-primary)] whitespace-pre-wrap leading-relaxed">
                   {promptText}
                 </pre>
               </div>
             </div>
 
             {/* Interactive Live Demo Preview Box */}
-            <div className="rounded-xl border bg-zinc-50 p-4">
+            <div className="rounded-xl border bg-[var(--surface-1)] p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <h4 className="text-sm font-semibold text-zinc-900">
+                  <h4 className="text-sm font-semibold text-[var(--text-primary)]">
                     Live Demo Component Preview
                   </h4>
-                  <p className="text-xs text-zinc-500">
+                  <p className="text-xs text-[var(--text-muted)]">
                     This is the widget the AI agent will add to your frontend app:
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-zinc-500">Simulate Flag:</span>
+                  <span className="text-xs text-[var(--text-muted)]">Simulate Flag:</span>
                   <Switch
                     checked={isDemoFlagActive}
                     onCheckedChange={setIsDemoFlagActive}
@@ -521,22 +523,28 @@ export function OnboardingWizard({
               <div
                 className={`mt-3 rounded-lg border p-3.5 transition-all ${
                   isDemoFlagActive
-                    ? "border-emerald-200 bg-emerald-50 text-emerald-950"
-                    : "border-zinc-200 bg-white text-zinc-800"
+                    ? "border-[var(--line)] bg-[var(--accent-soft)] text-[var(--success)]"
+                    : "border-[var(--line)] bg-[var(--surface-1)] text-[var(--text-primary)]"
                 }`}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
                     <span
                       className={`size-2.5 rounded-full ${
-                        isDemoFlagActive ? "bg-emerald-500 animate-pulse" : "bg-zinc-400"
+                        isDemoFlagActive
+                          ? "bg-[var(--success)] animate-pulse"
+                          : "bg-[var(--text-muted)]"
                       }`}
                     />
                     <div>
                       <p className="text-xs font-mono font-medium">{targetFlagName}</p>
-                      <p className="text-[11px] text-zinc-500">
+                      <p className="text-[11px] text-[var(--text-muted)]">
                         Status:{" "}
-                        <strong className={isDemoFlagActive ? "text-emerald-700" : "text-zinc-600"}>
+                        <strong
+                          className={
+                            isDemoFlagActive ? "text-[var(--success)]" : "text-[var(--text-muted)]"
+                          }
+                        >
                           {isDemoFlagActive ? "ACTIVE (Flag is ON)" : "INACTIVE (Flag is OFF)"}
                         </strong>
                       </p>
@@ -546,8 +554,8 @@ export function OnboardingWizard({
                     variant={isDemoFlagActive ? "default" : "secondary"}
                     className={
                       isDemoFlagActive
-                        ? "bg-emerald-100 text-emerald-800 hover:bg-emerald-100"
-                        : "bg-zinc-100 text-zinc-600 hover:bg-zinc-100"
+                        ? "bg-[var(--accent-soft)] text-[var(--success)] hover:bg-[var(--accent-soft)]"
+                        : "bg-[var(--surface-2)] text-[var(--text-muted)] hover:bg-[var(--surface-2)]"
                     }
                   >
                     {isDemoFlagActive ? "Active" : "Inactive"}
@@ -571,7 +579,7 @@ export function OnboardingWizard({
                   });
                 }}
                 disabled={acknowledgeSdkSetup.isPending}
-                className="w-full h-11 border-zinc-300 font-medium hover:bg-zinc-100"
+                className="w-full h-11 border-[var(--line)] font-medium hover:bg-[var(--surface-2)]"
               >
                 {acknowledgeSdkSetup.isPending ? "Saving…" : "Go to Dashboard"}
                 <ChevronRight className="ml-1 size-4" />

@@ -266,7 +266,7 @@ export default function Dashboard() {
                       setError("");
                     }}
                     aria-label="Dismiss message"
-                    className="h-6 w-6 rounded-md p-0 hover:bg-gray-100"
+                    className="h-6 w-6 rounded-md p-0 hover:bg-[var(--surface-2)]"
                   >
                     ×
                   </Button>
@@ -291,12 +291,12 @@ export default function Dashboard() {
                           className={`flex w-full items-center gap-3 rounded-lg p-3 text-left transition-colors ${
                             selectedFlag?.id === flag.id
                               ? "bg-[var(--accent-soft)] ring-1 ring-[var(--accent)]"
-                              : "hover:bg-gray-50"
+                              : "hover:bg-[var(--surface-1)]"
                           }`}
                         >
                           <div
-                            className={`flex h-6 w-6 items-center justify-center rounded text-xs font-bold text-white ${
-                              flag.enabled ? "bg-green-500" : "bg-gray-400"
+                            className={`flex h-6 w-6 items-center justify-center rounded text-xs font-bold text-[var(--accent-foreground)] ${
+                              flag.enabled ? "bg-[var(--success)]" : "bg-[var(--text-muted)]"
                             }`}
                           >
                             {flag.name[0]?.toUpperCase() || "F"}
@@ -371,7 +371,7 @@ export default function Dashboard() {
                                 setIsAgentPromptOpen(true);
                               }}
                             >
-                              <Sparkles className="mr-2 size-4 text-orange-600" />
+                              <Sparkles className="mr-2 size-4 text-[var(--accent)]" />
                               Get AI Agent Prompt
                             </DropdownMenuItem>
                             <DropdownMenuItem
@@ -445,14 +445,14 @@ export default function Dashboard() {
                   </DialogDescription>
                 </DialogHeader>
                 {schemasQuery.data?.length === 0 ? (
-                  <div className="rounded-lg bg-amber-50 p-4 text-sm text-amber-800">
+                  <div className="rounded-lg bg-[var(--accent-soft)] p-4 text-sm text-[var(--warning)]">
                     <div className="flex items-start gap-3">
-                      <div className="mt-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-amber-200">
+                      <div className="mt-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-[var(--accent)]">
                         <span className="text-xs font-bold">!</span>
                       </div>
                       <div>
                         <p className="font-medium">Value schema required</p>
-                        <p className="mt-1 text-amber-700">
+                        <p className="mt-1 text-[var(--warning)]">
                           Create a value schema first, then return here to create a flag.
                         </p>
                       </div>
