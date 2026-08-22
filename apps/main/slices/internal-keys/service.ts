@@ -8,7 +8,7 @@ import { DrizzleInternalKeyRepository, type InternalKeyRepository } from "./repo
 export type InternalKeyView = Pick<
   InternalKeyRecord,
   "id" | "projectId" | "name" | "createdAt" | "revokedAt"
->;
+> & { internalKey?: string };
 
 /** Manages project-scoped internal API keys. Plaintext keys are returned only on creation. */
 export class InternalKeyService {
@@ -38,7 +38,7 @@ export class InternalKeyService {
       id: uuidv7(),
       projectId,
       name,
-      keyHash: await hashInternalKey(internalKey),
+      keyPlaintext: internalKey,
       createdAt: timestamp,
       revokedAt: null,
     };
@@ -49,7 +49,7 @@ export class InternalKeyService {
   /** Resolves only active keys, so revoked keys cannot authorize devtool access. */
   resolve = async ({ internalKey }: { internalKey: string }) => {
     if (!/^ik_[A-Za-z0-9_-]{20,}$/.test(internalKey)) return undefined;
-    return this.repository.findActiveByHash({ keyHash: await hashInternalKey(internalKey) });
+    return this.repository.findActiveByPlaintext({ keyPlaintext: internalKey });
   };
 
   revoke = async ({
@@ -81,15 +81,11 @@ export const serializeInternalKey = (record: InternalKeyRecord): InternalKeyView
   name: record.name,
   createdAt: record.createdAt,
   revokedAt: record.revokedAt,
+  internalKey: record.keyPlaintext ?? undefined,
 });
 
 function randomBytes(length: number): string {
   const bytes = new Uint8Array(length);
   crypto.getRandomValues(bytes);
   return Buffer.from(bytes).toString("base64url");
-}
-
-async function hashInternalKey(value: string): Promise<string> {
-  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
-  return Buffer.from(digest).toString("hex");
 }

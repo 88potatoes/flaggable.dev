@@ -14,7 +14,7 @@ import {
   DialogTitle,
 } from "@flaggable/ui/dialog";
 import { generateAgentPrompt, generateEnvSnippet } from "@/lib/agent-docs";
-import { useMutateCreateInternalKey } from "@/slices/internal-keys/queries";
+import { useMutateCreateInternalKey, useQueryInternalKeys } from "@/slices/internal-keys/queries";
 import { useMutateCreatePublicKey } from "@/slices/public-keys/queries";
 
 export function AgentPromptDialog({
@@ -42,11 +42,16 @@ export function AgentPromptDialog({
   } | null>(null);
   const createPublicKey = useMutateCreatePublicKey(projectId);
   const createInternalKey = useMutateCreateInternalKey(projectId);
+  const internalKeysQuery = useQueryInternalKeys(projectId);
 
   const baseUrl = typeof window !== "undefined" ? window.location.origin : "https://flaggable.dev";
   const cleanBaseUrl = baseUrl.replace(/\/$/, "");
   const activePublicKey = knownPublicKey || generatedCredentials?.publicKey || "";
-  const activeInternalKey = knownInternalKey || generatedCredentials?.internalKey || "";
+  const activeInternalKey =
+    knownInternalKey ||
+    generatedCredentials?.internalKey ||
+    internalKeysQuery.data?.find((key) => !key.revokedAt)?.internalKey ||
+    "";
 
   const rawEnvSnippet = generateEnvSnippet({
     baseUrl,
@@ -57,8 +62,8 @@ export function AgentPromptDialog({
   const hasRealCredentials = Boolean(activePublicKey && activeInternalKey);
   const isCreatingCredentials = createPublicKey.isPending || createInternalKey.isPending;
 
-  const displayMaskedInternalKey = knownInternalKey
-    ? `${knownInternalKey.slice(0, 5)}••••••••••••••••••••••••`
+  const displayMaskedInternalKey = activeInternalKey
+    ? `${activeInternalKey.slice(0, 5)}••••••••••••••••••••••••`
     : "ik_••••••••••••••••••••••••";
 
   const maskedEnvSnippet = generateEnvSnippet({

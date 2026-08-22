@@ -10,6 +10,7 @@ export type InternalKey = {
   name: string;
   createdAt: string;
   revokedAt: string | null;
+  internalKey?: string;
 };
 
 export type CreatedInternalKey = InternalKey & { internalKey: string };
@@ -30,7 +31,6 @@ export function useMutateCreateInternalKey(projectId: string) {
         .post(`projects/${projectId}/internal-keys`, { json: { name } })
         .json<CreatedInternalKey>(),
     onSuccess: (created) => {
-      // Never cache the raw token: it is intentionally available only to the create UI.
       queryClient.invalidateQueries({ queryKey: internalKeyQueryKeys.byProject(projectId) });
       return created;
     },

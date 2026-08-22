@@ -33,6 +33,7 @@ export function ApiKeysPanel({ projectId }: { projectId: string }) {
     name?: string;
   } | null>(null);
   const [copied, setCopied] = useState(false);
+  const [copiedInternalKeyId, setCopiedInternalKeyId] = useState<string | null>(null);
   const [newKeyName, setNewKeyName] = useState("");
   const [isInternalNameDialogOpen, setIsInternalNameDialogOpen] = useState(false);
 
@@ -65,6 +66,13 @@ export function ApiKeysPanel({ projectId }: { projectId: string }) {
     await navigator.clipboard.writeText(rawSecretKey.key);
     setCopied(true);
     setTimeout(() => setCopied(false), 2500);
+  };
+
+  const handleCopyInternalKey = async (keyId: string, key?: string) => {
+    if (!key) return;
+    await navigator.clipboard.writeText(key);
+    setCopiedInternalKeyId(keyId);
+    setTimeout(() => setCopiedInternalKeyId(null), 2500);
   };
 
   return (
@@ -112,6 +120,9 @@ export function ApiKeysPanel({ projectId }: { projectId: string }) {
                     <TableHead>Key Prefix</TableHead>
                     <TableHead>Created</TableHead>
                     <TableHead>Status</TableHead>
+                    <TableHead className="w-10">
+                      <span className="sr-only">Copy key</span>
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -128,6 +139,23 @@ export function ApiKeysPanel({ projectId }: { projectId: string }) {
                         <Badge variant={key.revokedAt ? "destructive" : "secondary"}>
                           {key.revokedAt ? "Revoked" : "Active"}
                         </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon-xs"
+                          aria-label={`Copy ${key.name}`}
+                          title={
+                            key.internalKey
+                              ? `Copy ${key.name}`
+                              : "Key unavailable; create a new key"
+                          }
+                          disabled={!key.internalKey || Boolean(key.revokedAt)}
+                          onClick={() => handleCopyInternalKey(key.id, key.internalKey)}
+                        >
+                          {copiedInternalKeyId === key.id ? <Check /> : <Copy />}
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}

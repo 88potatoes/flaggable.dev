@@ -9,7 +9,11 @@ import {
 
 export interface InternalKeyRepository {
   listByProject({ projectId }: { projectId: string }): Promise<InternalKeyRecord[]>;
-  findActiveByHash({ keyHash }: { keyHash: string }): Promise<InternalKeyRecord | undefined>;
+  findActiveByPlaintext({
+    keyPlaintext,
+  }: {
+    keyPlaintext: string;
+  }): Promise<InternalKeyRecord | undefined>;
   create({ record }: { record: NewInternalKeyRecord }): Promise<InternalKeyRecord>;
   revoke({
     keyId,
@@ -31,11 +35,13 @@ export class DrizzleInternalKeyRepository implements InternalKeyRepository {
       .all();
   }
 
-  findActiveByHash({ keyHash }: { keyHash: string }) {
+  findActiveByPlaintext({ keyPlaintext }: { keyPlaintext: string }) {
     return this.db
       .select()
       .from(internalKeyTable)
-      .where(and(eq(internalKeyTable.keyHash, keyHash), isNull(internalKeyTable.revokedAt)))
+      .where(
+        and(eq(internalKeyTable.keyPlaintext, keyPlaintext), isNull(internalKeyTable.revokedAt)),
+      )
       .get();
   }
 

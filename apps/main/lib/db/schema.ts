@@ -159,12 +159,11 @@ export const internalKeyTable = sqliteTable(
     id: text("id").primaryKey(),
     projectId: text("project_id").notNull(),
     name: text("name").notNull().default("Internal API Key"),
-    keyHash: text("key_hash").notNull(),
+    keyPlaintext: text("key_plaintext"),
     createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull(),
     revokedAt: integer("revoked_at", { mode: "timestamp_ms" }),
   },
   (table) => [
-    unique("internal_key_hash_unique").on(table.keyHash),
     index("internal_key_project_id_idx").on(table.projectId),
     foreignKey({
       columns: [table.projectId],

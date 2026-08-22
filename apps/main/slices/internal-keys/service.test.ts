@@ -7,14 +7,14 @@ import { InternalKeyService } from "./service";
 function repository(): InternalKeyRepository {
   return {
     listByProject: vi.fn(async () => []),
-    findActiveByHash: vi.fn(async () => undefined),
+    findActiveByPlaintext: vi.fn(async () => undefined),
     create: vi.fn(async ({ record }) => record as never),
     revoke: vi.fn(async () => undefined),
   };
 }
 
 describe("InternalKeyService", () => {
-  test("generates a plaintext internal key with ik_ prefix and stores only hash", async () => {
+  test("generates a plaintext internal key with ik_ prefix", async () => {
     const repo = repository();
     const result = await new InternalKeyService(repo, mockProjectRepo()).create({
       projectId: "project-1",
@@ -27,7 +27,7 @@ describe("InternalKeyService", () => {
       record: expect.objectContaining({
         projectId: "project-1",
         name: "CLI Token",
-        keyHash: expect.not.stringContaining(result.internalKey),
+        keyPlaintext: result.internalKey,
       }),
     });
   });
@@ -37,6 +37,6 @@ describe("InternalKeyService", () => {
     await expect(
       new InternalKeyService(repo, mockProjectRepo()).resolve({ internalKey: "not_valid" }),
     ).resolves.toBeUndefined();
-    expect(repo.findActiveByHash).not.toHaveBeenCalled();
+    expect(repo.findActiveByPlaintext).not.toHaveBeenCalled();
   });
 });
