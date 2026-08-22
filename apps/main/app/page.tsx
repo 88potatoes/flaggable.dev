@@ -224,7 +224,7 @@ export default function Dashboard() {
       onNewProject={() => setIsCreateProjectOpen(true)}
       flagSidebar={flagSidebar}
     >
-      <div className="dashboard-inner">
+      <>
         {projectsQuery.isLoading || onboardingQuery.isLoading ? (
           <Card className="project-empty-state" aria-busy="true">
             <Skeleton className="h-6 w-32" />
@@ -322,7 +322,7 @@ export default function Dashboard() {
               </TabsList>
               {openFlags.map((flag) => (
                 <TabsContent key={flag.id} value={flag.id}>
-                  <div className="flag-tab-panel">
+                  <div className="dashboard-inner flag-tab-panel">
                     <div className="mb-6 flex flex-wrap items-center gap-3 border-b border-[var(--line)] pb-5">
                       <div>
                         <h1 className="text-2xl font-semibold tracking-tight text-[var(--text-primary)]">
@@ -510,7 +510,7 @@ export default function Dashboard() {
             </Dialog>
           </>
         )}
-      </div>
+      </>
     </DashboardShell>
   );
 }
