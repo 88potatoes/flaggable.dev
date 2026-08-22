@@ -210,16 +210,15 @@ export function DashboardSidebar({
       <SidebarFooter className="p-2">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton
+            <SidebarTrigger
               size="lg"
-              tooltip="Collapse sidebar"
-              className="mb-2 hover:bg-sidebar-accent"
+              title="Collapse sidebar"
+              aria-label="Collapse sidebar"
+              className="mb-2 flex w-full items-center gap-2 hover:bg-sidebar-accent"
             >
-              <SidebarTrigger className="flex items-center gap-2">
-                <PanelLeftClose className="h-4 w-4" />
-                {!isCollapsed && <span>Collapse</span>}
-              </SidebarTrigger>
-            </SidebarMenuButton>
+              <PanelLeftClose className="h-4 w-4" />
+              {!isCollapsed && <span>Collapse</span>}
+            </SidebarTrigger>
           </SidebarMenuItem>
           <SidebarMenuItem>
             <DropdownMenu>
