@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { Check, Copy, KeyRound, Lock, Plus, ShieldCheck } from "lucide-react";
-import { Alert } from "@flaggable/ui/alert";
 import { Badge } from "@flaggable/ui/badge";
 import { Button } from "@flaggable/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@flaggable/ui/card";
@@ -26,6 +26,18 @@ export function ApiKeysPanel({ projectId }: { projectId: string }) {
 
   const internalKeysQuery = useQueryInternalKeys(projectId);
   const createInternalKey = useMutateCreateInternalKey(projectId);
+
+  useEffect(() => {
+    if (publicKeysQuery.error) {
+      toast.error("Could not load public keys", { description: publicKeysQuery.error.message });
+    }
+  }, [publicKeysQuery.error]);
+
+  useEffect(() => {
+    if (internalKeysQuery.error) {
+      toast.error("Could not load internal keys", { description: internalKeysQuery.error.message });
+    }
+  }, [internalKeysQuery.error]);
 
   const [rawSecretKey, setRawSecretKey] = useState<{
     key: string;
@@ -102,11 +114,6 @@ export function ApiKeysPanel({ projectId }: { projectId: string }) {
           </Button>
         </CardHeader>
         <CardContent>
-          {internalKeysQuery.error && (
-            <Alert variant="destructive" className="mb-4">
-              {internalKeysQuery.error.message}
-            </Alert>
-          )}
           {!internalKeysQuery.isLoading && !internalKeysQuery.data?.length ? (
             <p className="py-6 text-sm text-muted-foreground">
               No internal API keys generated yet.
@@ -190,11 +197,6 @@ export function ApiKeysPanel({ projectId }: { projectId: string }) {
           </Button>
         </CardHeader>
         <CardContent>
-          {publicKeysQuery.error && (
-            <Alert variant="destructive" className="mb-4">
-              {publicKeysQuery.error.message}
-            </Alert>
-          )}
           {!publicKeysQuery.isLoading && !publicKeysQuery.data?.length ? (
             <p className="py-6 text-sm text-muted-foreground">No public keys yet.</p>
           ) : (

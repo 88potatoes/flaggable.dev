@@ -9,7 +9,7 @@ function Tabs({ className, ...props }: React.ComponentProps<typeof TabsPrimitive
   return (
     <TabsPrimitive.Root
       data-slot="tabs"
-      className={cn("flex flex-col gap-2", className)}
+      className={cn("tabs flex flex-col gap-2", className)}
       {...props}
     />
   );
@@ -20,7 +20,7 @@ function TabsList({ className, ...props }: React.ComponentProps<typeof TabsPrimi
     <TabsPrimitive.List
       data-slot="tabs-list"
       className={cn(
-        "inline-flex h-9 w-fit items-center justify-start gap-1 rounded-lg bg-muted p-1 text-muted-foreground",
+        "tabs-box inline-flex h-9 w-fit items-center justify-start gap-1 bg-muted p-1 text-muted-foreground",
         className,
       )}
       {...props}
@@ -33,7 +33,7 @@ function TabsTrigger({ className, ...props }: React.ComponentProps<typeof TabsPr
     <TabsPrimitive.Trigger
       data-slot="tabs-trigger"
       className={cn(
-        "inline-flex h-7 shrink-0 items-center justify-center whitespace-nowrap rounded-md px-2.5 text-xs font-medium outline-none transition-colors hover:bg-background/70 hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-xs disabled:pointer-events-none disabled:opacity-50",
+        "tab inline-flex h-7 shrink-0 items-center justify-center whitespace-nowrap px-2.5 text-xs font-medium outline-none transition-colors hover:bg-background/70 hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring data-[state=active]:tab-active disabled:pointer-events-none disabled:opacity-50",
         className,
       )}
       {...props}

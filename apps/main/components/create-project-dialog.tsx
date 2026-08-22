@@ -27,31 +27,29 @@ export function CreateProjectDialog({
   onProjectCreated?: (project: CreatedProject) => void;
 }) {
   const [name, setName] = useState("");
-  const [fieldError, setFieldError] = useState("");
   const createProject = useMutateCreateProject();
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const trimmed = name.trim();
     if (!trimmed) {
-      setFieldError("Enter a project name.");
+      toast.error("Project name required", { description: "Enter a project name to continue." });
       return;
     }
-    setFieldError("");
 
     createProject.mutate(
       { name: trimmed },
       {
         onSuccess: (project) => {
           setName("");
-          setFieldError("");
           onOpenChange(false);
           toast.success("Project created", { description: `${project.name} is ready.` });
           onProjectCreated?.(project);
         },
         onError: (error) => {
-          setFieldError(error.message || "Could not create this project.");
-          toast.error("Could not create project", { description: error.message });
+          toast.error("Could not create project", {
+            description: error.message || "Please try again.",
+          });
         },
       },
     );
@@ -85,18 +83,11 @@ export function CreateProjectDialog({
               value={name}
               onChange={(e: ChangeEvent<HTMLInputElement>) => {
                 setName(e.target.value);
-                if (fieldError) setFieldError("");
               }}
               required
-              aria-invalid={Boolean(fieldError)}
               className="form-control-medium"
             />
-            <p
-              className={fieldError ? "form-error" : "form-help"}
-              role={fieldError ? "alert" : undefined}
-            >
-              {fieldError || "Use a name your team will recognize."}
-            </p>
+            <p className="form-help">Use a name your team will recognize.</p>
           </div>
 
           <DialogFooter className="form-actions pt-2">

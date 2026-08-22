@@ -3,7 +3,6 @@
 import { FormEvent, type ChangeEvent, useEffect, useMemo, useState } from "react";
 import { LoaderCircle, MoreHorizontal, Sparkles } from "lucide-react";
 
-import { Alert } from "@flaggable/ui/alert";
 import { Button } from "@flaggable/ui/button";
 import { Card } from "@flaggable/ui/card";
 import {
@@ -64,12 +63,10 @@ export default function Dashboard() {
   const [isAgentPromptOpen, setIsAgentPromptOpen] = useState(false);
   const [agentPromptFlagName, setAgentPromptFlagName] = useState("");
   const [newFlagName, setNewFlagName] = useState("");
-  const [fieldError, setFieldError] = useState("");
-  const [error, setError] = useState("");
+
   const projectsQuery = useQueryProjects();
   const onboardingQuery = useQueryOnboarding();
   const projects = projectsQuery.data ?? [];
-  const hasCompletedOnboarding = onboardingQuery.data?.status === "completed";
   const schemasQuery = useQuerySchemas(projectId);
   const debouncedQuery = useDebouncedValue(query);
   const flagsQuery = useQueryFlags(projectId, debouncedQuery);
@@ -146,20 +143,20 @@ export default function Dashboard() {
   function selectProject(nextProjectId: string) {
     setProjectId(nextProjectId);
     setSelectedFlagId("");
-    setError("");
   }
 
   function submitCreateFlag(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const trimmedName = newFlagName.trim();
     if (!trimmedName) {
-      setFieldError("Enter a flag name.");
+      toast.error("Flag name required", { description: "Enter a flag name to continue." });
       return;
     }
-    setFieldError("");
     const schema = schemasQuery.data?.[0];
     if (!schema) {
-      setError("Create a value schema first, then create a flag.");
+      toast.error("Value schema unavailable", {
+        description: "Please wait for the default schema to finish loading, then try again.",
+      });
       return;
     }
     createFlag.mutate(
@@ -171,7 +168,6 @@ export default function Dashboard() {
         onSuccess: (flag) => {
           setIsCreateOpen(false);
           setNewFlagName("");
-          setFieldError("");
           setSelectedFlagId(flag.id);
           toast.success("Flag created", {
             description: `${flag.name} is ready to use.`,
@@ -186,14 +182,11 @@ export default function Dashboard() {
         },
         onError: (mutationError) => {
           const message = getApiErrorMessage(mutationError, "Could not create flag.");
-          setError(message);
           toast.error("Could not create flag", { description: message });
         },
       },
     );
   }
-
-  const alerts = projectsQuery.error || flagsQuery.error || error;
 
   const flagSidebar =
     projects.length > 0 && flags.length > 0 ? (
@@ -248,31 +241,6 @@ export default function Dashboard() {
               onValueChange={setSelectedFlagId}
               className="flag-tabs w-full"
             >
-              {alerts && (
-                <Alert
-                  variant={
-                    error || projectsQuery.error || flagsQuery.error ? "destructive" : "success"
-                  }
-                  className="mb-8 flex items-center justify-between rounded-lg border border-[var(--line)] bg-[var(--surface-1)]"
-                >
-                  <span className="font-medium">
-                    {error || projectsQuery.error?.message || flagsQuery.error?.message}
-                  </span>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      setError("");
-                    }}
-                    aria-label="Dismiss message"
-                    className="h-6 w-6 rounded-md p-0 hover:bg-[var(--surface-2)]"
-                  >
-                    ×
-                  </Button>
-                </Alert>
-              )}
-
               {/* Mobile flag browser - only show on small screens when we have flags */}
               <div className="mb-8 block md:hidden">
                 {flags.length > 0 && (
@@ -474,24 +442,19 @@ export default function Dashboard() {
                           value={newFlagName}
                           onChange={(event: ChangeEvent<HTMLInputElement>) => {
                             setNewFlagName(event.target.value);
-                            if (fieldError) setFieldError("");
                           }}
                           placeholder="e.g., checkout-redesign"
-                          aria-invalid={Boolean(fieldError)}
                           className="form-control-medium mt-1.5"
                         />
-                        <p
-                          className={fieldError ? "form-error" : "form-help"}
-                          role={fieldError ? "alert" : undefined}
-                        >
-                          {fieldError || "Use lowercase words separated by hyphens."}
-                        </p>
+                        <p className="form-help">Use lowercase words separated by hyphens.</p>
                       </div>
                     </div>
                     <DialogFooter className="form-actions pt-4">
                       <Button
                         type="submit"
-                        disabled={createFlag.isPending}
+                        disabled={
+                          createFlag.isPending || schemasQuery.isLoading || !schemasQuery.data?.[0]
+                        }
                         className="w-full bg-[var(--accent)] hover:bg-[var(--accent-hover)] focus:ring-[var(--accent-soft)]"
                       >
                         {createFlag.isPending ? (

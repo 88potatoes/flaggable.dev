@@ -1,6 +1,43 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@plugin "daisyui" {
+  themes: false;
+}
+@plugin "daisyui/theme" {
+  name: "flaggable";
+  default: true;
+  prefersdark: false;
+  color-scheme: light;
+  --color-base-100: #f5f6f4;
+  --color-base-200: #eef1f3;
+  --color-base-300: #dfe4e8;
+  --color-base-content: #111827;
+  --color-primary: #b93822;
+  --color-primary-content: #ffffff;
+  --color-secondary: #101b2d;
+  --color-secondary-content: #ffffff;
+  --color-accent: #b93822;
+  --color-accent-content: #ffffff;
+  --color-neutral: #101b2d;
+  --color-neutral-content: #ffffff;
+  --color-info: #2456c5;
+  --color-info-content: #ffffff;
+  --color-success: #087443;
+  --color-success-content: #ffffff;
+  --color-warning: #7a4b00;
+  --color-warning-content: #ffffff;
+  --color-error: #b42318;
+  --color-error-content: #ffffff;
+  --radius-selector: 0.5rem;
+  --radius-field: 0.5rem;
+  --radius-box: 0.75rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+}
 
 /* Shared shadcn primitives live in packages/ui. */
 @source "../../../packages/ui/src";

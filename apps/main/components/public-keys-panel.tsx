@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { Check, Copy, KeyRound, Plus } from "lucide-react";
-import { Alert } from "@flaggable/ui/alert";
 import { Badge } from "@flaggable/ui/badge";
 import { Button } from "@flaggable/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@flaggable/ui/card";
@@ -19,6 +19,12 @@ import { useMutateCreatePublicKey, useQueryPublicKeys } from "@/slices/public-ke
 
 export function PublicKeysPanel({ projectId }: { projectId: string }) {
   const query = useQueryPublicKeys(projectId);
+
+  useEffect(() => {
+    if (query.error) {
+      toast.error("Could not load public keys", { description: query.error.message });
+    }
+  }, [query.error]);
   const create = useMutateCreatePublicKey(projectId);
   const [rawKey, setRawKey] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -52,7 +58,6 @@ export function PublicKeysPanel({ projectId }: { projectId: string }) {
         </Button>
       </CardHeader>
       <CardContent>
-        {query.error && <Alert variant="destructive">{query.error.message}</Alert>}
         {!query.isLoading && !query.data?.length ? (
           <p className="py-6 text-sm text-muted-foreground">No public keys yet.</p>
         ) : (

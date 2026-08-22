@@ -1,6 +1,43 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@plugin "daisyui" {
+  themes: false;
+}
+@plugin "daisyui/theme" {
+  name: "flaggable";
+  default: true;
+  prefersdark: true;
+  color-scheme: dark;
+  --color-base-100: #0f141a;
+  --color-base-200: #151c24;
+  --color-base-300: #1c2631;
+  --color-base-content: #f1f4f6;
+  --color-primary: #f06445;
+  --color-primary-content: #21130f;
+  --color-secondary: #1c2631;
+  --color-secondary-content: #f1f4f6;
+  --color-accent: #f06445;
+  --color-accent-content: #21130f;
+  --color-neutral: #293542;
+  --color-neutral-content: #f1f4f6;
+  --color-info: #2456c5;
+  --color-info-content: #ffffff;
+  --color-success: #087443;
+  --color-success-content: #ffffff;
+  --color-warning: #f5c46b;
+  --color-warning-content: #21130f;
+  --color-error: #b42318;
+  --color-error-content: #ffffff;
+  --radius-selector: 0.5rem;
+  --radius-field: 0.5rem;
+  --radius-box: 0.75rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+}
 
 /* The shared sidebar primitives are authored in packages/ui, so Tailwind must scan them. */
 @source "../../../packages/ui/src";

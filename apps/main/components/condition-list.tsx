@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { toast } from "sonner";
 import { Plus, Settings, Lock, Unlock, AlertTriangle } from "lucide-react";
 import type { ConditionOperator, Flag } from "@flaggable/contracts";
 
@@ -47,7 +48,6 @@ export function ConditionList({
     conditionProperty: string;
   } | null>(null);
   const [isAdding, setIsAdding] = useState(false);
-  const [formError, setFormError] = useState("");
   const schemaQuery = useQuerySchema(flag.valueSchemaId);
   const isBooleanSchema = schemaQuery.data?.name === "Boolean";
   const conditionsQuery = useQueryConditions(flag.id);
@@ -63,18 +63,19 @@ export function ConditionList({
     event.preventDefault();
     const trimmedProperty = property.trim();
     if (!trimmedProperty) {
-      setFormError("Enter a property name.");
+      toast.error("Property required", { description: "Enter a property name to continue." });
       return;
     }
     if (!predicateValue.trim()) {
-      setFormError("Enter a value to match.");
+      toast.error("Match value required", { description: "Enter a value to match." });
       return;
     }
     if (!isBooleanSchema && !resultValue.trim()) {
-      setFormError("Enter the value this condition should return.");
+      toast.error("Return value required", {
+        description: "Enter the value this condition should return.",
+      });
       return;
     }
-    setFormError("");
     createCondition.mutate(
       {
         position: nextPosition,
@@ -88,10 +89,12 @@ export function ConditionList({
           setProperty("");
           setPredicateValue("");
           setResultValue("");
-          setFormError("");
           setIsAdding(false);
         },
-        onError: (error) => setFormError(error.message || "Could not create this condition."),
+        onError: (error) =>
+          toast.error("Could not create condition", {
+            description: error.message || "Please try again.",
+          }),
       },
     );
   }
@@ -324,12 +327,6 @@ export function ConditionList({
                     </div>
                   </div>
 
-                  {formError && (
-                    <p className="form-error" role="alert">
-                      {formError}
-                    </p>
-                  )}
-
                   <div className="form-actions pt-2">
                     <Button
                       type="submit"
@@ -344,7 +341,6 @@ export function ConditionList({
                       variant="ghost"
                       size="sm"
                       onClick={() => {
-                        setFormError("");
                         setIsAdding(false);
                       }}
                     >

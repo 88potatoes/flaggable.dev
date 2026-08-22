@@ -12,7 +12,6 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
-import { Alert } from "@flaggable/ui/alert";
 import { Badge } from "@flaggable/ui/badge";
 import { Button } from "@flaggable/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@flaggable/ui/card";
@@ -69,7 +68,6 @@ export function OnboardingWizard({
   const [isDemoFlagActive, setIsDemoFlagActive] = useState(true);
   const [copiedEnv, setCopiedEnv] = useState(false);
   const [copiedPrompt, setCopiedPrompt] = useState(false);
-  const [error, setError] = useState("");
 
   const schemasQuery = useQuerySchemas(projectId);
   const createProject = useMutateCreateProject();
@@ -82,11 +80,9 @@ export function OnboardingWizard({
     event.preventDefault();
     const name = newProjectName.trim();
     if (!name) {
-      setError("Enter a project name.");
+      toast.error("Project name required", { description: "Enter a project name to continue." });
       return;
     }
-    setError("");
-
     createProject.mutate(
       { name },
       {
@@ -113,7 +109,9 @@ export function OnboardingWizard({
           setStep("flag");
         },
         onError: (err) => {
-          setError(err.message || "Failed to create project.");
+          toast.error("Could not create project", {
+            description: err.message || "Please try again.",
+          });
         },
       },
     );
@@ -123,14 +121,14 @@ export function OnboardingWizard({
     event.preventDefault();
     const name = newFlagName.trim();
     if (!name) {
-      setError("Enter a flag name.");
+      toast.error("Flag name required", { description: "Enter a flag name to continue." });
       return;
     }
-    setError("");
-
     const schema = schemasQuery.data?.[0];
     if (!schema) {
-      setError("Default boolean schema is loading. Please try again in a moment.");
+      toast.error("Value schema unavailable", {
+        description: "Please wait for the default schema to finish loading, then try again.",
+      });
       return;
     }
 
@@ -148,7 +146,9 @@ export function OnboardingWizard({
           setStep("sdk");
         },
         onError: (err) => {
-          setError(err.message || "Failed to create feature flag.");
+          toast.error("Could not create feature flag", {
+            description: err.message || "Please try again.",
+          });
         },
       },
     );
@@ -249,12 +249,6 @@ export function OnboardingWizard({
         </div>
       </div>
 
-      {error && (
-        <Alert variant="destructive" className="mb-6">
-          {error}
-        </Alert>
-      )}
-
       {/* Step 1: Create Project */}
       {step === "project" && (
         <Card className="border shadow-sm">
@@ -279,15 +273,9 @@ export function OnboardingWizard({
                   value={newProjectName}
                   onChange={(e: ChangeEvent<HTMLInputElement>) => setNewProjectName(e.target.value)}
                   required
-                  aria-invalid={Boolean(error)}
                   className="form-control-medium mt-1.5"
                 />
-                <p
-                  className={error ? "form-error" : "form-help"}
-                  role={error ? "alert" : undefined}
-                >
-                  {error || "You can rename or create more projects later."}
-                </p>
+                <p className="form-help">You can rename or create more projects later.</p>
               </div>
 
               <Button
@@ -336,7 +324,6 @@ export function OnboardingWizard({
                   value={newFlagName}
                   onChange={(e: ChangeEvent<HTMLInputElement>) => setNewFlagName(e.target.value)}
                   required
-                  aria-invalid={Boolean(error)}
                   className="form-control-medium mt-1.5 font-mono text-sm"
                 />
               </div>
@@ -366,7 +353,12 @@ export function OnboardingWizard({
 
               <Button
                 type="submit"
-                disabled={createFlag.isPending || !newFlagName.trim()}
+                disabled={
+                  createFlag.isPending ||
+                  !newFlagName.trim() ||
+                  schemasQuery.isLoading ||
+                  !schemasQuery.data?.[0]
+                }
                 className="bg-[var(--accent)] text-[var(--accent-foreground)] hover:bg-[var(--accent-hover)]"
               >
                 {createFlag.isPending ? (
